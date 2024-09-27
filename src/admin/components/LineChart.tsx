@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
@@ -12,7 +12,6 @@ import {
   MenuItem,
   SelectChangeEvent,
   List,
-  ListItem,
 } from "@mui/material";
 import line from "./Line.module.css";
 import axiosInstance from "../../utils/libs/axios";

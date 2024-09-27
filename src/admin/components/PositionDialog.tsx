@@ -21,7 +21,7 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
   const { t } = useTranslation('admin');
 
   const handleSave = async () => {
-    if(name == position?.name && departmentId == position?.department_id) {
+    if(name === position?.name && departmentId === position?.department_id) {
       alert('You choosing same thing');
     }
      else if (name.trim() !== '' && departmentId) {

@@ -5,7 +5,7 @@ import PieChartWithCustomizedLabel from "../components/pie";
 import SimpleBarChart from "../components/Bar";
 import AttendanceTable from "../components/Table/AttendanceTable";
 import { Column } from "../components/Table/types";
-import axiosInstance, {fetchDepartments, fetchPositions } from '../../utils/libs/axios';
+import axiosInstance, { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
 
 export interface Department {
   id: number;
@@ -20,7 +20,7 @@ export interface Position {
 }
 
 function AdminDashboardContent() {
-  const { t } = useTranslation('admin'); // Используем useTranslation для доступа к переводам
+  const { t } = useTranslation('admin');
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
@@ -53,7 +53,7 @@ function AdminDashboardContent() {
           setAttendanceStats(response.data.data);
         }
       } catch (err) {
-        console.error("Ошибка при получении данных o посещаемости:", err);
+        console.error("Error fetching attendance data:", err);
       }
     };
 
@@ -82,12 +82,12 @@ function AdminDashboardContent() {
     loadDepartments();
     loadPositions();
   }, []);
-  
+
   return (
     <>
       <div className="DashboardContainer">
         <div className="Chart-2">
-            <PieChartWithCustomizedLabel />
+          <PieChartWithCustomizedLabel />
         </div>
         <div className="Cards">
           <div className="Card">
@@ -96,7 +96,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('totalEmployee')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/total_employees.png")}></img>
+              <img src={require("../../shared/png/total_employees.png")} alt={t('totalEmployeesIconAlt') || 'Total Employees'} />
             </div>
           </div>
           <div className="Card">
@@ -105,7 +105,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('onTime')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/on_time.png")}></img>
+              <img src={require("../../shared/png/on_time.png")} alt={t('onTimeIconAlt') || 'On Time'} />
             </div>
           </div>
           <div className="Card">
@@ -114,7 +114,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('absent')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/absent.png")}></img>
+              <img src={require("../../shared/png/absent.png")} alt={t('absentIconAlt') || 'Absent'} />
             </div>
           </div>
           <div className="Card">
@@ -123,7 +123,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('lateArrival')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/late_arrival.png")}></img>
+              <img src={require("../../shared/png/late_arrival.png")} alt={t('lateArrivalIconAlt') || 'Late Arrival'} />
             </div>
           </div>
           <div className="Card">
@@ -132,7 +132,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('earlyDepartures')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/early_departures.png")}></img>
+              <img src={require("../../shared/png/early_departures.png")} alt={t('earlyDeparturesIconAlt') || 'Early Departures'} />
             </div>
           </div>
           <div className="Card">
@@ -141,21 +141,21 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('earlyCome')}</p>
             </div>
             <div className="icon">
-              <img src={require("../../shared/png/time-off.png")}></img>
+              <img src={require("../../shared/png/time-off.png")} alt={t('earlyComeIconAlt') || 'Early Come'} />
             </div>
           </div>
         </div>
       </div>
       <div className="Charts">
         <div className="Chart-1">
-            <LineChartComponent />
+          <LineChartComponent />
         </div>
         <div className="Chart-3">
-            <SimpleBarChart/>
+          <SimpleBarChart />
         </div>
       </div>
       <div className="TableSection">
-        <AttendanceTable departments={departments} positions={positions} columns={columns} showCalendar={true} tableTitle={t('common:table.title')}/>
+        <AttendanceTable departments={departments} positions={positions} columns={columns} showCalendar={true} tableTitle={t('common:table.title')} />
       </div>
     </>
   );
