@@ -1,6 +1,4 @@
 import axios from "axios";
-import { Console } from "console";
-
 
 const axiosInstance = () => {
   const defaultOptions = {

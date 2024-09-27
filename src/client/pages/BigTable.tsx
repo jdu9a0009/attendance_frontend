@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AttendanceTable from '../../admin/components/Table/AttendanceTable';
 import { Column } from '../../admin/components/Table/types';
-import axiosInstance, { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
+import { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
 
 
 export interface Department {

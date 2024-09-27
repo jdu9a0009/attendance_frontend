@@ -44,7 +44,7 @@ const MainContent: React.FC<MainContentProps> = ({
   handleTabChange,
   attendanceSummary,
   employeeId,
-  tableColumns,
+  // tableColumns,
 }) => {
   const { t, i18n } = useTranslation(['common', 'user']);
   const [checkInTime, setCheckInTime] = useState<string>('--:--');

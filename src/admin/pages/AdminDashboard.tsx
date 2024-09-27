@@ -8,7 +8,7 @@ import EmployeeListPage from "./EmployeeListPage";
 import CompanySettingsPage from "./CompanySettingsPage";
 import SideMenu from "../components/SideMenu";
 import { useTranslation } from "react-i18next";
-import axiosInstance, { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
+import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 
 interface AdminDashboardProps {
   onLogout: () => void;

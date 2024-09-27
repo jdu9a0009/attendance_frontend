@@ -7,7 +7,7 @@ import { format, parse, isValid } from 'date-fns';
 import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material';
 import { LatLngTuple } from 'leaflet';
 import MapComponent from '../components/MapComponent'; 
-import axiosInstance, { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
+import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
 interface CompanySettings {
