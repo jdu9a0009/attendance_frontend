@@ -344,7 +344,7 @@ const adminResources = {
         pageTitle: '従業員リスト',
         createButton: '作成',
         uploadButton: 'ファイルをアップロード',
-        downloadQRCodesButton: 'Download QR Codes',
+        downloadQRCodesButton: 'すべてのQRコード',
       },
 
       employeeTable: {
@@ -358,7 +358,7 @@ const adminResources = {
         title: '従業員リスト',
         editBtn: '編集',
         deleteBtn: '削除',
-        downloadQRCodeBtn: 'Download QR Code',
+        downloadQRCodeBtn: 'QRコード',
       },
 
       createEmployeeModal: {

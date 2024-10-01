@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 const axiosInstance = () => {
   const defaultOptions = {
     baseURL: "https://attendance-backend-24xu.onrender.com/api/v1",
@@ -15,7 +16,7 @@ const axiosInstance = () => {
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
     // console.log('Токен:', token);
-    // console.log('Данные запроса:', config.data);
+    console.log('Данные запроса:', config.data);
 
     return config;
   });
@@ -191,29 +192,36 @@ export const updateCompanySettings = async (settings: FormData) => {
 
 export const downloadEmployeeQRCode = async (employee_id: string) => {
   try {
-    // Логирование перед запросом
     console.log(`Отправляем запрос для скачивания QR-кода сотрудника с employee_id: ${employee_id}`);
     
-    const response = await axiosInstance().get(`/user/qrcode/`, {
-      params: { employee_id }, // Передаем employee_id как query-параметр
-      responseType: 'blob', // Указываем тип ответа blob для работы с файлами
+    const response = await axiosInstance().get(`/user/qrcode`, {
+      params: { employee_id },
+      responseType: 'blob',
     });
-
-    // Логирование полученного ответа
-    console.log('Ответ на запрос:', response);
-
-    // Создаем URL для скачивания файла
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `employee_${employee_id}_qrcode.png`); // Имя загружаемого файла
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    return response.data;
+    
+    console.log('Ответ получен:', response);
+    
+    if (response && response.status === 200 && response.data) {
+      const blob = new Blob([response.data], { type: 'image/png' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `employee_${employee_id}_qrcode.png`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return response.data;
+    } else {
+      throw new Error('Не удалось скачать QR-код, сервер вернул некорректный ответ.');
+    }
   } catch (error) {
     console.error('Ошибка при скачивании QR-кода сотрудника:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Статус ответа:', error.response.status);
+      console.error('Данные ответа:', error.response.data);
+    }
     throw error;
   }
 };
@@ -227,12 +235,3 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
 
   return response.data; // Return the response.data, which will be of type Blob
 };
-
-
-
-
-
-
-
-
-
