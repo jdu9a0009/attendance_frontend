@@ -195,7 +195,7 @@ export const downloadEmployeeQRCode = async (employee_id: string) => {
     console.log(`Отправляем запрос для скачивания QR-кода сотрудника с employee_id: ${employee_id}`);
     
     console.log('Перед выполнением запроса');
-    const response = await axiosInstance().get(`/user/qrcode/`, {
+    const response = await axiosInstance().get(`/user/qrcode`, {
       params: { employee_id },
       responseType: 'blob',
     });
