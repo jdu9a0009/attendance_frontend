@@ -3,7 +3,7 @@ import axios from "axios";
 
 const axiosInstance = () => {
   const defaultOptions = {
-    baseURL: "http://104.248.251.150:8080/api/v1",
+    baseURL: "https://api.eduflow.uz/api/v1",
     headers: {
       "Content-Type": "application/json",
     },
