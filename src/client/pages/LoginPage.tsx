@@ -18,7 +18,7 @@ interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
-  const [employee_id, setEmployeeId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +30,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     setError('');
     setIsLoading(true);
 
-    if (!employee_id || !password) {
+    if (!email || !password) {
       setError('Please fill in all fields');
       setIsLoading(false);
       return;
     }
 
     try {
-      console.log('Попытка входа с ID:', employee_id);
+      console.log('Попытка входа с email:', email);
       const response = await axiosInstance().post("/sign-in", {
-        employee_id: employee_id,
+        email: email,
         password: password,
       });
 
@@ -51,14 +51,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
-        // console.log('Токены сохранены в localStorage:', { accessToken, refreshToken });
 
         const tempEmployeeData: Employee = {
-          id: employee_id,
-          username: response.data.employee_id || 'Unknown',
+          id: response.data.data.employee_id || 'Unknown',
+          username: response.data.data.employee_id || 'Unknown',
           password: '',
           role: response.data.data.role || 'employee',
-          position: response.data.position || 'Unknown',
+          position: response.data.data.position || 'Unknown',
           checkInTime: null,
           checkOutTime: null,
           location: 'Unknown',
@@ -71,11 +70,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           },
         };
 
-        // console.log('Сохранение данных сотрудника в localStorage:', tempEmployeeData);
         localStorage.setItem("employeeData", JSON.stringify(tempEmployeeData));
         onLoginSuccess(tempEmployeeData);
         
-        // Обновленная логика перенаправления
         console.log('Перенаправление на основе роли:', tempEmployeeData.role);
         if (tempEmployeeData.role === 'ADMIN') {
           navigate("/admin");
@@ -149,13 +146,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             margin="normal"
             required
             fullWidth
-            id="employee_id"
-            label="社員ID"
-            name="employee_id"
-            autoComplete="employee_id"
+            id="email"
+            label="メールアドレス"
+            name="email"
+            autoComplete="email"
             autoFocus
-            value={employee_id}
-            onChange={(e) => setEmployeeId(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
             margin="normal"
