@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL_MONTHLY = 'https://attendance-backend-24xu.onrender.com/api/v1/user/monthly';
-const API_BASE_URL_WEEKLY = 'https://attendance-backend-24xu.onrender.com/api/v1/user/statistics';
+const API_BASE_URL_MONTHLY = 'http://104.248.251.150:8080/api/v1/user/monthly';
+const API_BASE_URL_WEEKLY = 'http://104.248.251.150:8080/api/v1/user/statistics';
 
 // Функция для получения данных для карточек (ежемесячная статистика)
 export const getMonthlyAttendanceData = async (year: number, month: number) => {
@@ -42,10 +42,10 @@ export const getWeeklyTimesheetData = async (year: number, month: number, interv
     const token = localStorage.getItem('access_token');
 
     console.log('Отправляемые данные (Weekly):', { month: monthFormatted, interval });
-    console.log('URL запроса (Weekly):', 'https://attendance-backend-24xu.onrender.com/api/v1/user/statistics');
+    console.log('URL запроса (Weekly):', 'http://104.248.251.150:8080/api/v1/user/statistics');
     console.log('Токен авторизации (Weekly):', token ? 'Присутствует' : 'Отсутствует');
 
-    const response = await axios.get('https://attendance-backend-24xu.onrender.com/api/v1/user/statistics', {
+    const response = await axios.get('http://104.248.251.150:8080/api/v1/user/statistics', {
       params: {
         month: monthFormatted,
         interval: interval,
