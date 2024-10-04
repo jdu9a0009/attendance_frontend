@@ -1,6 +1,10 @@
 # Build stage
 FROM node:18.18.2-alpine as build
 
+RUN mkdir /app
+
+ADD . /app
+
 WORKDIR /app
 
 COPY package*.json ./
