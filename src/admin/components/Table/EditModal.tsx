@@ -12,7 +12,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { TableData } from "./types";
-import axiosInstance, { updateUser } from "../../../utils/libs/axios";
+import { updateUser } from "../../../utils/libs/axios";
 
 interface EditModalProps {
   open: boolean;

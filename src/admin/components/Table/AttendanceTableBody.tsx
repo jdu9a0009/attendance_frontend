@@ -11,18 +11,6 @@ interface AttendanceTableBodyProps {
   onDelete?: (id: number) => void;
 }
 
-// const handleDownloadQRCode = (employeeId: number) => {
-//   // Логика для генерации или получения QR-кода сотрудника
-//   console.log(`Downloading QR code for employee ID: ${employeeId}`);
-//   // Пример для скачивания, если QR-код генерируется и доступен по URL
-//   const qrCodeUrl = `user/qrcode/${employeeId}`; // Пример ссылки для скачивания
-//   const link = document.createElement('a');
-//   link.href = qrCodeUrl;
-//   link.download = `employee_${employeeId}_qrcode.png`;
-//   link.click();
-// };
-
-
 const formatValue = (value: DateOrString | boolean, key?: string): string => {
   if (value === undefined || value === null) {
     // Special condition for checkOut to return "--:--"

@@ -57,7 +57,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterState>({});
   const [filteredData, setFilteredData] = useState<TableData[]>(data);
-  const [isCalendarOpen, setCalendarOpen] = useState(false);
+  const [setCalendarOpen] = useState(false);
   const [pendingSearch, setPendingSearch] = useState("");
   const { t } = useTranslation('common');
 
@@ -138,13 +138,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     }));
   };
 
-  const handleCalendarOpen = () => {
-    setCalendarOpen(true);
-  };
+  // const handleCalendarOpen = () => {
+  //   setCalendarOpen(true);
+  // };
 
-  const handleCalendarClose = () => {
-    setCalendarOpen(false);
-  };
+  // const handleCalendarClose = () => {
+  //   setCalendarOpen(false);
+  // };
 
   // Вычисляем данные для текущей страницы
   const paginatedData = filteredData.slice(

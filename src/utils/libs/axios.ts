@@ -3,7 +3,7 @@ import axios from "axios";
 
 const axiosInstance = () => {
   const defaultOptions = {
-    baseURL: "https://attendance-backend-24xu.onrender.com/api/v1",
+    baseURL: "https://api.eduflow.uz/api/v1",
     headers: {
       "Content-Type": "application/json",
     },
