@@ -32,6 +32,17 @@ export interface FilterState {
     filterValues?: string[];
   }
 
+
+export interface GetDashboardlist {
+  id: number;
+  employee_id: string | null;
+  department: string | null;
+  employee_count: string | null;
+  full_name: string | null;
+  status: boolean | null;
+}
+
+
   
 
   

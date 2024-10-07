@@ -6,6 +6,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import DepartmentPositionManagement from "./DepartmentPositionManagement";
 import EmployeeListPage from "./EmployeeListPage";
 import CompanySettingsPage from "./CompanySettingsPage";
+import NewTablePage from "./NewTablePage";
 import SideMenu from "../components/SideMenu";
 import { useTranslation } from "react-i18next";
 import { fetchCompanySettings } from '../../utils/libs/axios';
@@ -95,6 +96,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <Route path="/department-and-position" element={<DepartmentPositionManagement />} />
               <Route path="/employee-edit" element={<EmployeeListPage />} />
               <Route path="/company-settings" element={<CompanySettingsPage />} />
+              <Route path="/new-table" element={<NewTablePage />} />
             </Routes>
           </div>
         </Grid>

@@ -1,9 +1,10 @@
 import axios from "axios";
+import { GetDashboardlist } from '../../admin/components/Table/types';
 
 
 const axiosInstance = () => {
   const defaultOptions = {
-    baseURL: "https://api.elkonterm.uz/api/v1/admin/users/v1",
+    baseURL: "https://api.eduflow.uz/api/v1",
     headers: {
       "Content-Type": "application/json",
     },
@@ -234,4 +235,21 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
   console.log("Размер полученного PDF:", response.data.size, "байт");
 
   return response.data; // Return the response.data, which will be of type Blob
+};
+
+// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
+export const fetchDashboardList = async (): Promise<GetDashboardlist[]> => {
+  try {
+    const response = await axiosInstance().get('/user/dashboardlist'); // Запрос к нужному эндпоинту
+    if (response.data.status) {
+      const dashboardList = response.data.data.results;
+      return dashboardList; // Возвращаем данные списка
+      
+    } else {
+      throw new Error('Failed to fetch dashboard list');
+    }
+  } catch (error) {
+    console.error('Error fetching dashboard list:', error);
+    throw error;
+  }
 };
