@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { fetchDashboardList } from '../../../utils/libs/axios';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { useTranslation } from 'react-i18next';
 
 interface Employee {
   id: number;
@@ -54,12 +55,15 @@ const PageIndicator = styled(Typography)(({ theme }) => ({
   margin: theme.spacing(0, 2),
 }));
 
+
+
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [organizedData, setOrganizedData] = useState<OrganizedData>({});
   const [pages, setPages] = useState<DeptInfo[][]>([]);
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
+  const { t } = useTranslation(['admin']);
 
   useEffect(() => {
     const loadServerData = async () => {
@@ -159,7 +163,7 @@ const NewDepartmentTable: React.FC = () => {
               {pages[currentPage]?.map((deptInfo, index) => (
                 <StyledTableCell key={index}>
                   <strong>{deptInfo.dept}</strong>
-                  {deptInfo.startIndex > 0 ? ' (прод.)' : ''}
+                  {deptInfo.startIndex > 0 ? ` ${t('newTable.continued')}` : ''}
                 </StyledTableCell>
               ))}
             </TableRow>
@@ -174,18 +178,18 @@ const NewDepartmentTable: React.FC = () => {
             disabled={currentPage === 0}
             startIcon={<NavigateBeforeIcon />}
           >
-            Назад
+            {t('newTable.back')}
           </Button>
           <Button
             onClick={() => setCurrentPage((prev) => Math.min(pages.length - 1, prev + 1))}
             disabled={currentPage === pages.length - 1}
             endIcon={<NavigateNextIcon />}
           >
-            Вперед
+            {t('newTable.forward')}
           </Button>
         </ButtonGroup>
         <PageIndicator variant="h6">
-          Страница {currentPage + 1} из {pages.length}
+        {t('newTable.page')} {currentPage + 1} {t('newTable.of')} {pages.length}
         </PageIndicator>
       </PaginationContainer>
     </div>

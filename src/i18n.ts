@@ -197,6 +197,7 @@ const adminResources = {
         departmentAndPosition: 'Department and Position',
         employeeEdit: 'Edit Employees',
         companySettings: 'Company Settings',
+        newTable: 'New Table',
       },
       pieChart: {
         come: 'Come',
@@ -222,6 +223,14 @@ const adminResources = {
         editBtn: 'Edit',
         deleteBtn: 'Delete',
         downloadQRCodeBtn: 'Download QR Code', 
+      },
+
+      newTable: {
+        page: 'Page',
+        of: 'of', 
+        back: 'back',
+        forward: 'forward',
+        continued: '(continued)',
       },
 
       createEmployeeModal: {
@@ -315,6 +324,14 @@ const adminResources = {
         label: '部署名',
       },
 
+      newTable: {
+        page: 'ページ',
+        of: '/',
+        back: '戻る',
+        forward: '前へ',
+        continued: '(続き)',
+      },
+
       positionTable: {
         positionName: '役職名',
         action: 'アクション',
@@ -333,6 +350,7 @@ const adminResources = {
         departmentAndPosition: '部署と役職',
         employeeEdit: '従業員の編集',
         companySettings: '会社の設定',
+        newTable: '新しいテーブル',
       },
 
       pieChart: {
