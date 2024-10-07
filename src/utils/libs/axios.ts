@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GetDashboardlist } from '../../admin/components/Table/types';
+import { Employee, Department } from '../../admin/components/Table/types';
 
 
 const axiosInstance = () => {
@@ -17,7 +17,7 @@ const axiosInstance = () => {
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
     // console.log('Токен:', token);
-    console.log('Данные запроса:', config.data);
+    // console.log('Данные запроса:', config.data);
 
     return config;
   });
@@ -162,7 +162,7 @@ export const fetchCompanySettings = async () => {
   try {
     const response = await axiosInstance().get('/company_info/list');
     if (response.data.status) {
-      console.log(response.data);
+      // console.log(response.data);
       return response.data.data;
     }
     throw new Error('Failed to fetch company settings');
@@ -238,18 +238,27 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
 };
 
 // Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
-export const fetchDashboardList = async (): Promise<GetDashboardlist[]> => {
+export const fetchDashboardList = async (page: number): Promise<{ employee_list: Employee[], total_employee_count: number, department: Department[] }> => {
   try {
-    const response = await axiosInstance().get('/user/dashboardlist'); // Запрос к нужному эндпоинту
+    console.log(`Отправляем запрос на страницу ${page}`);
+    const response = await axiosInstance().get(`/user/dashboardlist`, {
+      params: { page }
+    });
+    console.log('Ответ получен:', response.data);
+
     if (response.data.status) {
-      const dashboardList = response.data.data.results;
-      return dashboardList; // Возвращаем данные списка
-      
+      const employee_list = response.data.data.employee_list;
+      const total_employee_count = response.data.data.total_employee_count || 0;
+      const department = response.data.data.department || [];
+      return { employee_list, total_employee_count, department };
     } else {
-      throw new Error('Failed to fetch dashboard list');
+      throw new Error('Не удалось получить список сотрудников');
     }
   } catch (error) {
-    console.error('Error fetching dashboard list:', error);
+    console.error('Ошибка при запросе списка сотрудников:', error);
     throw error;
   }
 };
+
+
+

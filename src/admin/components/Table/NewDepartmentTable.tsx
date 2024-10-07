@@ -1,19 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, ButtonGroup, Typography, Box } from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  ButtonGroup,
+  Typography,
+  Box,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { fetchDashboardList } from '../../../utils/libs/axios';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
+import { Employee, Department } from './types';
 
-interface Employee {
-  id: number;
-  employee_id: string | null;
-  department: string | null;
-  employee_count: string | null;
-  full_name: string | null;
-  status: boolean | null;
-}
+// interface Employee {
+//   id: number;
+//   employee_id: string | null;
+//   department: string | null;
+//   full_name: string | null;
+//   status: boolean | null;
+// }
+
+// interface Department {
+//   department: string;
+//   employee_count: string;
+// }
 
 interface OrganizedData {
   [key: string]: Employee[];
@@ -55,93 +72,136 @@ const PageIndicator = styled(Typography)(({ theme }) => ({
   margin: theme.spacing(0, 2),
 }));
 
-
-
 const NewDepartmentTable: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [organizedData, setOrganizedData] = useState<OrganizedData>({});
-  const [pages, setPages] = useState<DeptInfo[][]>([]);
-  const maxColumnsPerPage = 10;
-  const maxEmployeesPerColumn = 20;
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { t } = useTranslation(['admin']);
 
-  useEffect(() => {
-    const loadServerData = async () => {
-      try {
-        const serverData = await fetchDashboardList();
-        organizeData(serverData);
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
+  const maxColumnsPerPage = 10;
+  const maxEmployeesPerColumn = 20;
+
+  const loadServerData = async (page: number) => {
+    try {
+      setLoading(true);
+      console.log(`Выполняется запрос для страницы ${page}`);
+      const { employee_list, total_employee_count, department } = await fetchDashboardList(page);
+      console.log('Список сотрудников:', employee_list);
+      
+      if (!employee_list || employee_list.length === 0) {
+        setError("Нет данных для отображения.");
+        return;
       }
-    };
+      
+      console.log('Организуем данные');
+      const organized = organizeData(employee_list);
+      setOrganizedData(organized);
+      setDepartments(department);
+      
+    } catch (error) {
+      console.error("Ошибка при получении данных:", error);
+      setError("Ошибка при загрузке данных.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    loadServerData(currentPage);
+  }, [currentPage]);
 
-    loadServerData();
-  }, []);
-
-  const organizeData = (data: Employee[]) => {
+  const organizeData = (employeeList: Employee[]): OrganizedData => {
     const organized: OrganizedData = {};
-    data.forEach((employee) => {
+  
+    employeeList.forEach((employee) => {
       if (employee.department) {
         if (!organized[employee.department]) {
           organized[employee.department] = [];
         }
         organized[employee.department].push(employee);
+      } else {
+        console.warn('Сотрудник без департамента:', employee);
       }
     });
-    setOrganizedData(organized);
   
-    const newPages: DeptInfo[][] = [];
+    console.log('Организованные данные:', organized);
+    return organized;
+  };
+
+  const pages = useMemo(() => {
+    const result: DeptInfo[][] = [];
     let currentPage: DeptInfo[] = [];
     let currentPageCount = 0;
-  
-    Object.entries(organized).forEach(([dept, employees]) => {
-      const columnsNeeded = Math.ceil(employees.length / maxEmployeesPerColumn);
-  
-      // Проверяем, поместятся ли все столбцы департамента на текущей странице
+
+    Object.keys(organizedData).forEach((dept) => {
+      const columnsNeeded = Math.ceil(organizedData[dept]?.length / maxEmployeesPerColumn) || 0;
+
       if (currentPageCount + columnsNeeded > maxColumnsPerPage) {
-        // Если не помещаются, добавляем текущую страницу и начинаем новую
-        newPages.push(currentPage);
+        if (currentPage.length > 0) {
+          result.push(currentPage);
+        }
         currentPage = [];
         currentPageCount = 0;
       }
-  
-      // Добавляем столбцы департамента на текущую страницу
+
       for (let i = 0; i < columnsNeeded; i++) {
-        const deptInfo: DeptInfo = { dept, startIndex: i * maxEmployeesPerColumn };
+        const deptInfo: DeptInfo = { dept: dept, startIndex: i * maxEmployeesPerColumn };
         currentPage.push(deptInfo);
         currentPageCount++;
       }
     });
-  
-    // Добавляем последнюю страницу, если она не пустая
+
     if (currentPage.length > 0) {
       while (currentPage.length < maxColumnsPerPage) {
         currentPage.push({ dept: '', startIndex: 0 });
       }
-      newPages.push(currentPage);
+      result.push(currentPage);
     }
-  
-    setPages(newPages);
-  };
-  
+
+    console.log('Сгенерированные страницы:', result);
+    return result;
+  }, [organizedData]);
 
   const renderTableContent = () => {
-    if (currentPage >= pages.length) return null;
+    console.log('Вызов renderTableContent');
+    console.log('Pages:', pages);
+    console.log('Current Page:', currentPage);
+    console.log('Organized Data:', organizedData);
 
-    const currentPageData = pages[currentPage];
+    if (pages.length === 0) {
+      console.log('Нет сгенерированных страниц');
+      return null;
+    }
+  
+    const currentPageIndex = currentPage - 1;
+    if (!pages[currentPageIndex] || pages[currentPageIndex].length === 0) {
+      console.log('Нет данных для текущей страницы:', currentPage);
+      return null;
+    }
+  
+    const currentPageData = pages[currentPageIndex];
+  
+    console.log('Текущие данные страницы:', currentPageData);
+  
     const rows = [];
-
+  
     for (let i = 0; i < maxEmployeesPerColumn; i++) {
       const row = (
         <TableRow key={i}>
           {currentPageData.map((deptInfo, columnIndex) => {
             const employee = organizedData[deptInfo.dept]?.[deptInfo.startIndex + i];
+            console.log(`Строка ${i}, Колонка ${columnIndex}: Департамент ${deptInfo.dept}, Индекс ${deptInfo.startIndex + i}, Сотрудник:`, employee);
+  
             return (
               <StyledTableCell key={columnIndex}>
-                {employee && (
+                {employee ? (
                   <EmployeeCell status={employee.status}>
                     {employee.full_name}
                   </EmployeeCell>
+                ) : (
+                  <EmployeeCell status={null}>-</EmployeeCell>
                 )}
               </StyledTableCell>
             );
@@ -150,46 +210,61 @@ const NewDepartmentTable: React.FC = () => {
       );
       rows.push(row);
     }
-
+  
+    console.log('Сгенерированные строки:', rows);
     return rows;
   };
 
+  if (loading) {
+    return <Typography>Загрузка данных...</Typography>;
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
+
+  if (Object.keys(organizedData).length === 0) {
+    return <Typography>Нет данных для отображения.</Typography>;
+  }
+
   return (
     <div>
+      <Typography variant="h6">Данные загружены. Отображение таблицы:</Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              {pages[currentPage]?.map((deptInfo, index) => (
+              {pages[currentPage - 1]?.map((deptInfo, index) => (
                 <StyledTableCell key={index}>
                   <strong>{deptInfo.dept}</strong>
-                  {deptInfo.startIndex > 0 ? ` ${t('newTable.continued')}` : ''}
                 </StyledTableCell>
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>{renderTableContent()}</TableBody>
+          <TableBody>
+            {renderTableContent()}
+          </TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
         <ButtonGroup variant="contained" color="primary" size="large">
           <Button
-            onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-            disabled={currentPage === 0}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
             startIcon={<NavigateBeforeIcon />}
           >
             {t('newTable.back')}
           </Button>
           <Button
-            onClick={() => setCurrentPage((prev) => Math.min(pages.length - 1, prev + 1))}
-            disabled={currentPage === pages.length - 1}
+            onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
+            disabled={currentPage === pages.length}
             endIcon={<NavigateNextIcon />}
           >
             {t('newTable.forward')}
           </Button>
         </ButtonGroup>
         <PageIndicator variant="h6">
-        {t('newTable.page')} {currentPage + 1} {t('newTable.of')} {pages.length}
+          {t('newTable.page')} {currentPage} {t('newTable.of')} {pages.length}
         </PageIndicator>
       </PaginationContainer>
     </div>

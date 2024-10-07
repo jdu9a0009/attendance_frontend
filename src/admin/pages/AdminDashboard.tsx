@@ -25,9 +25,9 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     const getCompanyInfo = async () => {
       try {
         const data = await fetchCompanySettings();
-        console.log("Company data:", data);
+        // console.log("Company data:", data);
         setCompanyName(data.results.company_name || "");
-        console.log("Company name set to:", data.results.company_name);
+        // console.log("Company name set to:", data.results.company_name);
       } catch (error) {
         console.error("Ошибка при получении информации о компании:", error);
       }
