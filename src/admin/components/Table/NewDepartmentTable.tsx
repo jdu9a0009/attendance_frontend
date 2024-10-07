@@ -229,7 +229,7 @@ const NewDepartmentTable: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h6">Данные загружены. Отображение таблицы:</Typography>
+      
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
