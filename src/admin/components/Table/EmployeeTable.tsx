@@ -8,6 +8,7 @@ import {
   InputAdornment,
   Box,
   Typography,
+<<<<<<< HEAD
   IconButton,
   Modal,
   Button,
@@ -22,6 +23,16 @@ import { TableData, Column, FilterState } from "./types";
 import AttendanceTableHead from "./AttendanceTableHead";
 import AttendanceTableBody from "./AttendanceTableBody";
 import CalendarModal from "./CalendarModal";
+=======
+  Button,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+// import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import { TableData, Column, FilterState } from "./types";
+import AttendanceTableHead from "./AttendanceTableHead";
+import AttendanceTableBody from "./AttendanceTableBody";
+// import CalendarModal from "./CalendarModal";
+>>>>>>> suhrob2
 import axiosInstance from "../../../utils/libs/axios";
 import {deleteUser} from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
@@ -63,7 +74,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterState>({});
   const [filteredData, setFilteredData] = useState<TableData[]>(data);
+<<<<<<< HEAD
   const [isCalendarOpen, setCalendarOpen] = useState(false);
+=======
+  const [setCalendarOpen] = useState(false);
+>>>>>>> suhrob2
   const [pendingSearch, setPendingSearch] = useState("");
   const { t } = useTranslation('common');
 
@@ -144,6 +159,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     }));
   };
 
+<<<<<<< HEAD
   const handleCalendarOpen = () => {
     setCalendarOpen(true);
   };
@@ -151,6 +167,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const handleCalendarClose = () => {
     setCalendarOpen(false);
   };
+=======
+  // const handleCalendarOpen = () => {
+  //   setCalendarOpen(true);
+  // };
+
+  // const handleCalendarClose = () => {
+  //   setCalendarOpen(false);
+  // };
+>>>>>>> suhrob2
 
   // Вычисляем данные для текущей страницы
   const paginatedData = filteredData.slice(

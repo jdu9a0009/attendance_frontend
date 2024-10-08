@@ -20,7 +20,11 @@ function DepartmentDialog({ open, onClose, department, onSave }: DepartmentDialo
   const { t } = useTranslation('admin');
 
   const handleSave = async () => {
+<<<<<<< HEAD
     if (name == department?.name) {
+=======
+    if (name === department?.name) {
+>>>>>>> suhrob2
       alert('using same names');
     } else if (name.trim() !== '') {
       let savedDepartment;

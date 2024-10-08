@@ -5,7 +5,11 @@ import { ja, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import AttendanceSummary from './AttendanceSummary';
 import TabsComponent from './TabsComponent';
+<<<<<<< HEAD
 import { Column } from './Table/types';
+=======
+import { Column } from '../../admin/components/Table/types';
+>>>>>>> suhrob2
 import axiosInstance from '../../utils/libs/axios';
 import axios from 'axios';
 import AttendanceTable from '../../admin/components/Table/AttendanceTable';
@@ -44,7 +48,11 @@ const MainContent: React.FC<MainContentProps> = ({
   handleTabChange,
   attendanceSummary,
   employeeId,
+<<<<<<< HEAD
   tableColumns,
+=======
+  // tableColumns,
+>>>>>>> suhrob2
 }) => {
   const { t, i18n } = useTranslation(['common', 'user']);
   const [checkInTime, setCheckInTime] = useState<string>('--:--');

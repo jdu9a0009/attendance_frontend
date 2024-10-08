@@ -21,7 +21,11 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
   const { t } = useTranslation('admin');
 
   const handleSave = async () => {
+<<<<<<< HEAD
     if(name == position?.name && departmentId == position?.department_id) {
+=======
+    if(name === position?.name && departmentId === position?.department_id) {
+>>>>>>> suhrob2
       alert('You choosing same thing');
     }
      else if (name.trim() !== '' && departmentId) {

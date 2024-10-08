@@ -1,7 +1,7 @@
 import React from 'react';
-import NewDepartmentTable from '../../admin/components/Table/NewDepartmentTable'; 
+import NewDepartmentTable from '../components/Table/NewDepartmentTable'; 
 
-const BigTablePage = () => {
+const NewTablePage = () => {
   return (
     <div>
       <h1></h1>
@@ -11,4 +11,4 @@ const BigTablePage = () => {
   );
 };
 
-export default BigTablePage;
+export default NewTablePage;

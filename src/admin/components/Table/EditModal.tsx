@@ -12,7 +12,11 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { TableData } from "./types";
+<<<<<<< HEAD
 import axiosInstance, { updateUser } from "../../../utils/libs/axios";
+=======
+import { updateUser } from "../../../utils/libs/axios";
+>>>>>>> suhrob2
 
 interface EditModalProps {
   open: boolean;
