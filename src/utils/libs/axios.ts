@@ -237,7 +237,7 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
   return response.data; // Return the response.data, which will be of type Blob
 };
 
-// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
+// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist `
 export const fetchDashboardList = async (page: number): Promise<{ employee_list: Employee[], total_employee_count: number, department: Department[] }> => {
   try {
     console.log(`Отправляем запрос на страницу ${page}`);
