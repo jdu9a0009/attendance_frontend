@@ -1,10 +1,6 @@
 import React from 'react';
 import {
-<<<<<<< HEAD
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Box
-=======
   Table, TableBody, TableCell, TableHead, TableRow, Paper, Button, Box
->>>>>>> suhrob2
 } from '@mui/material';
 import { Position, Department } from '../pages/DepartmentPositionManagement'; 
 import { deletePosition } from '../../utils/libs/axios';

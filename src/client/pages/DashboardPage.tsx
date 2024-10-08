@@ -6,11 +6,7 @@ import Header from '../components/Header';
 import MainContent from '../components/MainContent';
 import '@fontsource/poppins/500.css';
 import { Employee } from '../../employees';
-<<<<<<< HEAD
-import { Column } from "../components/Table/types";
-=======
 import { Column } from '../../admin/components/Table/types';
->>>>>>> suhrob2
 
 interface DashboardPageProps {
   employeeData: Employee | null;

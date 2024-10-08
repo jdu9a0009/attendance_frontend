@@ -5,11 +5,7 @@ import PieChartWithCustomizedLabel from "../components/pie";
 import SimpleBarChart from "../components/Bar";
 import AttendanceTable from "../components/Table/AttendanceTable";
 import { Column } from "../components/Table/types";
-<<<<<<< HEAD
-import axiosInstance, {fetchDepartments, fetchPositions } from '../../utils/libs/axios';
-=======
 import axiosInstance, { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
->>>>>>> suhrob2
 
 export interface Department {
   id: number;
@@ -24,11 +20,7 @@ export interface Position {
 }
 
 function AdminDashboardContent() {
-<<<<<<< HEAD
-  const { t } = useTranslation('admin'); // Используем useTranslation для доступа к переводам
-=======
   const { t } = useTranslation('admin');
->>>>>>> suhrob2
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
@@ -61,11 +53,7 @@ function AdminDashboardContent() {
           setAttendanceStats(response.data.data);
         }
       } catch (err) {
-<<<<<<< HEAD
-        console.error("Ошибка при получении данных o посещаемости:", err);
-=======
         console.error("Error fetching attendance data:", err);
->>>>>>> suhrob2
       }
     };
 
@@ -94,20 +82,11 @@ function AdminDashboardContent() {
     loadDepartments();
     loadPositions();
   }, []);
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> suhrob2
   return (
     <>
       <div className="DashboardContainer">
         <div className="Chart-2">
-<<<<<<< HEAD
-            <PieChartWithCustomizedLabel />
-=======
           <PieChartWithCustomizedLabel />
->>>>>>> suhrob2
         </div>
         <div className="Cards">
           <div className="Card">
@@ -116,11 +95,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('totalEmployee')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/total_employees.png")}></img>
-=======
               <img src={require("../../shared/png/total_employees.png")} alt={t('totalEmployeesIconAlt') || 'Total Employees'} />
->>>>>>> suhrob2
             </div>
           </div>
           <div className="Card">
@@ -129,11 +104,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('onTime')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/on_time.png")}></img>
-=======
               <img src={require("../../shared/png/on_time.png")} alt={t('onTimeIconAlt') || 'On Time'} />
->>>>>>> suhrob2
             </div>
           </div>
           <div className="Card">
@@ -142,11 +113,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('absent')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/absent.png")}></img>
-=======
               <img src={require("../../shared/png/absent.png")} alt={t('absentIconAlt') || 'Absent'} />
->>>>>>> suhrob2
             </div>
           </div>
           <div className="Card">
@@ -155,11 +122,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('lateArrival')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/late_arrival.png")}></img>
-=======
               <img src={require("../../shared/png/late_arrival.png")} alt={t('lateArrivalIconAlt') || 'Late Arrival'} />
->>>>>>> suhrob2
             </div>
           </div>
           <div className="Card">
@@ -168,11 +131,7 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('earlyDepartures')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/early_departures.png")}></img>
-=======
               <img src={require("../../shared/png/early_departures.png")} alt={t('earlyDeparturesIconAlt') || 'Early Departures'} />
->>>>>>> suhrob2
             </div>
           </div>
           <div className="Card">
@@ -181,27 +140,13 @@ function AdminDashboardContent() {
               <p className="Card-text">{t('earlyCome')}</p>
             </div>
             <div className="icon">
-<<<<<<< HEAD
-              <img src={require("../../shared/png/time-off.png")}></img>
-=======
               <img src={require("../../shared/png/time-off.png")} alt={t('earlyComeIconAlt') || 'Early Come'} />
->>>>>>> suhrob2
             </div>
           </div>
         </div>
       </div>
       <div className="Charts">
         <div className="Chart-1">
-<<<<<<< HEAD
-            <LineChartComponent />
-        </div>
-        <div className="Chart-3">
-            <SimpleBarChart/>
-        </div>
-      </div>
-      <div className="TableSection">
-        <AttendanceTable departments={departments} positions={positions} columns={columns} showCalendar={true} tableTitle={t('common:table.title')}/>
-=======
           <LineChartComponent />
         </div>
         <div className="Chart-3">
@@ -210,7 +155,6 @@ function AdminDashboardContent() {
       </div>
       <div className="TableSection">
         <AttendanceTable departments={departments} positions={positions} columns={columns} showCalendar={true} tableTitle={t('common:table.title')} />
->>>>>>> suhrob2
       </div>
     </>
   );

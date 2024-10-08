@@ -7,10 +7,6 @@ import {
   Container,
   Box,
   useTheme,
-<<<<<<< HEAD
-  Link,
-=======
->>>>>>> suhrob2
   CircularProgress,
 } from '@mui/material';
 import axiosInstance from '../../utils/libs/axios';

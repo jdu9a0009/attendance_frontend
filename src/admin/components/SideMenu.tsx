@@ -4,10 +4,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EditIcon from '@mui/icons-material/Edit';
 import SettingsIcon from '@mui/icons-material/Settings'; // Иконка для настроек
-<<<<<<< HEAD
-=======
 import TableChartIcon from '@mui/icons-material/TableChart';
->>>>>>> suhrob2
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -60,10 +57,6 @@ function SideMenu() {
         </ListItemButton>
       </ListItem>
       <Divider />
-<<<<<<< HEAD
-      {/* Новый раздел для настроек компании */}
-=======
->>>>>>> suhrob2
       <ListItem disablePadding>
         <ListItemButton
           selected={location.pathname === '/admin/company-settings'}
@@ -76,11 +69,6 @@ function SideMenu() {
         </ListItemButton>
       </ListItem>
       <Divider />
-<<<<<<< HEAD
-    </List>
-  );
-};
-=======
       {/* Новая кнопка для перехода на страницу таблицы */}
       <ListItem disablePadding>
         <ListItemButton
@@ -97,6 +85,5 @@ function SideMenu() {
     </List>
   );
 }
->>>>>>> suhrob2
 
 export default SideMenu;

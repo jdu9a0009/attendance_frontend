@@ -6,16 +6,10 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import DepartmentPositionManagement from "./DepartmentPositionManagement";
 import EmployeeListPage from "./EmployeeListPage";
 import CompanySettingsPage from "./CompanySettingsPage";
-<<<<<<< HEAD
-import SideMenu from "../components/SideMenu";
-import { useTranslation } from "react-i18next";
-import axiosInstance, { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
-=======
 import NewTablePage from "./NewTablePage";
 import SideMenu from "../components/SideMenu";
 import { useTranslation } from "react-i18next";
 import { fetchCompanySettings } from '../../utils/libs/axios';
->>>>>>> suhrob2
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -31,15 +25,9 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
     const getCompanyInfo = async () => {
       try {
         const data = await fetchCompanySettings();
-<<<<<<< HEAD
-        console.log("Company data:", data);
-        setCompanyName(data.results.company_name || "");
-        console.log("Company name set to:", data.results.company_name);
-=======
         // console.log("Company data:", data);
         setCompanyName(data.results.company_name || "");
         // console.log("Company name set to:", data.results.company_name);
->>>>>>> suhrob2
       } catch (error) {
         console.error("Ошибка при получении информации о компании:", error);
       }
@@ -108,10 +96,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <Route path="/department-and-position" element={<DepartmentPositionManagement />} />
               <Route path="/employee-edit" element={<EmployeeListPage />} />
               <Route path="/company-settings" element={<CompanySettingsPage />} />
-<<<<<<< HEAD
-=======
               <Route path="/new-table" element={<NewTablePage />} />
->>>>>>> suhrob2
             </Routes>
           </div>
         </Grid>

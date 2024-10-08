@@ -153,11 +153,7 @@ const adminResources = {
     admin: {
       // Существующие переводы...
       totalEmployee: 'Total Employees',
-<<<<<<< HEAD
-      onTime: 'Over Time',
-=======
       onTime: 'On Time',
->>>>>>> suhrob2
       absent: 'Absent',
       lateArrival: 'Late Arrival',
       earlyDepartures: 'Early Departures',
@@ -201,10 +197,7 @@ const adminResources = {
         departmentAndPosition: 'Department and Position',
         employeeEdit: 'Edit Employees',
         companySettings: 'Company Settings',
-<<<<<<< HEAD
-=======
         newTable: 'New Table',
->>>>>>> suhrob2
       },
       pieChart: {
         come: 'Come',
@@ -215,11 +208,7 @@ const adminResources = {
         pageTitle: 'Employee List',
         createButton: 'Create',
         uploadButton: 'Upload File',
-<<<<<<< HEAD
-        downloadAllQRCodesButton: 'Download QR Codes',
-=======
         downloadQRCodesButton: 'Download QR Codes',
->>>>>>> suhrob2
       },
 
       employeeTable: {
@@ -236,8 +225,6 @@ const adminResources = {
         downloadQRCodeBtn: 'Download QR Code', 
       },
 
-<<<<<<< HEAD
-=======
       newTable: {
         page: 'Page',
         of: 'of', 
@@ -246,7 +233,6 @@ const adminResources = {
         continued: '(continued)',
       },
 
->>>>>>> suhrob2
       createEmployeeModal: {
         title: 'Create Employee',
         name: 'Name',
@@ -338,8 +324,6 @@ const adminResources = {
         label: '部署名',
       },
 
-<<<<<<< HEAD
-=======
       newTable: {
         page: 'ページ',
         of: '/',
@@ -348,7 +332,6 @@ const adminResources = {
         continued: '(続き)',
       },
 
->>>>>>> suhrob2
       positionTable: {
         positionName: '役職名',
         action: 'アクション',
@@ -367,10 +350,7 @@ const adminResources = {
         departmentAndPosition: '部署と役職',
         employeeEdit: '従業員の編集',
         companySettings: '会社の設定',
-<<<<<<< HEAD
-=======
         newTable: '新しいテーブル',
->>>>>>> suhrob2
       },
 
       pieChart: {
@@ -382,11 +362,7 @@ const adminResources = {
         pageTitle: '従業員リスト',
         createButton: '作成',
         uploadButton: 'ファイルをアップロード',
-<<<<<<< HEAD
-        downloadAllQRCodesButton: 'Download QR Codes',
-=======
         downloadQRCodesButton: 'すべてのQRコード',
->>>>>>> suhrob2
       },
 
       employeeTable: {
@@ -400,11 +376,7 @@ const adminResources = {
         title: '従業員リスト',
         editBtn: '編集',
         deleteBtn: '削除',
-<<<<<<< HEAD
-        downloadQRCodeBtn: 'QR Code',
-=======
         downloadQRCodeBtn: 'QRコード',
->>>>>>> suhrob2
       },
 
       createEmployeeModal: {

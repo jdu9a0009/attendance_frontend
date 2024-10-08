@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
-=======
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
->>>>>>> suhrob2
 import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
@@ -16,19 +12,12 @@ import {
   MenuItem,
   SelectChangeEvent,
   List,
-<<<<<<< HEAD
-  ListItem,
-=======
->>>>>>> suhrob2
 } from "@mui/material";
 import line from "./Line.module.css";
 import axiosInstance from "../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
-<<<<<<< HEAD
-=======
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
->>>>>>> suhrob2
 
 
 interface LineData {
@@ -232,19 +221,6 @@ function LineChartComponent() {
             ))}
           </Select>
           <List>
-<<<<<<< HEAD
-            {monthsOfYear.map((month, index) => (
-              <ListItem
-                button
-                key={index}
-                onClick={() => handleMonthChange(month)}
-                selected={selectedMonth === month}
-              >
-                {month}
-              </ListItem>
-            ))}
-          </List>
-=======
   {monthsOfYear.map((month, index) => (
     <ListItemButton
       key={index}
@@ -255,7 +231,6 @@ function LineChartComponent() {
     </ListItemButton>
   ))}
 </List>
->>>>>>> suhrob2
         </DialogContent>
         <DialogActions>
           <Button onClick={handleMonthDialogClose}>{t('ok')}</Button>
@@ -265,8 +240,4 @@ function LineChartComponent() {
   );
 }
 
-<<<<<<< HEAD
 export default LineChartComponent;
-=======
-export default LineChartComponent;
->>>>>>> suhrob2
