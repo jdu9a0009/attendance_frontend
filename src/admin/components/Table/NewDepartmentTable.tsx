@@ -83,50 +83,50 @@ const NewDepartmentTable: React.FC = () => {
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
-  const loadServerData = async (page: number) => {
-    try {
-      setLoading(true);
-      console.log(`Выполняется запрос для страницы ${page}`);
-      const { employee_list, total_employee_count, department } = await fetchDashboardList(page);
-      console.log('Список сотрудников:', employee_list);
-      
-      if (!employee_list || employee_list.length === 0) {
-        setError("Нет данных для отображения.");
-        return;
-      }
-      
-      console.log('Организуем данные');
-      const organized = organizeData(employee_list);
-      setOrganizedData(organized);
-      setDepartments(department);
-      
-    } catch (error) {
-      console.error("Ошибка при получении данных:", error);
-      setError("Ошибка при загрузке данных.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
   useEffect(() => {
+    const loadServerData = async (page: number) => {
+      try {
+        setLoading(true);
+        console.log(`Выполняется запрос для страницы ${page}`);
+        const { employee_list, total_employee_count, department } = await fetchDashboardList(page);
+        
+        if (!employee_list || employee_list.length === 0) {
+          setError("Нет данных для отображения.");
+          return;
+        }
+        
+        const organized = organizeData(employee_list, department);
+        setOrganizedData(organized);
+        setDepartments(department);
+      } catch (error) {
+        console.error("Ошибка при получении данных:", error);
+        setError("Ошибка при загрузке данных.");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     loadServerData(currentPage);
   }, [currentPage]);
 
-  const organizeData = (employeeList: Employee[]): OrganizedData => {
+  const organizeData = (employeeList: Employee[], departmentList: Department[]): OrganizedData => {
     const organized: OrganizedData = {};
   
+    // Сначала добавляем все департаменты
+    departmentList.forEach((dept) => {
+      organized[dept.department] = [];
+    });
+  
+    // Затем распределяем сотрудников по департаментам
     employeeList.forEach((employee) => {
       if (employee.department) {
-        if (!organized[employee.department]) {
-          organized[employee.department] = [];
-        }
         organized[employee.department].push(employee);
       } else {
         console.warn('Сотрудник без департамента:', employee);
       }
     });
   
-    console.log('Организованные данные:', organized);
+    console.log('Организованные данные (включая пустые департаменты):', organized);
     return organized;
   };
 
@@ -134,10 +134,11 @@ const NewDepartmentTable: React.FC = () => {
     const result: DeptInfo[][] = [];
     let currentPage: DeptInfo[] = [];
     let currentPageCount = 0;
-
-    Object.keys(organizedData).forEach((dept) => {
-      const columnsNeeded = Math.ceil(organizedData[dept]?.length / maxEmployeesPerColumn) || 0;
-
+  
+    // Проходим по всем департаментам (включая пустые)
+    departments.forEach((dept) => {
+      const columnsNeeded = Math.ceil((organizedData[dept.department]?.length || 0) / maxEmployeesPerColumn) || 1;
+  
       if (currentPageCount + columnsNeeded > maxColumnsPerPage) {
         if (currentPage.length > 0) {
           result.push(currentPage);
@@ -145,24 +146,25 @@ const NewDepartmentTable: React.FC = () => {
         currentPage = [];
         currentPageCount = 0;
       }
-
+  
       for (let i = 0; i < columnsNeeded; i++) {
-        const deptInfo: DeptInfo = { dept: dept, startIndex: i * maxEmployeesPerColumn };
+        const deptInfo: DeptInfo = { dept: dept.department, startIndex: i * maxEmployeesPerColumn };
         currentPage.push(deptInfo);
         currentPageCount++;
       }
     });
-
+  
     if (currentPage.length > 0) {
       while (currentPage.length < maxColumnsPerPage) {
         currentPage.push({ dept: '', startIndex: 0 });
       }
       result.push(currentPage);
     }
-
-    console.log('Сгенерированные страницы:', result);
+  
+    console.log('Сгенерированные страницы с пустыми департаментами:', result);
     return result;
-  }, [organizedData]);
+  }, [organizedData, departments]);
+  
 
   const renderTableContent = () => {
     console.log('Вызов renderTableContent');
@@ -192,8 +194,7 @@ const NewDepartmentTable: React.FC = () => {
         <TableRow key={i}>
           {currentPageData.map((deptInfo, columnIndex) => {
             const employee = organizedData[deptInfo.dept]?.[deptInfo.startIndex + i];
-            console.log(`Строка ${i}, Колонка ${columnIndex}: Департамент ${deptInfo.dept}, Индекс ${deptInfo.startIndex + i}, Сотрудник:`, employee);
-  
+            
             return (
               <StyledTableCell key={columnIndex}>
                 {employee ? (
