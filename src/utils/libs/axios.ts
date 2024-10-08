@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Employee, Department } from '../../admin/components/Table/types';
 
-
 const axiosInstance = () => {
   const defaultOptions = {
     baseURL: "https://api.eduflow.uz/api/v1",
