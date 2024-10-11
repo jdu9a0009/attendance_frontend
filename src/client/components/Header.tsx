@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Box, IconButton, Menu, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
+import axiosInstance from '../../utils/libs/axios';
 
 interface HeaderProps {
-  employeeId: string;
   onLogout: () => void;
   anchorEl: null | HTMLElement;
   handleMenuOpen: (event: React.MouseEvent<HTMLElement>) => void;
@@ -30,13 +30,36 @@ const CustomMenu = styled(Menu)(({ theme }) => ({
   },
 }));
 
-const Header: React.FC<HeaderProps> = ({ employeeId, onLogout, anchorEl, handleMenuOpen, handleMenuClose }) => {
+const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, handleMenuClose }) => {
   const { t, i18n } = useTranslation();
+  const [employeeName, setEmployeeName] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const changeLanguage = (event: SelectChangeEvent) => {
     i18n.changeLanguage(event.target.value);
     handleMenuClose();
   };
+
+  const fetchEmployeeName = async () => {
+    try {
+      const response = await axiosInstance().get('/user/dashboard');
+
+      // Проверка на наличие данных в ответе
+      if (response.data && response.data.status && response.data.employee) {
+        setEmployeeName(response.data.employee.full_name);
+      } else {
+        console.error('Не удалось получить имя сотрудника. Ответ API не содержит нужных данных.', response.data);
+      }
+    } catch (error) {
+      console.error('Ошибка при получении имени сотрудника:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployeeName();
+  }, []);
 
   return (
     <Box sx={{
@@ -48,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ employeeId, onLogout, anchorEl, handleM
       borderRadius: 3,
     }}>
       <Typography variant="h6" sx={{ ml: 2, color: '#ffffff', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>
-        {t('greeting', { employeeId })}
+        {loading ? t('loading') : employeeName ? t('greeting', { employeeId: employeeName }) : t('error')}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton 

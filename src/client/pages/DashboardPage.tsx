@@ -1,5 +1,3 @@
-// DashboardPage.tsx
-
 import React, { useState } from 'react';
 import { Container, Box } from '@mui/material';
 import Header from '../components/Header';
@@ -13,7 +11,6 @@ interface DashboardPageProps {
   onLogout: () => void;
 }
 
-// Пример данных для колонок
 const columns: Column[] = [
   { id: 'id', label: 'ID' },
   { id: 'status', label: 'Status', filterable: true, filterValues: ['Present', 'Absent'] },
@@ -59,7 +56,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ employeeData, onLogout })
     >
       <Header
         onLogout={onLogout}
-        employeeId={employeeData.id} // Изменено на employeeId
         anchorEl={anchorEl}
         handleMenuOpen={handleMenuOpen}
         handleMenuClose={handleMenuClose}
