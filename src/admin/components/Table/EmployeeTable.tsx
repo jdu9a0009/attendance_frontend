@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 // import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { TableData, Column, FilterState } from "./types";
+import { TableData, Column } from "./types";
 import AttendanceTableHead from "./AttendanceTableHead";
 import AttendanceTableBody from "./AttendanceTableBody";
 // import CalendarModal from "./CalendarModal";
@@ -42,6 +42,10 @@ export interface Position {
   department: string;
 }
 
+interface FilterState {
+  [key: string]: string[];
+}
+
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
   columns,
   onEdit,
@@ -55,11 +59,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<FilterState>({});
   const [filteredData, setFilteredData] = useState<TableData[]>(data);
   const [setCalendarOpen] = useState(false);
   const [pendingSearch, setPendingSearch] = useState("");
   const { t } = useTranslation('common');
+  const [filters, setFilters] = useState<FilterState>({
+    status: [],
+    department: [],
+    position: []
+  });
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -91,12 +99,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         ? row.full_name.toLowerCase().includes(searchTerm.toLowerCase())
         : false;
 
-      const matchesFilters = Object.entries(filters).every(([key, value]) => {
-        if (!value) return true;
+      const matchesFilters = Object.entries(filters).every(([key, values]) => {
+        if (!values || values.length === 0) return true;
         const rowValue = row[key as keyof TableData];
-        return rowValue
-          ? rowValue.toString().toLowerCase() === value.toLowerCase()
-          : false;
+        return rowValue ? values.includes(rowValue.toString()) : false;
       });
 
       return matchesSearch && matchesFilters;
@@ -131,7 +137,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     }
   };
 
-  const handleFilterChange = (columnId: string, value: string) => {
+  const handleFilterChange = (columnId: string, value: string[]) => {
     setFilters((prev) => ({
       ...prev,
       [columnId]: value,

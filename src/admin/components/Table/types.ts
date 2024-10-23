@@ -3,7 +3,7 @@
 export type DateOrString = Date | string | number | undefined;
 
 export interface FilterState {
-    [key: string]: string;
+    [key: string]: string[];
   }
 
   export interface TableData {
