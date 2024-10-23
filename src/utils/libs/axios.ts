@@ -51,15 +51,25 @@ export default axiosInstance;
 export const fetchDepartments = async () => {
   try {
     const response = await axiosInstance().get('/department/list');
+
+    console.log('Server response:', response.data); 
+
     if (response.data.status) {
       const departments = response.data.data.results;
-      // console.log('Fetched Departments:', departments);
-      return departments;
+      const nextDisplayNumber = response.data.data.displayNumber; 
+
+      console.log('Departments:', departments); // Логируем список департаментов
+      console.log('Next Display Number:', nextDisplayNumber); // Логируем следующее значение для display_number
+
+      return { departments, nextDisplayNumber }; 
     }
   } catch (error) {
     console.error('Error fetching departments:', error);
+    throw error; 
   }
 };
+
+
 
  export const fetchPositions = async () => {
   try {
@@ -75,13 +85,15 @@ export const fetchDepartments = async () => {
 };
 
 
-export const createDepartment = async (name: string) => {
-  const response = await axiosInstance().post('/department/create', { name });
+export const createDepartment = async (name: string, display_number: number) => {
+  const response = await axiosInstance().post('/department/create', { name, display_number });
+  console.log('Create Department Response:', response.data);
   return response.data;
 };
 
-export const updateDepartment = async (id: number, name: string) => {
-  const response = await axiosInstance().put(`/department/${id}`, { name });
+export const updateDepartment = async (id: number, name: string, display_number: number) => {
+  const response = await axiosInstance().patch(`/department/${id}`, { name, display_number });
+  console.log('Update Department Response:', response.data);
   return response.data;
 };
 

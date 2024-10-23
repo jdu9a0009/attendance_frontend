@@ -64,12 +64,22 @@ function AdminDashboardContent() {
     const loadDepartments = async () => {
       try {
         const response = await fetchDepartments();
-        setDepartments(response); 
+  
+        if (response) {
+          // Проверяем наличие данных перед их использованием
+          const { departments, nextDisplayNumber } = response;
+  
+          // Если departments и nextDisplayNumber существуют, устанавливаем их
+          if (departments && nextDisplayNumber !== undefined) {
+            setDepartments(departments);
+            // Здесь добавь логику для использования nextDisplayNumber
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch departments", error);
       }
     };
-
+  
     const loadPositions = async () => {
       try {
         const response = await fetchPositions();
@@ -78,10 +88,11 @@ function AdminDashboardContent() {
         console.error("Failed to fetch positions", error);
       }
     };
-
+  
     loadDepartments();
     loadPositions();
   }, []);
+  
 
   return (
     <>
