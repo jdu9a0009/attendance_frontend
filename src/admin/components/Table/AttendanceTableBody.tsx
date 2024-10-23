@@ -112,7 +112,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
                 {column.id === 'status' && value !== undefined ? (
                   editingRowId === row.id ? (
                     <Select
-                      value={value.toString()} // Convert boolean to string for the select value
+                      value={value.toString()} 
                       onChange={(e: SelectChangeEvent<string>) => handleStatusChange(row.id, e.target.value)}
                       displayEmpty
                       sx={{
