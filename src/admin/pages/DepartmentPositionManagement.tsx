@@ -7,11 +7,14 @@ import PositionDialog from '../components/PositionDialog';
 import '../../shared/styles/App.css';
 import { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
+// import { Department } from '../components/Table/types'
 
 export interface Department {
   id: number;
   name: string;
+  display_number: number; // Новый параметр
 }
+
 
 export interface Position {
   id: number;
@@ -19,6 +22,14 @@ export interface Position {
   department_id: number;
   department: string;
 }
+
+export interface DepartmentResponse {
+  count: number;
+  displayNumber: number;  
+  results: Department[];
+}
+
+
 
 
 function DepartmentPositionManagement() {
@@ -33,6 +44,8 @@ function DepartmentPositionManagement() {
   const [newPositionName, setNewPositionName] = useState('');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
   const [selectedDepartment] = useState('');
+  const [selectedDisplayNumber, setSelectedDisplayNumber] = useState<number>(0);
+  const [nextDisplayNumber, setNextDisplayNumber] = useState<number>(0);
   const { t } = useTranslation('admin');
   
   
@@ -43,15 +56,24 @@ function DepartmentPositionManagement() {
   
   const fetchData = async () => {
     try {
-      const departmentsData = await fetchDepartments();
-      const positionsData = await fetchPositions();
-      setDepartments(departmentsData);
-      setPositions(positionsData);
+      const data = await fetchDepartments();
       
+      if (data) {
+        const { departments, nextDisplayNumber } = data;
+        const positionsData = await fetchPositions();
+  
+        setDepartments(departments || []); // Если departments не определены, используем пустой массив
+        setPositions(positionsData || []);
+        setNextDisplayNumber(nextDisplayNumber || 1); // Если nextDisplayNumber не определен, используем 1 как значение по умолчанию
+      } else {
+        console.error("No data received from fetchDepartments");
+      }
     } catch (error) {
       console.error("Failed to fetch data", error);
     }
   };
+  
+  
   
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -86,25 +108,46 @@ function DepartmentPositionManagement() {
   const handleAddDepartment = () => {
     if (newDepartmentName.trim() !== '') {
       const newDepartment: Department = {
-        id: departments.length + 1,
+        id: departments.length + 1, // Это значение можно адаптировать в зависимости от логики вашего приложения
         name: newDepartmentName,
+        display_number: nextDisplayNumber, // Используем значение для нового департамента
       };
+  
       setDepartments([...departments, newDepartment]);
       handleCloseDepartmentDialog();
-    } 
+    }
   };
+  
+  
 
   const handleUpdateDepartment = () => {
     if (editingDepartment && newDepartmentName.trim() !== '') {
-      setDepartments(departments.map(d =>
-        d.id === editingDepartment.id ? { ...d, name: newDepartmentName } : d
-      ));
-      fetchData();
+      const updatedDepartments = [...departments];
+      const currentDisplayNumber = editingDepartment.display_number;
+      
+      // Если пользователь выбрал новый display_number
+      if (selectedDisplayNumber !== currentDisplayNumber) {
+        // Находим департамент с которым нужно поменяться
+        const departmentToSwap = updatedDepartments.find(
+          dep => dep.display_number === selectedDisplayNumber
+        );
+        
+        if (departmentToSwap) {
+          // Меняем display_number местами
+          departmentToSwap.display_number = currentDisplayNumber;
+          editingDepartment.display_number = selectedDisplayNumber;
+        }
+      }
+  
+      // Обновляем имя департамента
+      editingDepartment.name = newDepartmentName;
+      
+      setDepartments(updatedDepartments);
       handleCloseDepartmentDialog();
-    } else {
-      alert('Please enter a valid department name.');
     }
   };
+  
+  
 
   const handleAddPosition = () => {
     if (newPositionName.trim() !== '' && selectedDepartmentId) {
@@ -183,12 +226,15 @@ function DepartmentPositionManagement() {
             onEdit={handleEditDepartment}
             onDelete={handleDeleteDepartment}
           />
-          <DepartmentDialog
-            open={openDepartmentDialog}
-            onClose={handleCloseDepartmentDialog}
-            department={editingDepartment}
-            onSave={editingDepartment ? handleUpdateDepartment : handleAddDepartment}
-          />
+<DepartmentDialog
+  open={openDepartmentDialog}
+  onClose={handleCloseDepartmentDialog}
+  department={editingDepartment}
+  onSave={editingDepartment ? handleUpdateDepartment : handleAddDepartment}
+  departments={departments}
+  nextDisplayNumber={nextDisplayNumber} // Передаем nextDisplayNumber
+  onDisplayNumberChange={(number) => setSelectedDisplayNumber(number)}
+/>
         </>
       )}
 

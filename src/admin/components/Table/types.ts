@@ -41,8 +41,10 @@ export interface Employee {
 }
 
 export interface Department {
+  id: number;
   department: string;
   employee_count: string;
+  display_number: number;
 }
 
 
