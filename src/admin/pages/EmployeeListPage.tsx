@@ -84,7 +84,6 @@ const EmployeeListPage: React.FC = () => {
     try {
       await updateUser(
         updatedEmployee.id, 
-        updatedEmployee.employee_id!,
         updatedEmployee.password!,
         updatedEmployee.role!,
         updatedEmployee.full_name,
@@ -102,7 +101,6 @@ const EmployeeListPage: React.FC = () => {
   const handleCreateSave = async (newEmployee: TableData) => {
     try {
       const createdEmployee = await createUser(
-        newEmployee.employee_id!,
         newEmployee.password!,
         newEmployee.role!,
         newEmployee.full_name,

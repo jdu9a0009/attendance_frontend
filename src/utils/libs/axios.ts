@@ -117,13 +117,13 @@ export const deletePosition = async (id: number) => {
   return response.data;
 };
 
-export const createUser = async (employee_id: string, password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
-  const response = await axiosInstance().post(`/user/create`, {employee_id, password, role, full_name, department_id, position_id, phone, email});
+export const createUser = async ( password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
+  const response = await axiosInstance().post(`/user/create`, {password, role, full_name, department_id, position_id, phone, email});
   return response.data;
 };
 
-export const updateUser = async (id: number, employee_id: string, password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
-  const response = await axiosInstance().patch(`/user/${id}`, {employee_id, password, role, full_name, department_id, position_id, phone, email});
+export const updateUser = async (id: number, password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
+  const response = await axiosInstance().patch(`/user/${id}`, {password, role, full_name, department_id, position_id, phone, email});
   return response.data;
 };
 

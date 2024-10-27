@@ -63,7 +63,6 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
 
     try {
       const createdEmployee = await createUser(
-        newEmployee.employee_id!,
         newEmployee.password!,
         newEmployee.role!,
         newEmployee.full_name!,
@@ -104,16 +103,6 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             name="full_name"
             label={t('createEmployeeModal.name')}
             value={newEmployee.full_name || ""}
-            onChange={handleInputChange}
-            autoComplete="off"
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="employee_id"
-            label={t('createEmployeeModal.employeeId')}
-            value={newEmployee.employee_id || ""}
             onChange={handleInputChange}
             autoComplete="off"
             required
