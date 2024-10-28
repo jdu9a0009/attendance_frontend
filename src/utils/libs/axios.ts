@@ -140,20 +140,26 @@ export const uploadExcelFile = async (excell: FormData) => {
     excell.forEach((value, key) => {
       console.log(`${key}: ${value}`);
     });
-    
 
-    const response = await axiosInstance().post('user/create', excell, {
+    const response = await axiosInstance().post('user/create_excell', excell, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
+    console.log("Ответ сервера:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Ошибка при загрузке файла:', error);
+    // Проверяем, является ли ошибка ошибкой axios, и выводим соответствующее сообщение
+    if (axios.isAxiosError(error)) {
+      console.error('Ошибка при загрузке файла:', error.response?.data || error.message);
+    } else {
+      console.error('Неизвестная ошибка:', error);
+    }
     throw error;
   }
 };
+
 
 
 export const createByQRCode = async (employee_id: string, latitude: number, longitude: number) => {

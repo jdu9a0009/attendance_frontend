@@ -41,7 +41,6 @@ interface EmployeeData {
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(1),
   textAlign: 'center',
-  width: '10%',
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
 }));
@@ -66,7 +65,11 @@ const PaginationContainer = styled(Box)(({ theme }) => ({
 }));
 
 const PageIndicator = styled(Typography)(({ theme }) => ({
-  margin: theme.spacing(0, 2),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  lineHeight: 1, // Контролируемый line-height
+  padding: theme.spacing(2), // Немного внутреннего отступа для более ровного отображения
 }));
 
 const NewDepartmentTable: React.FC = () => {
@@ -75,7 +78,7 @@ const NewDepartmentTable: React.FC = () => {
   const [selectedDepartments, setSelectedDepartments] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [modalOpen, setModalOpen] = useState<boolean>(false); // состояние для модального окна
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
@@ -86,10 +89,9 @@ const NewDepartmentTable: React.FC = () => {
       try {
         setLoading(true);
         const { department } = await fetchDashboardList(currentPage);
-        
+
         if (department && department.length > 0) {
           setDepartmentData(department);
-          // При первой загрузке выбираем все департаменты
           if (selectedDepartments.size === 0) {
             setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
           }
@@ -114,13 +116,28 @@ const NewDepartmentTable: React.FC = () => {
   const pages = useMemo(() => {
     const result: DepartmentData[][] = [];
     let currentPageDepts: DepartmentData[] = [];
-    
+    let currentCol = 0;
+
     filteredDepartmentData.forEach((dept) => {
-      if (currentPageDepts.length >= maxColumnsPerPage) {
-        result.push(currentPageDepts);
-        currentPageDepts = [];
+      const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
+
+      if (currentCol + columnsNeeded > maxColumnsPerPage) {
+        if (currentPageDepts.length > 0) {
+          result.push(currentPageDepts);
+          currentPageDepts = [];
+        }
+        currentCol = 0;
       }
-      currentPageDepts.push(dept);
+
+      let remainingEmployees = [...dept.result];
+      while (remainingEmployees.length > 0) {
+        const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
+        currentPageDepts.push({
+          ...dept,
+          result: chunk
+        });
+        currentCol++;
+      }
     });
 
     if (currentPageDepts.length > 0) {
@@ -140,54 +157,39 @@ const NewDepartmentTable: React.FC = () => {
       }
       return newSet;
     });
-    setCurrentPage(1); // Сброс на первую страницу при изменении фильтров
+    setCurrentPage(1);
   };
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const renderDepartmentFilters = () => (
-    <FormGroup>
-      {departmentData.map((dept) => (
-        <FormControlLabel
-          key={dept.department_name}
-          control={
-            <Checkbox
-              checked={selectedDepartments.has(dept.department_name)}
-              onChange={() => handleDepartmentToggle(dept.department_name)}
-              sx={{
-                color: '#1976d2',
-                '&.Mui-checked': {
-                  color: '#1976d2',
-                },
-              }}
-            />
-          }
-          label={`${dept.department_name} (${dept.display_number})`}
-        />
-      ))}
-    </FormGroup>
-  );
-
   const renderTableContent = () => {
-    if (!pages[currentPage - 1]) return null;
+    const currentData = pages[currentPage - 1] || [];
+    const isLastPage = currentPage === pages.length;
+    const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
+    const columnWidth = `${100 / totalColumns}%`;
 
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
-        {pages[currentPage - 1].map((dept, colIndex) => {
+        {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
           return (
-            <StyledTableCell key={`${colIndex}-${rowIndex}`}>
+            <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee ? (
-                <EmployeeCell status={employee.status}>
-                  {employee.full_name}
-                </EmployeeCell>
+                <EmployeeCell status={employee.status}>{employee.full_name}</EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}
             </StyledTableCell>
           );
         })}
+        {isLastPage && currentData.length < maxColumnsPerPage &&
+          Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
+              <EmployeeCell status={null}>-</EmployeeCell>
+            </StyledTableCell>
+          ))
+        }
       </TableRow>
     ));
   };
@@ -217,7 +219,26 @@ const NewDepartmentTable: React.FC = () => {
           <Typography variant="h6" component="h2" gutterBottom>
             部門の選択
           </Typography>
-          {renderDepartmentFilters()}
+          <FormGroup>
+            {departmentData.map((dept) => (
+              <FormControlLabel
+                key={dept.department_name}
+                control={
+                  <Checkbox
+                    checked={selectedDepartments.has(dept.department_name)}
+                    onChange={() => handleDepartmentToggle(dept.department_name)}
+                    sx={{
+                      color: '#1976d2',
+                      '&.Mui-checked': {
+                        color: '#1976d2',
+                      },
+                    }}
+                  />
+                }
+                label={`${dept.department_name} (${dept.display_number})`}
+              />
+            ))}
+          </FormGroup>
           <Button variant="contained" onClick={handleCloseModal} sx={{ mt: 2 }}>
             閉じる
           </Button>
@@ -232,11 +253,16 @@ const NewDepartmentTable: React.FC = () => {
                   <strong>{dept.department_name}</strong>
                 </StyledTableCell>
               ))}
+              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
+                    <strong>-</strong>
+                  </StyledTableCell>
+                ))
+              }
             </TableRow>
           </TableHead>
-          <TableBody>
-            {renderTableContent()}
-          </TableBody>
+          <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
@@ -244,21 +270,19 @@ const NewDepartmentTable: React.FC = () => {
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            startIcon={<NavigateBeforeIcon />}
           >
-            戻る
+            <NavigateBeforeIcon />
           </Button>
+          <PageIndicator>
+            {currentPage} / {pages.length}
+          </PageIndicator>
           <Button
             onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
             disabled={currentPage === pages.length}
-            endIcon={<NavigateNextIcon />}
           >
-            次へ
+            <NavigateNextIcon />
           </Button>
         </ButtonGroup>
-        <PageIndicator variant="h6">
-          ページ {currentPage} / {pages.length}
-        </PageIndicator>
       </PaginationContainer>
     </div>
   );
