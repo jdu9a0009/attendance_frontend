@@ -30,6 +30,7 @@ const EmployeeListPage: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const { t } = useTranslation('admin');
+  const [userCreated, setUserCreated] = useState(false);
 
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeTable.employeeId') },
@@ -98,23 +99,12 @@ const EmployeeListPage: React.FC = () => {
     }
   };
 
-  const handleCreateSave = async (newEmployee: TableData) => {
-    try {
-      const createdEmployee = await createUser(
-        newEmployee.password!,
-        newEmployee.role!,
-        newEmployee.full_name,
-        newEmployee.department_id!,
-        newEmployee.position_id!,
-        newEmployee.phone!,
-        newEmployee.email!
-      );
-      setEmployeeData(prevData => [...prevData, { ...newEmployee, id: createdEmployee.id }]);
-      setCreateModalOpen(false);
-    } catch (error) {
-      console.error('Ошибка при создании нового сотрудника:', error);
-    }
+  const handleCreateSave = (newEmployee: TableData) => {
+    setEmployeeData(prevData => [...prevData, newEmployee]);
+    setCreateModalOpen(false);
+    setUserCreated(prev => !prev);
   };
+  
 
   const handleDelete = async (id: number) => {
     try {
@@ -213,6 +203,7 @@ const EmployeeListPage: React.FC = () => {
         onDelete={handleDelete}
         tableTitle={t('employeeTable.title')}
         showCalendar={false}
+        userCreated={userCreated}
       />
       <EditModal
         departments={departments}

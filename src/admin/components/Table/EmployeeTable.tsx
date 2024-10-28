@@ -11,11 +11,9 @@ import {
   Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-// import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { TableData, Column } from "./types";
 import AttendanceTableHead from "./AttendanceTableHead";
 import AttendanceTableBody from "./AttendanceTableBody";
-// import CalendarModal from "./CalendarModal";
 import axiosInstance from "../../../utils/libs/axios";
 import {deleteUser} from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
@@ -28,6 +26,7 @@ interface EmployeeTableProps {
   showCalendar?: boolean;
   positions: Position[];
   departments: Department[];
+  userCreated: boolean;
 }
 
 export interface Department {
@@ -54,6 +53,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   showCalendar = true,
   positions,
   departments,
+  userCreated
 }) => {
   const [data, setData] = useState<TableData[]>([]);
   const [page, setPage] = useState(0);
@@ -91,7 +91,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     };
 
     fetchEmployeeData();
-  }, []);
+  }, [userCreated]);
 
   useEffect(() => {
     const filtered = data.filter((row) => {

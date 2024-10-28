@@ -70,8 +70,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
         positions.find((p) => p.name === newEmployee.position)?.id!,
         newEmployee.phone!,
         newEmployee.email!
-      );
-
+      );   
       onSave(createdEmployee);
       onClose();
     } catch (error) {
