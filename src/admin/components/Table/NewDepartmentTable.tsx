@@ -43,7 +43,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   textAlign: 'center',
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
-  // width теперь будет вычисляться динамически
 }));
 
 const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
@@ -66,7 +65,11 @@ const PaginationContainer = styled(Box)(({ theme }) => ({
 }));
 
 const PageIndicator = styled(Typography)(({ theme }) => ({
-  margin: theme.spacing(0, 2),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  lineHeight: 1, // Контролируемый line-height
+  padding: theme.spacing(2), // Немного внутреннего отступа для более ровного отображения
 }));
 
 const NewDepartmentTable: React.FC = () => {
@@ -116,39 +119,33 @@ const NewDepartmentTable: React.FC = () => {
     let currentCol = 0;
 
     filteredDepartmentData.forEach((dept) => {
-        // Вычисляем, сколько колонок нужно для департамента
-        const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
-        
-        // Если департамент не поместится в оставшиеся столбцы
-        if (currentCol + columnsNeeded > maxColumnsPerPage) {
-            // Сохраняем текущую страницу и начинаем новую
-            if (currentPageDepts.length > 0) {
-                result.push(currentPageDepts);
-                currentPageDepts = [];
-            }
-            currentCol = 0;
-        }
+      const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
 
-        // Распределяем сотрудников по столбцам
-        let remainingEmployees = [...dept.result];
-        while (remainingEmployees.length > 0) {
-            const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
-            currentPageDepts.push({
-                ...dept,
-                result: chunk
-            });
-            currentCol++;
+      if (currentCol + columnsNeeded > maxColumnsPerPage) {
+        if (currentPageDepts.length > 0) {
+          result.push(currentPageDepts);
+          currentPageDepts = [];
         }
+        currentCol = 0;
+      }
+
+      let remainingEmployees = [...dept.result];
+      while (remainingEmployees.length > 0) {
+        const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
+        currentPageDepts.push({
+          ...dept,
+          result: chunk
+        });
+        currentCol++;
+      }
     });
 
-    // Добавляем последнюю страницу
     if (currentPageDepts.length > 0) {
-        result.push(currentPageDepts);
+      result.push(currentPageDepts);
     }
 
     return result;
-}, [filteredDepartmentData]);
-
+  }, [filteredDepartmentData]);
 
   const handleDepartmentToggle = (deptName: string) => {
     setSelectedDepartments(prev => {
@@ -166,70 +163,12 @@ const NewDepartmentTable: React.FC = () => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const renderDepartmentFilters = () => (
-    <FormGroup>
-      {departmentData.map((dept) => (
-        <FormControlLabel
-          key={dept.department_name}
-          control={
-            <Checkbox
-              checked={selectedDepartments.has(dept.department_name)}
-              onChange={() => handleDepartmentToggle(dept.department_name)}
-              sx={{
-                color: '#1976d2',
-                '&.Mui-checked': {
-                  color: '#1976d2',
-                },
-              }}
-            />
-          }
-          label={`${dept.department_name} (${dept.display_number})`}
-        />
-      ))}
-    </FormGroup>
-  );
-
-  const renderTableHead = () => {
-    const currentData = pages[currentPage - 1] || [];
-    const totalColumns = currentData.length < maxColumnsPerPage ? currentData.length : maxColumnsPerPage;
-  
-    return (
-      <TableRow>
-        {currentData.map((dept, index) => (
-          <StyledTableCell 
-            key={index} 
-            sx={{ width: `${100 / totalColumns}%` }}
-          >
-            <strong>{dept.department_name}</strong>
-          </StyledTableCell>
-        ))}
-        {currentPage === pages.length && currentData.length < maxColumnsPerPage && 
-          Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
-            <StyledTableCell 
-              key={`empty-header-${emptyIndex}`}
-              sx={{ width: `${100 / maxColumnsPerPage}%` }}
-            >
-              <strong>-</strong>
-            </StyledTableCell>
-          ))
-        }
-      </TableRow>
-    );
-  };
-  
   const renderTableContent = () => {
     const currentData = pages[currentPage - 1] || [];
-    
-    // Проверяем, является ли текущая страница последней
     const isLastPage = currentPage === pages.length;
-  
-    // Добавляем пустые столбцы только если:
-    // 1. Это последняя страница И
-    // 2. Количество столбцов на странице меньше maxColumnsPerPage
-    const shouldAddEmptyColumns = isLastPage && currentData.length < maxColumnsPerPage;
-    const totalColumns = shouldAddEmptyColumns ? maxColumnsPerPage : currentData.length;
+    const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
     const columnWidth = `${100 / totalColumns}%`;
-  
+
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
@@ -244,7 +183,7 @@ const NewDepartmentTable: React.FC = () => {
             </StyledTableCell>
           );
         })}
-        {shouldAddEmptyColumns && 
+        {isLastPage && currentData.length < maxColumnsPerPage &&
           Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
             <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
               <EmployeeCell status={null}>-</EmployeeCell>
@@ -254,8 +193,6 @@ const NewDepartmentTable: React.FC = () => {
       </TableRow>
     ));
   };
-  
-  
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
@@ -282,7 +219,26 @@ const NewDepartmentTable: React.FC = () => {
           <Typography variant="h6" component="h2" gutterBottom>
             部門の選択
           </Typography>
-          {renderDepartmentFilters()}
+          <FormGroup>
+            {departmentData.map((dept) => (
+              <FormControlLabel
+                key={dept.department_name}
+                control={
+                  <Checkbox
+                    checked={selectedDepartments.has(dept.department_name)}
+                    onChange={() => handleDepartmentToggle(dept.department_name)}
+                    sx={{
+                      color: '#1976d2',
+                      '&.Mui-checked': {
+                        color: '#1976d2',
+                      },
+                    }}
+                  />
+                }
+                label={`${dept.department_name} (${dept.display_number})`}
+              />
+            ))}
+          </FormGroup>
           <Button variant="contained" onClick={handleCloseModal} sx={{ mt: 2 }}>
             閉じる
           </Button>
@@ -290,32 +246,23 @@ const NewDepartmentTable: React.FC = () => {
       </Modal>
       <TableContainer component={Paper}>
         <Table>
-<TableHead>
-  <TableRow>
-    {pages[currentPage - 1]?.map((dept, index) => (
-      <StyledTableCell 
-        key={index} 
-        sx={{ width: `${100 / pages[currentPage - 1].length}%` }}
-      >
-        <strong>{dept.department_name}</strong>
-      </StyledTableCell>
-    ))}
-    {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
-      Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-        <StyledTableCell 
-          key={`empty-header-${emptyIndex}`}
-          sx={{ width: `${100 / maxColumnsPerPage}%` }}
-        >
-          <strong>-</strong>
-        </StyledTableCell>
-      ))
-    }
-  </TableRow>
-</TableHead>
-
-          <TableBody>
-            {renderTableContent()}
-          </TableBody>
+          <TableHead>
+            <TableRow>
+              {pages[currentPage - 1]?.map((dept, index) => (
+                <StyledTableCell key={index}>
+                  <strong>{dept.department_name}</strong>
+                </StyledTableCell>
+              ))}
+              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
+                    <strong>-</strong>
+                  </StyledTableCell>
+                ))
+              }
+            </TableRow>
+          </TableHead>
+          <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
@@ -323,21 +270,19 @@ const NewDepartmentTable: React.FC = () => {
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            startIcon={<NavigateBeforeIcon />}
           >
-            戻る
+            <NavigateBeforeIcon />
           </Button>
+          <PageIndicator>
+            {currentPage} / {pages.length}
+          </PageIndicator>
           <Button
             onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
             disabled={currentPage === pages.length}
-            endIcon={<NavigateNextIcon />}
           >
-            次へ
+            <NavigateNextIcon />
           </Button>
         </ButtonGroup>
-        <PageIndicator variant="h6">
-          ページ {currentPage} / {pages.length}
-        </PageIndicator>
       </PaginationContainer>
     </div>
   );
