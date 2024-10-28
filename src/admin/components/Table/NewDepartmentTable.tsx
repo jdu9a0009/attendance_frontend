@@ -11,34 +11,31 @@ import {
   ButtonGroup,
   Typography,
   Box,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Modal,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { fetchDashboardList } from '../../../utils/libs/axios';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
-import { Employee, Department } from './types';
 
-// interface Employee {
-//   id: number;
-//   employee_id: string | null;
-//   department: string | null;
-//   full_name: string | null;
-//   status: boolean | null;
-// }
-
-// interface Department {
-//   department: string;
-//   employee_count: string;
-// }
-
-interface OrganizedData {
-  [key: string]: Employee[];
+interface DepartmentData {
+  department_name: string;
+  display_number: number;
+  result: EmployeeData[];
 }
 
-interface DeptInfo {
-  dept: string;
-  startIndex: number;
+interface EmployeeData {
+  id: number;
+  employee_id: string;
+  department_id: number;
+  department_name: string;
+  display_number: number;
+  full_name: string;
+  status: boolean;
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -74,30 +71,31 @@ const PageIndicator = styled(Typography)(({ theme }) => ({
 
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [organizedData, setOrganizedData] = useState<OrganizedData>({});
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departmentData, setDepartmentData] = useState<DepartmentData[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalOpen, setModalOpen] = useState<boolean>(false); // состояние для модального окна
   const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
   useEffect(() => {
-    const loadServerData = async (page: number) => {
+    const loadServerData = async () => {
       try {
         setLoading(true);
-        console.log(`Выполняется запрос для страницы ${page}`);
-        const { employee_list, total_employee_count, department } = await fetchDashboardList(page);
+        const { department } = await fetchDashboardList(currentPage);
         
-        if (!employee_list || employee_list.length === 0) {
+        if (department && department.length > 0) {
+          setDepartmentData(department);
+          // При первой загрузке выбираем все департаменты
+          if (selectedDepartments.size === 0) {
+            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+          }
+        } else {
           setError("Нет данных для отображения.");
-          return;
         }
-        
-        const organized = organizeData(employee_list, department);
-        setOrganizedData(organized);
-        setDepartments(department);
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
         setError("Ошибка при загрузке данных.");
@@ -105,139 +103,133 @@ const NewDepartmentTable: React.FC = () => {
         setLoading(false);
       }
     };
-  
-    loadServerData(currentPage);
+
+    loadServerData();
   }, [currentPage]);
 
-  const organizeData = (employeeList: Employee[], departmentList: Department[]): OrganizedData => {
-    const organized: OrganizedData = {};
-  
-    // Сначала добавляем все департаменты
-    departmentList.forEach((dept) => {
-      organized[dept.department] = [];
-    });
-  
-    // Затем распределяем сотрудников по департаментам
-    employeeList.forEach((employee) => {
-      if (employee.department) {
-        organized[employee.department].push(employee);
-      } else {
-        console.warn('Сотрудник без департамента:', employee);
-      }
-    });
-  
-    console.log('Организованные данные (включая пустые департаменты):', organized);
-    return organized;
-  };
+  const filteredDepartmentData = useMemo(() => {
+    return departmentData.filter(dept => selectedDepartments.has(dept.department_name));
+  }, [departmentData, selectedDepartments]);
 
   const pages = useMemo(() => {
-    const result: DeptInfo[][] = [];
-    let currentPage: DeptInfo[] = [];
-    let currentPageCount = 0;
-  
-    // Проходим по всем департаментам (включая пустые)
-    departments.forEach((dept) => {
-      const columnsNeeded = Math.ceil((organizedData[dept.department]?.length || 0) / maxEmployeesPerColumn) || 1;
-  
-      if (currentPageCount + columnsNeeded > maxColumnsPerPage) {
-        if (currentPage.length > 0) {
-          result.push(currentPage);
-        }
-        currentPage = [];
-        currentPageCount = 0;
+    const result: DepartmentData[][] = [];
+    let currentPageDepts: DepartmentData[] = [];
+    
+    filteredDepartmentData.forEach((dept) => {
+      if (currentPageDepts.length >= maxColumnsPerPage) {
+        result.push(currentPageDepts);
+        currentPageDepts = [];
       }
-  
-      for (let i = 0; i < columnsNeeded; i++) {
-        const deptInfo: DeptInfo = { dept: dept.department, startIndex: i * maxEmployeesPerColumn };
-        currentPage.push(deptInfo);
-        currentPageCount++;
-      }
+      currentPageDepts.push(dept);
     });
-  
-    if (currentPage.length > 0) {
-      while (currentPage.length < maxColumnsPerPage) {
-        currentPage.push({ dept: '', startIndex: 0 });
-      }
-      result.push(currentPage);
+
+    if (currentPageDepts.length > 0) {
+      result.push(currentPageDepts);
     }
-  
-    console.log('Сгенерированные страницы с пустыми департаментами:', result);
+
     return result;
-  }, [organizedData, departments]);
-  
+  }, [filteredDepartmentData]);
 
-  const renderTableContent = () => {
-    console.log('Вызов renderTableContent');
-    console.log('Pages:', pages);
-    console.log('Current Page:', currentPage);
-    console.log('Organized Data:', organizedData);
-
-    if (pages.length === 0) {
-      console.log('Нет сгенерированных страниц');
-      return null;
-    }
-  
-    const currentPageIndex = currentPage - 1;
-    if (!pages[currentPageIndex] || pages[currentPageIndex].length === 0) {
-      console.log('Нет данных для текущей страницы:', currentPage);
-      return null;
-    }
-  
-    const currentPageData = pages[currentPageIndex];
-  
-    console.log('Текущие данные страницы:', currentPageData);
-  
-    const rows = [];
-  
-    for (let i = 0; i < maxEmployeesPerColumn; i++) {
-      const row = (
-        <TableRow key={i}>
-          {currentPageData.map((deptInfo, columnIndex) => {
-            const employee = organizedData[deptInfo.dept]?.[deptInfo.startIndex + i];
-            
-            return (
-              <StyledTableCell key={columnIndex}>
-                {employee ? (
-                  <EmployeeCell status={employee.status}>
-                    {employee.full_name}
-                  </EmployeeCell>
-                ) : (
-                  <EmployeeCell status={null}>-</EmployeeCell>
-                )}
-              </StyledTableCell>
-            );
-          })}
-        </TableRow>
-      );
-      rows.push(row);
-    }
-  
-    console.log('Сгенерированные строки:', rows);
-    return rows;
+  const handleDepartmentToggle = (deptName: string) => {
+    setSelectedDepartments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(deptName)) {
+        newSet.delete(deptName);
+      } else {
+        newSet.add(deptName);
+      }
+      return newSet;
+    });
+    setCurrentPage(1); // Сброс на первую страницу при изменении фильтров
   };
 
-  if (loading) {
-    return <Typography>Загрузка данных...</Typography>;
-  }
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
 
-  if (error) {
-    return <Typography color="error">{error}</Typography>;
-  }
+  const renderDepartmentFilters = () => (
+    <FormGroup>
+      {departmentData.map((dept) => (
+        <FormControlLabel
+          key={dept.department_name}
+          control={
+            <Checkbox
+              checked={selectedDepartments.has(dept.department_name)}
+              onChange={() => handleDepartmentToggle(dept.department_name)}
+              sx={{
+                color: '#1976d2',
+                '&.Mui-checked': {
+                  color: '#1976d2',
+                },
+              }}
+            />
+          }
+          label={`${dept.department_name} (${dept.display_number})`}
+        />
+      ))}
+    </FormGroup>
+  );
 
-  if (Object.keys(organizedData).length === 0) {
-    return <Typography>Нет данных для отображения.</Typography>;
-  }
+  const renderTableContent = () => {
+    if (!pages[currentPage - 1]) return null;
+
+    return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
+      <TableRow key={rowIndex}>
+        {pages[currentPage - 1].map((dept, colIndex) => {
+          const employee = dept.result[rowIndex];
+          return (
+            <StyledTableCell key={`${colIndex}-${rowIndex}`}>
+              {employee ? (
+                <EmployeeCell status={employee.status}>
+                  {employee.full_name}
+                </EmployeeCell>
+              ) : (
+                <EmployeeCell status={null}>-</EmployeeCell>
+              )}
+            </StyledTableCell>
+          );
+        })}
+      </TableRow>
+    ));
+  };
+
+  if (loading) return <div>...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div>
-      
+      <Button variant="contained" onClick={handleOpenModal} sx={{ mb: 2 }}>
+        部門を選択
+      </Button>
+      <Modal open={modalOpen} onClose={handleCloseModal}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" component="h2" gutterBottom>
+            部門の選択
+          </Typography>
+          {renderDepartmentFilters()}
+          <Button variant="contained" onClick={handleCloseModal} sx={{ mt: 2 }}>
+            閉じる
+          </Button>
+        </Box>
+      </Modal>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              {pages[currentPage - 1]?.map((deptInfo, index) => (
+              {pages[currentPage - 1]?.map((dept, index) => (
                 <StyledTableCell key={index}>
-                  <strong>{deptInfo.dept}</strong>
+                  <strong>{dept.department_name}</strong>
                 </StyledTableCell>
               ))}
             </TableRow>
@@ -254,18 +246,18 @@ const NewDepartmentTable: React.FC = () => {
             disabled={currentPage === 1}
             startIcon={<NavigateBeforeIcon />}
           >
-            {t('newTable.back')}
+            戻る
           </Button>
           <Button
             onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
             disabled={currentPage === pages.length}
             endIcon={<NavigateNextIcon />}
           >
-            {t('newTable.forward')}
+            次へ
           </Button>
         </ButtonGroup>
         <PageIndicator variant="h6">
-          {t('newTable.page')} {currentPage} {t('newTable.of')} {pages.length}
+          ページ {currentPage} / {pages.length}
         </PageIndicator>
       </PaginationContainer>
     </div>

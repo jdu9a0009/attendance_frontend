@@ -6,7 +6,7 @@ export interface FilterState {
     [key: string]: string;
   }
 
-  export interface TableData {
+export interface TableData {
     id: number;
     employee_id?: string;
     password?: string;
@@ -25,27 +25,42 @@ export interface FilterState {
     email?: string;
   }
 
-  export interface Column {
+export interface Column {
     id: keyof TableData | 'action';
     label: string;
     filterable?: boolean;
     filterValues?: string[];
   }
 
-export interface Employee {
-  id: number;
-  employee_id: string | null;
-  department: string | null;
-  full_name: string | null;
-  status: boolean | null;
+  export interface Employee {
+    id: number;
+    employee_id: string;
+    department_id: number;
+    department_name: string;
+    display_number: number;
+    full_name: string;
+    status: boolean;
 }
 
 export interface Department {
-  id: number;
-  department: string;
-  employee_count: string;
-  display_number: number;
+    department_name: string;
+    display_number: number;
+    result: Employee[];
 }
+
+export interface ApiResponseData {
+    count: number;
+    results: Department[];
+}
+
+export interface ApiResponse {
+    data: ApiResponseData;
+    status: boolean;
+}
+
+
+
+
 
 
 

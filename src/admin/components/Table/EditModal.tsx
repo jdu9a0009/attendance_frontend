@@ -76,7 +76,6 @@ const EditModal: React.FC<EditModalProps> = ({
       try {
         await updateUser(
           formData.id,
-          formData.employee_id!,
           formData.password!,
           formData.role!,
           formData.full_name,
