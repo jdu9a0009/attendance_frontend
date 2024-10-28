@@ -72,13 +72,13 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
         Total number of successfully created users: ${response["Total number of successfully created users"]}
       `;
   
-      showSnackbar(message.trim()); // Показываем отформатированное сообщение
+      showSnackbar(message.trim()); 
   
       onUpload(selectedFile);
       onClose();
     } catch (error) {
       console.error("Ошибка при загрузке файла:", error);
-      showSnackbar("Ошибка при загрузке файла."); // Вы можете показывать сообщение об ошибке
+      showSnackbar("Ошибка при загрузке файла."); 
     }
   };
   
