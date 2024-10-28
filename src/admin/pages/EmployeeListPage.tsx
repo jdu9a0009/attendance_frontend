@@ -83,7 +83,7 @@ const EmployeeListPage: React.FC = () => {
   const handleEditSave = async (updatedEmployee: TableData) => {
     try {
       await updateUser(
-        updatedEmployee.id, 
+        updatedEmployee.id,
         updatedEmployee.password!,
         updatedEmployee.role!,
         updatedEmployee.full_name,

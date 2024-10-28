@@ -1,5 +1,6 @@
 import axios from "axios";
-import { Employee, Department } from '../../admin/components/Table/types';
+import { Employee, Department, ApiResponse } from '../../admin/components/Table/types';
+
 
 const axiosInstance = () => {
   const defaultOptions = {
@@ -117,7 +118,7 @@ export const deletePosition = async (id: number) => {
   return response.data;
 };
 
-export const createUser = async ( password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
+export const createUser = async (password: string, role: string, full_name: string, department_id: number, position_id: number, phone: string, email: string) => {
   const response = await axiosInstance().post(`/user/create`, {password, role, full_name, department_id, position_id, phone, email});
   return response.data;
 };
@@ -139,20 +140,26 @@ export const uploadExcelFile = async (excell: FormData) => {
     excell.forEach((value, key) => {
       console.log(`${key}: ${value}`);
     });
-    
 
-    const response = await axiosInstance().post('user/create', excell, {
+    const response = await axiosInstance().post('user/create_excell', excell, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
+    console.log("Ответ сервера:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Ошибка при загрузке файла:', error);
+    // Проверяем, является ли ошибка ошибкой axios, и выводим соответствующее сообщение
+    if (axios.isAxiosError(error)) {
+      console.error('Ошибка при загрузке файла:', error.response?.data || error.message);
+    } else {
+      console.error('Неизвестная ошибка:', error);
+    }
     throw error;
   }
 };
+
 
 
 export const createByQRCode = async (employee_id: string, latitude: number, longitude: number) => {
@@ -248,28 +255,57 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
   return response.data; // Return the response.data, which will be of type Blob
 };
 
-// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist `
-export const fetchDashboardList = async (page: number): Promise<{ employee_list: Employee[], total_employee_count: number, department: Department[] }> => {
+// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
+export const fetchDashboardList = async (page: number): Promise<{
+  employee_list: Employee[];
+  total_employee_count: number;
+  department: Department[];
+}> => {
   try {
-    console.log(`Отправляем запрос на страницу ${page}`);
-    const response = await axiosInstance().get(`/user/dashboardlist`, {
+    const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
       params: { page }
     });
-    console.log('Ответ получен:', response.data);
 
-    if (response.data.status) {
-      const employee_list = response.data.data.employee_list;
-      const total_employee_count = response.data.data.total_employee_count || 0;
-      const department = response.data.data.department || [];
-      return { employee_list, total_employee_count, department };
-    } else {
-      throw new Error('Не удалось получить список сотрудников');
+    console.log("Ответ API:", response.data);
+
+    // Проверка структуры данных
+    if (!response.data?.data?.results) {
+      throw new Error("Не удалось получить данные. Пожалуйста, проверьте API.");
     }
+
+    // Преобразование списка сотрудников
+    const employee_list: Employee[] = response.data.data.results.flatMap(dept => 
+      dept.result.map(emp => ({
+        id: emp.id,
+        employee_id: emp.employee_id,
+        department_id: emp.department_id,
+        department_name: emp.department_name,
+        display_number: emp.display_number,
+        full_name: emp.full_name,
+        status: emp.status
+      }))
+    );
+
+    // Преобразование списка департаментов
+    const department: Department[] = response.data.data.results.map(dept => ({
+      department_name: dept.department_name,
+      display_number: dept.display_number,
+      result: dept.result
+    }));
+
+    return {
+      employee_list,
+      total_employee_count: response.data.data.count,
+      department,
+    };
   } catch (error) {
-    console.error('Ошибка при запросе списка сотрудников:', error);
+    console.error('Error fetching dashboard list:', error);
     throw error;
   }
 };
+
+
+
 
 
 

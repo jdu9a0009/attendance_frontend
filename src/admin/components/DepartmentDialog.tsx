@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { Department } from '../pages/DepartmentPositionManagement';
 import { createDepartment, updateDepartment } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
@@ -31,30 +31,22 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
       let savedDepartment;
 
       if (department) {
-        // Найти департамент с таким же display_number, если он существует
         const conflictingDepartment = departments.find(dep => dep.display_number === displayNumber && dep.id !== department.id);
 
         if (conflictingDepartment) {
-          // Если есть конфликтующий департамент, свапаем их display_number
           const oldDisplayNumber = department.display_number;
 
-          // Обновляем конфликтующий департамент, присваивая ему старый display_number
           await updateDepartment(conflictingDepartment.id, conflictingDepartment.name, oldDisplayNumber);
-
-          // Обновляем текущий департамент с новым display_number
           await updateDepartment(department.id, name, displayNumber);
 
-          // Передаем обновленный текущий департамент в onSave
           savedDepartment = { id: department.id, name, display_number: displayNumber };
           onSave(savedDepartment);
         } else {
-          // Если конфликтующего департамента нет, просто обновляем текущий департамент
           await updateDepartment(department.id, name, displayNumber);
           savedDepartment = { id: department.id, name, display_number: displayNumber };
           onSave(savedDepartment);
         }
       } else {
-        // Для нового департамента используем nextDisplayNumber
         const response = await createDepartment(name, displayNumber);
         savedDepartment = { 
           id: response.data.id, 
@@ -86,28 +78,31 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
         />
 
         {/* Dropdown для выбора display_number */}
-        <Select
-          fullWidth
-          value={displayNumber}
-          onChange={(e) => {
-            setDisplayNumber(Number(e.target.value));
-            onDisplayNumberChange(Number(e.target.value));
-          }}
-        >
-          {departments.map(dep => (
-            <MenuItem 
-              key={dep.id} 
-              value={dep.display_number}
-            >
-              {dep.display_number}
-            </MenuItem>
-          ))}
-          {!department && (
-            <MenuItem value={nextDisplayNumber}>
-              {nextDisplayNumber}
-            </MenuItem>
-          )}
-        </Select>
+        <FormControl fullWidth margin="dense">
+          <InputLabel>{t('')}</InputLabel>
+          <Select
+  value={displayNumber}
+  onChange={(e) => {
+    setDisplayNumber(Number(e.target.value));
+    onDisplayNumberChange(Number(e.target.value));
+  }}
+>
+  {departments.map(dep => (
+    <MenuItem 
+      key={dep.id} 
+      value={dep.display_number}
+      sx={{ opacity: dep.id !== department?.id ? 0.5 : 1 }} // Затемняем занятые номера, если это не текущий департамент
+    >
+      {`${dep.display_number} (${dep.name})`} {/* Новый формат отображения */}
+    </MenuItem>
+  ))}
+  {!department && (
+    <MenuItem value={nextDisplayNumber}>
+      {nextDisplayNumber} {/* Используем следующий номер отображения без изменений */}
+    </MenuItem>
+  )}
+</Select>
+        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
