@@ -41,9 +41,9 @@ interface EmployeeData {
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(1),
   textAlign: 'center',
-  width: '10%',
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
+  // width теперь будет вычисляться динамически
 }));
 
 const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
@@ -75,7 +75,7 @@ const NewDepartmentTable: React.FC = () => {
   const [selectedDepartments, setSelectedDepartments] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [modalOpen, setModalOpen] = useState<boolean>(false); // состояние для модального окна
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
@@ -86,10 +86,9 @@ const NewDepartmentTable: React.FC = () => {
       try {
         setLoading(true);
         const { department } = await fetchDashboardList(currentPage);
-        
+
         if (department && department.length > 0) {
           setDepartmentData(department);
-          // При первой загрузке выбираем все департаменты
           if (selectedDepartments.size === 0) {
             setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
           }
@@ -114,21 +113,42 @@ const NewDepartmentTable: React.FC = () => {
   const pages = useMemo(() => {
     const result: DepartmentData[][] = [];
     let currentPageDepts: DepartmentData[] = [];
-    
+    let currentCol = 0;
+
     filteredDepartmentData.forEach((dept) => {
-      if (currentPageDepts.length >= maxColumnsPerPage) {
-        result.push(currentPageDepts);
-        currentPageDepts = [];
-      }
-      currentPageDepts.push(dept);
+        // Вычисляем, сколько колонок нужно для департамента
+        const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
+        
+        // Если департамент не поместится в оставшиеся столбцы
+        if (currentCol + columnsNeeded > maxColumnsPerPage) {
+            // Сохраняем текущую страницу и начинаем новую
+            if (currentPageDepts.length > 0) {
+                result.push(currentPageDepts);
+                currentPageDepts = [];
+            }
+            currentCol = 0;
+        }
+
+        // Распределяем сотрудников по столбцам
+        let remainingEmployees = [...dept.result];
+        while (remainingEmployees.length > 0) {
+            const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
+            currentPageDepts.push({
+                ...dept,
+                result: chunk
+            });
+            currentCol++;
+        }
     });
 
+    // Добавляем последнюю страницу
     if (currentPageDepts.length > 0) {
-      result.push(currentPageDepts);
+        result.push(currentPageDepts);
     }
 
     return result;
-  }, [filteredDepartmentData]);
+}, [filteredDepartmentData]);
+
 
   const handleDepartmentToggle = (deptName: string) => {
     setSelectedDepartments(prev => {
@@ -140,7 +160,7 @@ const NewDepartmentTable: React.FC = () => {
       }
       return newSet;
     });
-    setCurrentPage(1); // Сброс на первую страницу при изменении фильтров
+    setCurrentPage(1);
   };
 
   const handleOpenModal = () => setModalOpen(true);
@@ -169,28 +189,73 @@ const NewDepartmentTable: React.FC = () => {
     </FormGroup>
   );
 
+  const renderTableHead = () => {
+    const currentData = pages[currentPage - 1] || [];
+    const totalColumns = currentData.length < maxColumnsPerPage ? currentData.length : maxColumnsPerPage;
+  
+    return (
+      <TableRow>
+        {currentData.map((dept, index) => (
+          <StyledTableCell 
+            key={index} 
+            sx={{ width: `${100 / totalColumns}%` }}
+          >
+            <strong>{dept.department_name}</strong>
+          </StyledTableCell>
+        ))}
+        {currentPage === pages.length && currentData.length < maxColumnsPerPage && 
+          Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
+            <StyledTableCell 
+              key={`empty-header-${emptyIndex}`}
+              sx={{ width: `${100 / maxColumnsPerPage}%` }}
+            >
+              <strong>-</strong>
+            </StyledTableCell>
+          ))
+        }
+      </TableRow>
+    );
+  };
+  
   const renderTableContent = () => {
-    if (!pages[currentPage - 1]) return null;
-
+    const currentData = pages[currentPage - 1] || [];
+    
+    // Проверяем, является ли текущая страница последней
+    const isLastPage = currentPage === pages.length;
+  
+    // Добавляем пустые столбцы только если:
+    // 1. Это последняя страница И
+    // 2. Количество столбцов на странице меньше maxColumnsPerPage
+    const shouldAddEmptyColumns = isLastPage && currentData.length < maxColumnsPerPage;
+    const totalColumns = shouldAddEmptyColumns ? maxColumnsPerPage : currentData.length;
+    const columnWidth = `${100 / totalColumns}%`;
+  
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
-        {pages[currentPage - 1].map((dept, colIndex) => {
+        {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
           return (
-            <StyledTableCell key={`${colIndex}-${rowIndex}`}>
+            <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee ? (
-                <EmployeeCell status={employee.status}>
-                  {employee.full_name}
-                </EmployeeCell>
+                <EmployeeCell status={employee.status}>{employee.full_name}</EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}
             </StyledTableCell>
           );
         })}
+        {shouldAddEmptyColumns && 
+          Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
+              <EmployeeCell status={null}>-</EmployeeCell>
+            </StyledTableCell>
+          ))
+        }
       </TableRow>
     ));
   };
+  
+  
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
@@ -225,15 +290,29 @@ const NewDepartmentTable: React.FC = () => {
       </Modal>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead>
-            <TableRow>
-              {pages[currentPage - 1]?.map((dept, index) => (
-                <StyledTableCell key={index}>
-                  <strong>{dept.department_name}</strong>
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
+<TableHead>
+  <TableRow>
+    {pages[currentPage - 1]?.map((dept, index) => (
+      <StyledTableCell 
+        key={index} 
+        sx={{ width: `${100 / pages[currentPage - 1].length}%` }}
+      >
+        <strong>{dept.department_name}</strong>
+      </StyledTableCell>
+    ))}
+    {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+      Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+        <StyledTableCell 
+          key={`empty-header-${emptyIndex}`}
+          sx={{ width: `${100 / maxColumnsPerPage}%` }}
+        >
+          <strong>-</strong>
+        </StyledTableCell>
+      ))
+    }
+  </TableRow>
+</TableHead>
+
           <TableBody>
             {renderTableContent()}
           </TableBody>
