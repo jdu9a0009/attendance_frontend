@@ -8,7 +8,7 @@ const commonResources = {
       greeting: 'Hello {{employeeId}}!',
       logout: 'Logout',
       languageSwitcher: 'Language',
-      japanese: 'Japanese',
+      japanese: '日本語',
       english: 'English',
       employeeId: 'ID',
       fullName: 'Full Name',
@@ -42,7 +42,7 @@ const commonResources = {
       logout: 'ログアウト',
       languageSwitcher: '言語',
       japanese: '日本語',
-      english: '英語',
+      english: 'English',
       employeeId: 'ID',
       fullName: 'フルネーム',
       status: '状態',
@@ -172,6 +172,7 @@ const adminResources = {
       departmentTable: {
         departmentName: 'Departments',
         action: 'Action',
+        displayNumber: 'Display №',
         editBtn: 'Edit',
         deleteBtn: 'Delete',
         dialogTitleAdd: 'Add Department',
@@ -317,6 +318,7 @@ const adminResources = {
       departmentTable: {
         departmentName: '部署名',
         action: 'アクション',
+        displayNumber: '表示順',
         editBtn: '編集',
         deleteBtn: '削除',
         dialogTitleAdd: '部署を追加',

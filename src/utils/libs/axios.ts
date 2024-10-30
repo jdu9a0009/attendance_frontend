@@ -160,6 +160,41 @@ export const uploadExcelFile = async (excell: FormData) => {
   }
 };
 
+export const downloadSampleFile = async () => {
+  try {
+    const response = await axiosInstance().get('user/download_sample', {
+      responseType: 'blob', // Важно для скачивания файлов
+    });
+
+    // Создаем blob из полученных данных
+    const blob = new Blob([response.data], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+
+    // Создаем ссылку для скачивания
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'sample.xlsx'); // Имя файла для скачивания
+    
+    // Добавляем ссылку в DOM и имитируем клик
+    document.body.appendChild(link);
+    link.click();
+    
+    // Очищаем
+    link.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Ошибка при скачивании sample файла:', error.response?.data || error.message);
+    } else {
+      console.error('Неизвестная ошибка:', error);
+    }
+    throw error;
+  }
+};
 
 
 export const createByQRCode = async (employee_id: string, latitude: number, longitude: number) => {

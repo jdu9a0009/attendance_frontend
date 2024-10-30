@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Checkbox,
   Modal,
+  Stack,
+  Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { fetchDashboardList } from '../../../utils/libs/axios';
@@ -68,9 +70,61 @@ const PageIndicator = styled(Typography)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  lineHeight: 1, // Контролируемый line-height
-  padding: theme.spacing(2), // Немного внутреннего отступа для более ровного отображения
+  lineHeight: 1,
+  padding: theme.spacing(2),
+  color: '#105E82',
 }));
+
+const StyledButtonGroup = styled(ButtonGroup)({
+  '& .MuiButton-outlined': {
+    borderColor: '#105E82',
+    color: '#105E82',
+    '&:hover': {
+      backgroundColor: 'rgba(16, 94, 130, 0.04)',
+      borderColor: '#105E82',
+    },
+    '&:disabled': {
+      borderColor: 'rgba(16, 94, 130, 0.3)',
+      color: 'rgba(16, 94, 130, 0.3)',
+    },
+  },
+  // Убираем двойную рамку между кнопками
+  '& .MuiButton-outlined:not(:last-child)': {
+    borderRightColor: '#105E82',
+  },
+  // Убираем лишнюю рамку у средней кнопки с номером страницы
+  '& .MuiButton-outlined:not(:first-child):not(:last-child)': {
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    '&:hover': {
+      borderLeftColor: 'transparent',
+      borderRightColor: 'transparent',
+    },
+  },
+});
+
+const StyledButton = styled(Button)({
+  '&.MuiButton-outlined': {
+    borderColor: '#105E82',
+    color: '#105E82',
+    '&:hover': {
+      borderColor: '#105E82',
+      backgroundColor: 'rgba(16, 94, 130, 0.04)',
+    },
+  },
+});
+
+const StyledCheckbox = styled(Checkbox)({
+  '&.MuiCheckbox-root': {
+    color: '#105E82',
+    '&.Mui-checked': {
+      color: '#105E82',
+    },
+    '&.Mui-indeterminate': {
+      color: '#105E82',
+    },
+  },
+});
 
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -109,6 +163,37 @@ const NewDepartmentTable: React.FC = () => {
     loadServerData();
   }, [currentPage]);
 
+  const isAllSelected = useMemo(() => {
+    return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
+  }, [departmentData, selectedDepartments]);
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedDepartments(new Set());
+    } else {
+      setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
+    }
+    setCurrentPage(1);
+  };
+
+  const handleReset = () => {
+    setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
+    setCurrentPage(1);
+  };
+
+  const handleDepartmentToggle = (deptName: string) => {
+    setSelectedDepartments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(deptName)) {
+        newSet.delete(deptName);
+      } else {
+        newSet.add(deptName);
+      }
+      return newSet;
+    });
+    setCurrentPage(1);
+  };
+
   const filteredDepartmentData = useMemo(() => {
     return departmentData.filter(dept => selectedDepartments.has(dept.department_name));
   }, [departmentData, selectedDepartments]);
@@ -146,19 +231,6 @@ const NewDepartmentTable: React.FC = () => {
 
     return result;
   }, [filteredDepartmentData]);
-
-  const handleDepartmentToggle = (deptName: string) => {
-    setSelectedDepartments(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(deptName)) {
-        newSet.delete(deptName);
-      } else {
-        newSet.add(deptName);
-      }
-      return newSet;
-    });
-    setCurrentPage(1);
-  };
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -199,7 +271,17 @@ const NewDepartmentTable: React.FC = () => {
 
   return (
     <div>
-      <Button variant="contained" onClick={handleOpenModal} sx={{ mb: 2 }}>
+      <Button 
+        variant="contained" 
+        onClick={handleOpenModal} 
+        sx={{ 
+          mb: 2,
+          backgroundColor: '#105E82',
+          '&:hover': {
+            backgroundColor: '#0D4D6B',
+          },
+        }}
+      >
         部門を選択
       </Button>
       <Modal open={modalOpen} onClose={handleCloseModal}>
@@ -220,69 +302,96 @@ const NewDepartmentTable: React.FC = () => {
             部門の選択
           </Typography>
           <FormGroup>
+            <FormControlLabel
+              control={
+                <StyledCheckbox
+                  checked={isAllSelected}
+                  indeterminate={selectedDepartments.size > 0 && !isAllSelected}
+                  onChange={handleSelectAll}
+                />
+              }
+              label="All"
+            />
+            <Divider sx={{ my: 1 }} />
             {departmentData.map((dept) => (
               <FormControlLabel
                 key={dept.department_name}
                 control={
-                  <Checkbox
+                  <StyledCheckbox
                     checked={selectedDepartments.has(dept.department_name)}
                     onChange={() => handleDepartmentToggle(dept.department_name)}
-                    sx={{
-                      color: '#1976d2',
-                      '&.Mui-checked': {
-                        color: '#1976d2',
-                      },
-                    }}
                   />
                 }
                 label={`${dept.department_name} (${dept.display_number})`}
               />
             ))}
           </FormGroup>
-          <Button variant="contained" onClick={handleCloseModal} sx={{ mt: 2 }}>
-            閉じる
-          </Button>
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            <StyledButton 
+              variant="outlined" 
+              onClick={handleReset}
+              sx={{ flex: 1 }}
+            >
+              Reset
+            </StyledButton>
+            <Button 
+              variant="contained" 
+              onClick={handleCloseModal}
+              sx={{ 
+                flex: 1,
+                backgroundColor: '#105E82',
+                '&:hover': {
+                  backgroundColor: '#0D4D6B',
+                },
+              }}
+            >
+              閉じる
+            </Button>
+          </Stack>
         </Box>
       </Modal>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {pages[currentPage - 1]?.map((dept, index) => (
-                <StyledTableCell key={index}>
-                  <strong>{dept.department_name}</strong>
-                </StyledTableCell>
-              ))}
-              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
-                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
-                    <strong>-</strong>
-                  </StyledTableCell>
-                ))
-              }
-            </TableRow>
-          </TableHead>
-          <TableBody>{renderTableContent()}</TableBody>
-        </Table>
-      </TableContainer>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+  <Table>
+    <TableHead>
+      <TableRow>
+        {pages[currentPage - 1]?.map((dept, index) => (
+          <StyledTableCell key={index}>
+            <strong>{dept.department_name}</strong>
+          </StyledTableCell>
+        ))}
+        {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+          Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-header-${emptyIndex}`}>
+              <strong>-</strong>
+            </StyledTableCell>
+          ))
+        }
+      </TableRow>
+    </TableHead>
+    <TableBody>{renderTableContent()}</TableBody>
+  </Table>
+</TableContainer>
+
       <PaginationContainer>
-        <ButtonGroup variant="contained" color="primary" size="large">
+        <StyledButtonGroup variant="outlined" size="large">
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
           >
             <NavigateBeforeIcon />
           </Button>
-          <PageIndicator>
-            {currentPage} / {pages.length}
-          </PageIndicator>
+          <Button disabled sx={{ pointerEvents: 'none' }}>
+            <PageIndicator>
+              {currentPage} / {pages.length}
+            </PageIndicator>
+          </Button>
           <Button
             onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
             disabled={currentPage === pages.length}
           >
             <NavigateNextIcon />
           </Button>
-        </ButtonGroup>
+        </StyledButtonGroup>
       </PaginationContainer>
     </div>
   );

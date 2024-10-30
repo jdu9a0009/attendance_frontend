@@ -71,7 +71,7 @@ function DepartmentTable({ departments, onEdit, onDelete }: DepartmentTableProps
         <TableHead>
           <TableRow>
             <TableCell>{t('departmentTable.departmentName')}</TableCell>
-            <TableCell>{t('Display №')}</TableCell> {/* Новый заголовок для display_number */}
+            <TableCell>{t('departmentTable.displayNumber')}</TableCell> {/* Новый заголовок для display_number */}
             <TableCell>{t('departmentTable.action')}</TableCell>
           </TableRow>
         </TableHead>

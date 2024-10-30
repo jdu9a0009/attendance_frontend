@@ -9,22 +9,27 @@ interface DepartmentDialogProps {
   onClose: () => void;
   department: Department | null;
   onSave: (department: Department) => void;
-  departments: Department[]; // Передаём departments для работы с display_number
-  nextDisplayNumber: number; // Передаём nextDisplayNumber
+  departments: Department[];
+  nextDisplayNumber: number;
   onDisplayNumberChange: (number: number) => void;
 }
 
 function DepartmentDialog({ open, onClose, department, onSave, departments, nextDisplayNumber, onDisplayNumberChange }: DepartmentDialogProps) {
   const [name, setName] = useState(department?.name || '');
-  const [displayNumber, setDisplayNumber] = useState<number>(department?.display_number || 0); // Управляемый display_number
+  const [displayNumber, setDisplayNumber] = useState<number>(
+    department?.display_number || nextDisplayNumber // Use nextDisplayNumber as default for new departments
+  );
   const { t } = useTranslation('admin');
 
   useEffect(() => {
     if (department) {
       setName(department.name);
       setDisplayNumber(department.display_number);
+    } else {
+      // Reset display number to next available when opening dialog for new department
+      setDisplayNumber(nextDisplayNumber);
     }
-  }, [department]);
+  }, [department, nextDisplayNumber, open]);
 
   const handleSave = async () => {
     if (name.trim() !== '') {
@@ -77,31 +82,32 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
           onChange={(e) => setName(e.target.value)}
         />
 
-        {/* Dropdown для выбора display_number */}
         <FormControl fullWidth margin="dense">
-          <InputLabel>{t('')}</InputLabel>
+          <InputLabel id="display-number-label">表示順</InputLabel>
           <Select
-  value={displayNumber}
-  onChange={(e) => {
-    setDisplayNumber(Number(e.target.value));
-    onDisplayNumberChange(Number(e.target.value));
-  }}
->
-  {departments.map(dep => (
-    <MenuItem 
-      key={dep.id} 
-      value={dep.display_number}
-      sx={{ opacity: dep.id !== department?.id ? 0.5 : 1 }} // Затемняем занятые номера, если это не текущий департамент
-    >
-      {`${dep.display_number} (${dep.name})`} {/* Новый формат отображения */}
-    </MenuItem>
-  ))}
-  {!department && (
-    <MenuItem value={nextDisplayNumber}>
-      {nextDisplayNumber} {/* Используем следующий номер отображения без изменений */}
-    </MenuItem>
-  )}
-</Select>
+            labelId="display-number-label"
+            value={displayNumber}
+            label="表示順"
+            onChange={(e) => {
+              setDisplayNumber(Number(e.target.value));
+              onDisplayNumberChange(Number(e.target.value));
+            }}
+          >
+            {departments.map(dep => (
+              <MenuItem 
+                key={dep.id} 
+                value={dep.display_number}
+                sx={{ opacity: dep.id !== department?.id ? 0.5 : 1 }}
+              >
+                {`${dep.display_number} (${dep.name})`}
+              </MenuItem>
+            ))}
+            {!department && (
+              <MenuItem value={nextDisplayNumber}>
+                {`${nextDisplayNumber} (新規)`}
+              </MenuItem>
+            )}
+          </Select>
         </FormControl>
       </DialogContent>
       <DialogActions>

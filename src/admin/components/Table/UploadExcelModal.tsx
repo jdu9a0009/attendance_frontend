@@ -7,15 +7,31 @@ import {
   Stack,
   Snackbar,
   Alert,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Link,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
-import { uploadExcelFile } from "../../../utils/libs/axios";
+import { uploadExcelFile, downloadSampleFile } from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
 import { SnackbarCloseReason } from "@mui/material";
+
+// Создаем кастомную тему
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#105E82',
+    },
+  },
+});
 
 interface UploadExcelModalProps {
   open: boolean;
   onClose: () => void;
-  onUpload: (file: File) => void;
+  onUpload: (file: File, mode: number) => void;
 }
 
 const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
@@ -24,6 +40,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   onUpload,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [mode, setMode] = useState<number>(0);
   const { t } = useTranslation('admin');
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -33,6 +50,10 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
     }
+  };
+
+  const handleModeChange = (event: any) => {
+    setMode(event.target.value);
   };
 
   const handleSnackbarClose = (
@@ -45,6 +66,16 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     setSnackbarOpen(false);
   };
 
+  const handleDownloadSample = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await downloadSampleFile();
+    } catch (error) {
+      console.error("Error downloading sample file:", error);
+      showSnackbar("Error downloading sample file");
+    }
+  };
+
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
@@ -54,37 +85,28 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     e.preventDefault();
   
     if (!selectedFile) {
-      alert("Пожалуйста, выберите файл.");
+      showSnackbar("Please select a file");
       return;
     }
   
     try {
-      console.log("Загружаемый файл:", selectedFile);
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("mode", mode.toString());
   
-      const excell = new FormData();
-      excell.append("excell", selectedFile);
-  
-      const response = await uploadExcelFile(excell);
-  
-      // Форматируем сообщение для Snackbar
-      const message = `
-        Excell rows that user not created due to incomplete data: ${response["Excell rows that user not created due to incomplete data"].join(", ")}
-        Total number of successfully created users: ${response["Total number of successfully created users"]}
-      `;
-  
-      showSnackbar(message.trim()); 
-  
-      onUpload(selectedFile);
+      const response = await uploadExcelFile(formData);
+      
+      showSnackbar("File uploaded successfully");
+      onUpload(selectedFile, mode);
       onClose();
     } catch (error) {
-      console.error("Ошибка при загрузке файла:", error);
-      showSnackbar("Ошибка при загрузке файла."); 
+      console.error("Error uploading file:", error);
+      showSnackbar("Error uploading file");
     }
   };
-  
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Modal open={open} onClose={onClose}>
         <Box
           sx={{
@@ -98,58 +120,127 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
             p: 4,
           }}
         >
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            {t('uploadModal.title')}
+          <Typography variant="h6" component="h2" sx={{ mb: 3 }}>
+            Create
           </Typography>
+          
           <form onSubmit={handleSubmit}>
-            <Box sx={{ mb: 3 }}>
-              <Button
-                variant="contained"
-                component="label"
-              >
-                {t('uploadModal.selectedFileBtn')}
-                <input
-                  type="file"
-                  hidden
-                  accept=".xlsx, .xls"
-                  onChange={handleFileChange}
-                  required
-                />
-              </Button>
-              {selectedFile && (
-                <Typography variant="body2" sx={{ mt: 2 }}>
-                  {t('uploadModal.fileName')} {selectedFile.name}
-                </Typography>
-              )}
-            </Box>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Stack direction="row" spacing={1}>
-                <Button onClick={onClose}>{t('uploadModal.cancelBtn')}</Button>
-                <Button type="submit" variant="contained" disabled={!selectedFile}>
-                  {t('uploadModal.uploadBtn')}
+            <Stack spacing={3}>
+              <Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  sx={{ 
+                    height: '56px',
+                    justifyContent: 'space-between',
+                    textAlign: 'left',
+                    pl: 2,
+                    borderColor: '#105E82',
+                    color: '#105E82',
+                    '&:hover': {
+                      borderColor: '#105E82',
+                      opacity: 0.8,
+                    },
+                  }}
+                >
+                  <span>Browse...</span>
+                  <span style={{ color: '#666' }}>
+                    {selectedFile ? selectedFile.name : 'No file selected.'}
+                  </span>
+                  <input
+                    type="file"
+                    hidden
+                    accept=".xlsx, .xls"
+                    onChange={handleFileChange}
+                  />
                 </Button>
-              </Stack>
-            </Box>
+                <Typography variant="caption" color="textSecondary">
+                  Upload xlsx file
+                </Typography>
+              </Box>
+
+              <FormControl fullWidth>
+                <InputLabel sx={{ '&.Mui-focused': { color: '#105E82' } }}>
+                  Mode
+                </InputLabel>
+                <Select
+                  value={mode}
+                  label="Mode"
+                  onChange={handleModeChange}
+                  sx={{
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#105E82',
+                    },
+                  }}
+                >
+                  <MenuItem value={0}>Create</MenuItem>
+                  <MenuItem value={1}>Update</MenuItem>
+                  <MenuItem value={2}>Delete</MenuItem>
+                </Select>
+                <Typography variant="caption" color="textSecondary">
+                  Choose the operation mode for processing the XLSX
+                </Typography>
+              </FormControl>
+
+              <Button 
+                type="submit" 
+                variant="contained" 
+                fullWidth
+                disabled={!selectedFile}
+                sx={{
+                  backgroundColor: '#105E82',
+                  '&:hover': {
+                    backgroundColor: '#105E82',
+                    opacity: 0.8,
+                  },
+                }}
+              >
+                Upload xlsx file
+              </Button>
+
+              <Typography variant="body2" color="textSecondary">
+                If you are new here and want to create but are having trouble, 
+                please read the instructions in the link below:
+              </Typography>
+              <Link
+                href="#"
+                onClick={handleDownloadSample}
+                sx={{ 
+                  color: '#105E82',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  }
+                }}
+              >
+                How to create from XLSX
+              </Link>
+            </Stack>
           </form>
         </Box>
       </Modal>
 
       <Snackbar
-  open={snackbarOpen}
-  autoHideDuration={6000}
-  onClose={handleSnackbarClose}
-  anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Центр экрана
->
-  <Alert
-    onClose={handleSnackbarClose}
-    severity="warning"
-    sx={{ bgcolor: '#ffc107', color: 'white' }} // Ярко-желтый без прозрачности
-  >
-    {snackbarMessage}
-  </Alert>
-</Snackbar>
-
-    </>
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="info"
+          sx={{ 
+            width: '100%',
+            '& .MuiAlert-icon': {
+              color: '#105E82',
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </ThemeProvider>
   );
 };
 
