@@ -41,7 +41,7 @@ export default function SimpleBarChart() {
     barLabel={(item, context) => {
       return context.bar.height < 20 ? null : item.value?.toString();
     }}
-      width={530}
+      width={690}
       height={300} 
       borderRadius={10}
       series={[

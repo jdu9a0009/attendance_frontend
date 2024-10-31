@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { TableBody, TableRow, TableCell, Box, Select, MenuItem, SelectChangeEvent, Button } from "@mui/material";
+import React from "react";
+import { TableBody, TableRow, TableCell, Box, Button } from "@mui/material";
 import { TableData, Column, DateOrString } from "./types";
 import { useTranslation } from 'react-i18next';
 import { downloadEmployeeQRCode } from '../../../utils/libs/axios';
@@ -13,11 +13,7 @@ interface AttendanceTableBodyProps {
 
 const formatValue = (value: DateOrString | boolean, key?: string): string => {
   if (value === undefined || value === null) {
-    // Special condition for checkOut to return "--:--"
-    if (key === 'checkOut') {
-      return '';
-    }
-    return '--:--';
+    return key === 'checkOut' ? '' : '--:--';
   }
   if (typeof value === 'boolean') {
     return value ? 'Present' : 'Absent';
@@ -30,10 +26,7 @@ const formatValue = (value: DateOrString | boolean, key?: string): string => {
     }
     return value.toLocaleString();
   }
-  if (typeof value === 'number') {
-    return value.toString();
-  }
-  return value;
+  return value.toString();
 };
 
 const getStatusStyles = (status: boolean): { backgroundColor: string; color: string } => {
@@ -48,13 +41,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
   onEdit, 
   onDelete 
 }) => {
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const { t } = useTranslation('admin');
-
-  const handleStatusChange = (rowId: number, newStatus: string) => {
-    // onStatusChange(rowId, newStatus);
-    setEditingRowId(null);
-  };
 
   return (
     <TableBody>
@@ -63,41 +50,39 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
           {columns.map((column) => {
             if (column.id === 'action') {
               return (
-<TableCell key={column.id} sx={{ padding: '8px 16px' }}>
-  <Box sx={{ display: 'flex', gap: 0.5 }}>
-    {onEdit && (
-      <Button onClick={() => onEdit(row)} variant="outlined" size="small">
-        {t('employeeTable.editBtn')}
-      </Button>
-    )}
-    {onDelete && (
-      <Button
-        variant="outlined"
-        size="small"
-        color="error"
-        onClick={() => onDelete(row.id)}
-      >
-        {t('employeeTable.deleteBtn')}
-      </Button>
-    )}
-<Button
-  variant="outlined"
-  size="small"
-  color="primary"
-  onClick={() => {
-    if (row.employee_id) {
-      downloadEmployeeQRCode(row.employee_id); // Только если employee_id существует
-    } else {
-      console.error("Employee ID is missing");
-    }
-  }}
->
-  {t('employeeTable.downloadQRCodeBtn')}
-</Button>
-
-  </Box>
-</TableCell>
-
+                <TableCell key={column.id} sx={{ padding: '8px 16px' }}>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    {onEdit && (
+                      <Button onClick={() => onEdit(row)} variant="outlined" size="small">
+                        {t('employeeTable.editBtn')}
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        onClick={() => onDelete(row.id)}
+                      >
+                        {t('employeeTable.deleteBtn')}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        if (row.employee_id) {
+                          downloadEmployeeQRCode(row.employee_id);
+                        } else {
+                          console.error("Employee ID is missing");
+                        }
+                      }}
+                    >
+                      {t('employeeTable.downloadQRCodeBtn')}
+                    </Button>
+                  </Box>
+                </TableCell>
               );
             }
 
@@ -108,50 +93,21 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
 
             return (
               <TableCell key={`${row.id}-${column.id}`} sx={{ padding: '8px 16px' }}>
-
-                {column.id === 'status' && value !== undefined ? (
-                  editingRowId === row.id ? (
-                    <Select
-                      value={value.toString()} 
-                      onChange={(e: SelectChangeEvent<string>) => handleStatusChange(row.id, e.target.value)}
-                      displayEmpty
-                      sx={{
-                        backgroundColor,
-                        color,
-                        px: 1,
-                        borderRadius: 1,
-                        minWidth: 120,
-                        height: 36,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {[
-                        { label: 'Present', value: 'true' },
-                        { label: 'Absent', value: 'false' },
-                      ].map(({ label, value }) => (
-                        <MenuItem key={value} value={value}>{label}</MenuItem>
-                      ))}
-                    </Select>
-                  ) : (
-                    <Box
-                      sx={{
-                        backgroundColor,
-                        color,
-                        borderRadius: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: 36,
-                        minWidth: 100,
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => setEditingRowId(row.id)}
-                    >
-                      {formatValue(value, column.id)}
-                    </Box>
-                  )
+                {column.id === 'status' && typeof value === 'boolean' ? (
+                  <Box
+                    sx={{
+                      backgroundColor,
+                      color,
+                      borderRadius: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: 36,
+                      minWidth: 100,
+                    }}
+                  >
+                    {formatValue(value, column.id)}
+                  </Box>
                 ) : (
                   formatValue(value, column.id)
                 )}

@@ -46,7 +46,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#F5F8FA" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", backgroundColor: "#F5F8FA" }}>
       <Box sx={{ width: "240px", boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)" }}>
       <SideMenu companyName={companyName} />
       </Box>
@@ -54,7 +54,6 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   <Box
     sx={{
       display: "flex",
-      justifyContent: "flex-end",
       alignItems: "center",
       padding: "20px",
       backgroundColor: "#FFFFFF",
@@ -66,7 +65,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
       borderRadius: "8px" 
     }}
   >
-    <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
       <Select
         value={language}
         onChange={handleLanguageChange}
