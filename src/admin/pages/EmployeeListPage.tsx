@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { Box, Typography, Paper, Button } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import AddIcon from '@mui/icons-material/Add';
 import EmployeeTable from '../components/Table/EmployeeTable';
 import EditModal from '../components/Table/EditModal';
@@ -160,8 +161,35 @@ const EmployeeListPage: React.FC = () => {
       alert("Не удалось загрузить QR-коды. Пожалуйста, попробуйте еще раз.");
     }
   };
+
+  const handleExportEmployees = async () => {
+    try {
+      const response = await axiosInstance().get('/user/export_employee', {
+        responseType: 'blob', // Ожидаем, что сервер вернет файл в виде Blob
+      });
   
+      if (!(response.data instanceof Blob)) {
+        throw new Error('Неверный формат ответа');
+      }
   
+      // Изменяем MIME-тип на Excel
+      const excelBlob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(excelBlob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'employees.xlsx'); // Изменили имя файла на .xlsx
+  
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Ошибка при экспорте сотрудников:", error);
+      alert("Не удалось экспортировать сотрудников. Попробуйте еще раз.");
+    }
+  };
   
   
 
@@ -187,13 +215,23 @@ const EmployeeListPage: React.FC = () => {
             {t('employeeList.uploadButton')}
           </Button>
         </Box>
-        <Button
-          variant="contained"
-          onClick={handleDownloadQRCodes}
-          sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' } }}
-        >
-          {t('employeeList.downloadQRCodesButton')}
-        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            onClick={handleDownloadQRCodes}
+            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' }, mr: 2 }}
+          >
+            {t('employeeList.downloadQRCodesButton')}
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<DownloadIcon />}
+            onClick={handleExportEmployees}
+            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' } }}
+          >
+            {t('Export')}
+          </Button>
+        </Box>
       </Box>
       <EmployeeTable
         departments={departments}
@@ -227,6 +265,6 @@ const EmployeeListPage: React.FC = () => {
       />
     </Box>
   );
-};  
+  };  
 
 export default EmployeeListPage;

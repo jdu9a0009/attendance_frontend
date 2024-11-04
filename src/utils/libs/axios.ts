@@ -137,11 +137,27 @@ export const deleteUser = async (id: number) => {
 // Обновленная функция uploadExcelFile
 export const uploadExcelFile = async (excell: FormData) => {
   try {
+    // Проверка значения mode
+    const mode = excell.get('mode');
+
+    // Логируем полученный mode
+    console.log('Received mode:', mode);
+
+    // Определяем endpoint
+    const endpoint = 'user/create_excell';
+
+    // Логируем все данные в FormData
+    console.log('FormData contents:');
     excell.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
+      console.log(`${key}:`, value instanceof File ? {
+        fileName: value.name,
+        fileType: value.type,
+        fileSize: value.size
+      } : value);
     });
 
-    const response = await axiosInstance().post('user/create_excell', excell, {
+    // Отправка POST запроса
+    const response = await axiosInstance().post(endpoint, excell, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -150,9 +166,15 @@ export const uploadExcelFile = async (excell: FormData) => {
     console.log("Ответ сервера:", response.data);
     return response.data;
   } catch (error) {
-    // Проверяем, является ли ошибка ошибкой axios, и выводим соответствующее сообщение
     if (axios.isAxiosError(error)) {
-      console.error('Ошибка при загрузке файла:', error.response?.data || error.message);
+      // Логируем детали ошибки
+      console.error('Детали ошибки:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        config: error.config
+      });
     } else {
       console.error('Неизвестная ошибка:', error);
     }
@@ -160,32 +182,39 @@ export const uploadExcelFile = async (excell: FormData) => {
   }
 };
 
+
+
 export const downloadSampleFile = async () => {
   try {
-    const response = await axiosInstance().get('user/download_sample', {
-      responseType: 'blob', // Важно для скачивания файлов
+    const response = await axiosInstance().get('user/export_template', {
+      responseType: 'blob',
     });
 
-    // Создаем blob из полученных данных
-    const blob = new Blob([response.data], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-    });
+    // Проверяем, что получили данные
+    if (response.data) {
+      // Создаем blob из полученных данных
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
 
-    // Создаем ссылку для скачивания
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'sample.xlsx'); // Имя файла для скачивания
-    
-    // Добавляем ссылку в DOM и имитируем клик
-    document.body.appendChild(link);
-    link.click();
-    
-    // Очищаем
-    link.parentNode?.removeChild(link);
-    window.URL.revokeObjectURL(url);
+      // Создаем ссылку для скачивания
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'sample.xlsx'); // или используйте имя из response headers если оно там есть
+      
+      // Запускаем скачивание
+      document.body.appendChild(link);
+      link.click();
+      
+      // Очищаем
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
 
-    return response.data;
+      return response.data;
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Ошибка при скачивании sample файла:', error.response?.data || error.message);

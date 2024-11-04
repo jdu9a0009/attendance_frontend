@@ -18,6 +18,7 @@ import {
 import { uploadExcelFile, downloadSampleFile } from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
 import { SnackbarCloseReason } from "@mui/material";
+import axios from "axios";
 
 // Создаем кастомную тему
 const theme = createTheme({
@@ -40,7 +41,8 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   onUpload,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [mode, setMode] = useState<number>(0);
+  
+  const [mode, setMode] = useState<number>(1);
   const { t } = useTranslation('admin');
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -69,10 +71,11 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   const handleDownloadSample = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      await downloadSampleFile();
+      const response = await downloadSampleFile(); // Ожидаем ответ от функции
+      // Обработка успешного скачивания
     } catch (error) {
       console.error("Error downloading sample file:", error);
-      showSnackbar("Error downloading sample file");
+      showSnackbar("Error downloading file");
     }
   };
 
@@ -91,19 +94,27 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("mode", mode.toString());
+      formData.append("excell", selectedFile); // Замените "file" на "excell"
+      formData.append("mode", mode.toString()); // Добавляем mode как строку
   
       const response = await uploadExcelFile(formData);
-      
+  
       showSnackbar("File uploaded successfully");
       onUpload(selectedFile, mode);
       onClose();
     } catch (error) {
       console.error("Error uploading file:", error);
-      showSnackbar("Error uploading file");
+      if (axios.isAxiosError(error) && error.response) {
+        const errorMessage = error.response.data.message || "Error uploading file";
+        showSnackbar(errorMessage);
+      } else {
+        showSnackbar("Error uploading file");
+      }
     }
   };
+  
+  
+  
 
   return (
     <ThemeProvider theme={theme}>
@@ -174,9 +185,9 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
                     },
                   }}
                 >
-                  <MenuItem value={0}>Create</MenuItem>
-                  <MenuItem value={1}>Update</MenuItem>
-                  <MenuItem value={2}>Delete</MenuItem>
+                  <MenuItem value={1}>Create</MenuItem>
+                  <MenuItem value={2}>Update</MenuItem>
+                  <MenuItem value={3}>Delete</MenuItem>
                 </Select>
                 <Typography variant="caption" color="textSecondary">
                   Choose the operation mode for processing the XLSX
