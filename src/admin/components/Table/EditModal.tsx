@@ -47,9 +47,11 @@ const EditModal: React.FC<EditModalProps> = ({
 
   useEffect(() => {
     if (data) {
+      console.log("Data received in EditModal:", data); // Проверка данных
       setFormData(data);
     }
   }, [data]);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
@@ -118,9 +120,8 @@ const EditModal: React.FC<EditModalProps> = ({
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          required
         />
-        <FormControl fullWidth margin="normal" required>
+        <FormControl fullWidth margin="normal">
           <InputLabel shrink={Boolean(formData.role)}>役職</InputLabel>
           <Select
             name="role"

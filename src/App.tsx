@@ -78,7 +78,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Box sx={{ height: "100vh" }}>
+        <Box sx={{ height: "100vh"}}>
           <Routes>
             <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
             <Route

@@ -15,17 +15,14 @@ interface SideMenuProps {
   companyName: string;
 }
 
-// Стиль для списка меню
 const CustomList = styled(List)({
   width: '100%',
   maxWidth: 240,
   backgroundColor: '#F5F8FA',
   padding: 0,
-  borderRadius: '8px',
   overflow: 'hidden',
 });
 
-// Стиль для кнопок списка
 const CustomListItemButton = styled(ListItemButton)(({ theme }) => ({
   padding: '12px 24px',
   color: theme.palette.text.primary,
@@ -33,19 +30,18 @@ const CustomListItemButton = styled(ListItemButton)(({ theme }) => ({
     backgroundColor: primaryColor,
     color: '#FFFFFF',
     '& .MuiListItemIcon-root': {
-      color: '#FFFFFF', // Изменение цвета иконок при наведении
+      color: '#FFFFFF',
     },
   },
   '&.Mui-selected': {
     backgroundColor: primaryColor,
     color: '#FFFFFF',
     '& .MuiListItemIcon-root': {
-      color: '#FFFFFF', // Изменение цвета иконок при выборе
+      color: '#FFFFFF',
     },
   },
 }));
 
-// Стиль для заголовка меню
 const MenuTitle = styled(Typography)({
   padding: '16px 24px',
   color: primaryColor,
@@ -79,8 +75,12 @@ function SideMenu({ companyName }: SideMenuProps) {
               selected={location.pathname === item.path}
               onClick={() => handleNavigation(item.path)}
             >
-              <ListItemIcon>
-                {React.cloneElement(item.icon, { style: { color: location.pathname === item.path ? '#FFFFFF' : primaryColor } })} {/* Устанавливаем цвет иконки */}
+              <ListItemIcon
+                sx={{
+                  color: location.pathname === item.path ? '#FFFFFF' : primaryColor,
+                }}
+              >
+                {item.icon}
               </ListItemIcon>
               <ListItemText primary={item.text} />
             </CustomListItemButton>
