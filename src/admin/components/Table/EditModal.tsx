@@ -86,7 +86,7 @@ const EditModal: React.FC<EditModalProps> = ({
           formData.phone!,
           formData.email!
         );
-
+        
         onSave(formData);
         onClose();
       } catch (error) {
