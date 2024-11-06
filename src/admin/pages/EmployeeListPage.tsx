@@ -94,6 +94,7 @@ const EmployeeListPage: React.FC = () => {
         updatedEmployee.phone!,
         updatedEmployee.email!
       );
+      setUserCreated(prev => !prev);
       setEditModalOpen(false);
     } catch (error) {
       console.error('Ошибка при обновлении данных:', error);
@@ -250,6 +251,7 @@ const EmployeeListPage: React.FC = () => {
         data={selectedEmployee}
         onClose={() => setEditModalOpen(false)}
         onSave={handleEditSave}
+        userCreated={userCreated}
       />
       <CreateEmployeeModal
         departments={departments}

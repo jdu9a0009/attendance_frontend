@@ -21,6 +21,7 @@ interface EditModalProps {
   onSave: (updatedData: TableData) => void;
   positions: Position[];
   departments: Department[];
+  userCreated: boolean;
 }
 
 export interface Department {
@@ -42,6 +43,7 @@ const EditModal: React.FC<EditModalProps> = ({
   onSave,
   positions,
   departments,
+  userCreated
 }) => {
   const [formData, setFormData] = useState<TableData | null>(data);
 
@@ -86,7 +88,7 @@ const EditModal: React.FC<EditModalProps> = ({
           formData.phone!,
           formData.email!
         );
-
+        
         onSave(formData);
         onClose();
       } catch (error) {

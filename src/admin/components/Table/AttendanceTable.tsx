@@ -18,7 +18,7 @@ import AttendanceTableHead from "./AttendanceTableHead";
 import AttendanceTableBody from "./AttendanceTableBody";
 import CalendarModal from "./CalendarModal";
 import axiosInstance from "../../../utils/libs/axios";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 interface AttendanceTableProps {
   columns: Column[];
@@ -49,15 +49,15 @@ export interface Position {
 }
 
 const AttendanceTable: React.FC<AttendanceTableProps> = ({
-  columns ,
+  columns,
   onEdit,
   onDelete,
   tableTitle,
   showCalendar = true,
   positions,
   departments,
-  width = "100%",  
-  height = "auto", 
+  width = "100%",
+  height = "auto",
 }) => {
   const [data, setData] = useState<TableData[]>([]);
   const [page, setPage] = useState(0);
@@ -67,28 +67,28 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCalendarOpen, setCalendarOpen] = useState(false);
   const [pendingSearch, setPendingSearch] = useState("");
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const [filters, setFilters] = useState<FilterState>({
     status: [],
     department: [],
-    position: []
+    position: [],
   });
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
         const formattedDate = selectedDate
-          ? selectedDate.toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0]; // Если нет выбранной даты, берём текущую
-  
+          ? selectedDate.toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0]; // Если нет выбранной даты, берём текущую
+
         console.log("Отправляем запрос с датой:", formattedDate);
-  
+
         const response = await axiosInstance().get(
           `/attendance/list?date=${formattedDate}`
         );
-  
+
         console.log("Ответ с сервера:", response);
-  
+
         const formattedData = response.data.data.results.map((item: any) => ({
           id: item.id,
           department: item.department,
@@ -101,15 +101,15 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           leave_time: item.leave_time,
           total_hourse: item.total_hourse,
         }));
-  
+
         console.log("Отформатированные данные:", formattedData);
-  
+
         setData(formattedData);
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       }
     };
-  
+
     fetchEmployeeData();
   }, [selectedDate]);
 
@@ -123,7 +123,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
         if (!values || values.length === 0) return true;
         const rowValue = row[key as keyof TableData];
         if (key === "status") {
-          return values.includes(rowValue === "present" ? "true" : "false"); // Сравниваем с true/false
+          return values.includes(rowValue === "present" ? "true" : "false");
         }
         return rowValue ? values.includes(rowValue.toString()) : false;
       });
@@ -131,7 +131,40 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
       return matchesSearch && matchesFilters;
     });
 
-    setFilteredData(filtered);
+    // Sorting logic
+    const getSortPriority = (row: TableData) => {
+      const priority: number[] = [];
+
+      // For department
+      if (filters.department && filters.department.length > 0) {
+        const index = filters.department.indexOf(row.department);
+        priority.push(index !== -1 ? index : filters.department.length);
+      } else {
+        priority.push(0);
+      }
+
+      // For position
+      if (filters.position && filters.position.length > 0) {
+        const index = filters.position.indexOf(row.position || "");
+        priority.push(index !== -1 ? index : filters.position.length);
+      } else {
+        priority.push(0);
+      }
+
+      return priority;
+    };
+
+    const sorted = filtered.sort((a, b) => {
+      const aPriority = getSortPriority(a);
+      const bPriority = getSortPriority(b);
+      for (let i = 0; i < aPriority.length; i++) {
+        if (aPriority[i] < bPriority[i]) return -1;
+        if (aPriority[i] > bPriority[i]) return 1;
+      }
+      return 0;
+    });
+
+    setFilteredData(sorted);
     setPage(0);
   }, [data, searchTerm, filters]);
 
@@ -195,9 +228,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           p: 2,
         }}
       >
-        <Typography variant="h6">
-          {tableTitle || "出勤状況"}
-        </Typography>
+        <Typography variant="h6">{tableTitle || "出勤状況"}</Typography>
         <Box sx={{ display: " flex", justifyContent: "space-between" }}>
           {showCalendar && (
             <IconButton onClick={handleCalendarOpen}>
@@ -207,7 +238,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           <TextField
             variant="outlined"
             size="small"
-            placeholder={t('table.searchPlaceholder')}
+            placeholder={t("table.searchPlaceholder")}
             value={pendingSearch}
             onChange={handleSearchChange}
             onKeyPress={handleKeyPress}
@@ -226,7 +257,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
             variant="contained"
             sx={{ ml: 1, width: "20%", bgcolor: "#105E82", fontSize: "12px" }}
           >
-            {t('table.searchBtn')}
+            {t("table.searchBtn")}
           </Button>
         </Box>
       </Box>
@@ -256,10 +287,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <CalendarModal
-        open={isCalendarOpen}
-        onClose={handleCalendarClose}
-      />
+      <CalendarModal open={isCalendarOpen} onClose={handleCalendarClose} />
     </Paper>
   );
 };
