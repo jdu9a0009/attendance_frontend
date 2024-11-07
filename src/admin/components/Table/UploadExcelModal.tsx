@@ -41,12 +41,11 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   onUpload,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
   const [mode, setMode] = useState<number>(1);
   const { t } = useTranslation('admin');
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [userCreated, setUserCreated] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -101,6 +100,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   
       showSnackbar("File uploaded successfully");
       onUpload(selectedFile, mode);
+      setUserCreated(prev => !prev);
       onClose();
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -113,9 +113,6 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     }
   };
   
-  
-  
-
   return (
     <ThemeProvider theme={theme}>
       <Modal open={open} onClose={onClose}>

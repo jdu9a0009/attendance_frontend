@@ -121,10 +121,11 @@ const EmployeeListPage: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await uploadExcelFile(formData);
+      // const response = await uploadExcelFile(formData);
 
-      console.log('Файл успешно загружен:', response);
+      console.log('Файл успешно загружен:');
       setUploadModalOpen(false);
+      setUserCreated(prev => !prev);
     } catch (error) {
       console.error('Ошибка при загрузке файла:', error);
     }
