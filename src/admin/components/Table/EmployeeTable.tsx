@@ -178,7 +178,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 4, mb: 5 }}>
+    <Paper sx={{ width: "100%", overflow: "hidden",           borderBottomLeftRadius: '10px',
+    borderBottomRightRadius: '10px',
+    borderTopLeftRadius: '0px',
+    borderTopRightRadius: '0px', mb: 5 }}>
       <Box
         sx={{
           display: "flex",

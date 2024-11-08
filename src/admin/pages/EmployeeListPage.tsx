@@ -43,6 +43,21 @@ const EmployeeListPage: React.FC = () => {
     { id: 'action', label: t('employeeTable.action') },
   ];
 
+  const buttonStyles = {
+    base: {
+      height: 40,
+      textTransform: 'none',
+      borderRadius: 2,
+    },
+    primary: {
+      bgcolor: '#00D891',
+      '&:hover': { bgcolor: '#00AB73' },
+    },
+    withMargin: {
+      ml: 1.5
+    }
+  };
+
   useEffect(() => {
     const loadDepartments = async () => {
       try {
@@ -196,15 +211,32 @@ const EmployeeListPage: React.FC = () => {
   
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4">{t('employeeList.pageTitle')}</Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>{t('')}</Typography>
+      
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          borderTopLeftRadius: '10px',
+          borderTopRightRadius: '10px',
+          borderBottomRightRadius: '0px',
+          borderBottomLeftRadius: '0px',
+          
+          padding: '14px',
+          marginBottom: '-1px',
+          display: 'flex', 
+          justifyContent: 'space-between',
+          backgroundColor: '#FFFFFF',
+          
+        }}
+      >
+        {/* Левая группа кнопок - Основные действия */}
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setCreateModalOpen(true)}
-            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' } }}
+            sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('employeeList.createButton')}
           </Button>
@@ -212,16 +244,18 @@ const EmployeeListPage: React.FC = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setUploadModalOpen(true)}
-            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' }, ml: 2 }}
+            sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('employeeList.uploadButton')}
           </Button>
         </Box>
-        <Box>
+
+        {/* Правая группа кнопок - Экспорт и выгрузка */}
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
             onClick={handleDownloadQRCodes}
-            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' }, mr: 2 }}
+            sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('employeeList.downloadQRCodesButton')}
           </Button>
@@ -229,12 +263,12 @@ const EmployeeListPage: React.FC = () => {
             variant="contained"
             startIcon={<DownloadIcon />}
             onClick={handleExportEmployees}
-            sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' } }}
+            sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('Export')}
           </Button>
         </Box>
-      </Box>
+      </Paper>
       <EmployeeTable
         departments={departments}
         positions={positions}
