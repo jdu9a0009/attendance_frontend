@@ -194,15 +194,15 @@ const MainContent: React.FC<MainContentProps> = ({
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
       } else {
-        setMessage(result.error || 'Произошла ошибка при отметке прихода.');
+        setMessage(result.error || '出勤記録にエラーが発生しました。');
         setMessageColor('#ff0000');
       }
     } catch (error) {
       console.error('Ошибка при отправке запроса на отметку прихода:', error);
       if (axios.isAxiosError(error) && error.response) {
-        setMessage(error.response.data.error || 'Произошла ошибка при отметке прихода.');
+        setMessage(error.response.data.error || '出勤記録にエラーが発生しました。');
       } else {
-        setMessage('Произошла неизвестная ошибка при отметке прихода.');
+        setMessage('不明なエラーが発生しました。出勤記録に失敗しました。');
       }
       setMessageColor('#ff0000');
     }
@@ -217,16 +217,19 @@ const MainContent: React.FC<MainContentProps> = ({
           setTotalHours(result.data.total_hours);
           setMessage(`退勤した時間 ${formatTime(result.data.leave_time)}`);
           setMessageColor('#000');
+          
+          // Повторный запрос на получение данных с дашборда для обновления totalHours
+          await fetchDashboardData();
         } else {
-          setMessage(result.error || 'Произошла ошибка при отметке выхода.');
+          setMessage(result.error || '退勤記録にエラーが発生しました。');
           setMessageColor('#ff0000');
         }
       } catch (error) {
         console.error('Ошибка при отправке запроса на отметку выхода:', error);
         if (axios.isAxiosError(error) && error.response) {
-          setMessage(error.response.data.error || 'Произошла ошибка при отметке выхода.');
+          setMessage(error.response.data.error || '退勤記録にエラーが発生しました。');
         } else {
-          setMessage('Произошла неизвестная ошибка при отметке выхода.');
+          setMessage('不明なエラーが発生しました。退勤記録に失敗しました。');
         }
         setMessageColor('#ff0000');
       }
@@ -235,6 +238,7 @@ const MainContent: React.FC<MainContentProps> = ({
       setMessageColor('#ff0000');
     }
   };
+  
 
   return (
     <Box

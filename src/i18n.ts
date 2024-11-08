@@ -38,7 +38,7 @@ const commonResources = {
   },
   ja: {
     common: {
-      greeting: 'こんにちは {{employeeId}}!',
+      greeting: 'こんにちは {{employeeId}}さん!',
       logout: 'ログアウト',
       languageSwitcher: '言語',
       japanese: '日本語',
