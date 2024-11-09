@@ -10,6 +10,8 @@ import {
   FormControl,
   InputLabel,
   SelectChangeEvent,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import { TableData } from "./types";
 import { createUser } from "../../../utils/libs/axios"; // Импортируем функцию createUser
@@ -34,6 +36,18 @@ export interface Position {
   department_id: number;
   department: string;
 }
+
+// Создаем кастомную тему
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#105E82',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif',
+  },
+});
 
 const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   open,
@@ -70,7 +84,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
         positions.find((p) => p.name === newEmployee.position)?.id!,
         newEmployee.phone!,
         newEmployee.email!
-      );   
+      );
       onSave(createdEmployee);
       onClose();
     } catch (error) {
@@ -79,123 +93,128 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-        }}
-      >
-        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        {t('createEmployeeModal.title')}
-        </Typography>
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <TextField
-            fullWidth
-            margin="normal"
-            name="full_name"
-            label={t('createEmployeeModal.name')}
-            value={newEmployee.full_name || ""}
-            onChange={handleInputChange}
-            autoComplete="off"
-            required
-          />
-          <TextField
-            required
-            fullWidth
-            margin="normal"
-            name="password"
-            label={t('createEmployeeModal.password')}
-            type="password"
-            value={newEmployee.password || ""}
-            onChange={handleInputChange}
-            autoComplete="new-password"
-          />
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
-            <Select
-              name="role"
-              value={newEmployee.role || ""}
-              onChange={handleSelectChange}
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
-              <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel shrink={Boolean(newEmployee.department)}>
-            {t('createEmployeeModal.department')}
-            </InputLabel>
-            <Select
-              name="department"
-              value={newEmployee.department || ""}
-              onChange={handleSelectChange}
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {departments.map((department) => (
-                <MenuItem key={department.id} value={department.name}>
-                  {department.name}
+    <ThemeProvider theme={theme}>
+      <Modal open={open} onClose={onClose}>
+        <Box
+          sx={{
+            borderRadius: "10px",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+            {t('createEmployeeModal.title')}
+          </Typography>
+          <form onSubmit={handleSubmit} autoComplete="off">
+            <TextField
+              fullWidth
+              margin="normal"
+              name="full_name"
+              label={t('createEmployeeModal.name')}
+              value={newEmployee.full_name || ""}
+              onChange={handleInputChange}
+              autoComplete="off"
+              required
+            />
+            <TextField
+              required
+              fullWidth
+              margin="normal"
+              name="password"
+              label={t('createEmployeeModal.password')}
+              type="password"
+              value={newEmployee.password || ""}
+              onChange={handleInputChange}
+              autoComplete="new-password"
+            />
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
+              <Select
+                name="role"
+                value={newEmployee.role || ""}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="">
+                  <em>None</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel shrink={Boolean(newEmployee.position)}>{t('createEmployeeModal.position')}</InputLabel>
-            <Select
-              name="position"
-              value={newEmployee.position || ""}
-              onChange={handleSelectChange}
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {positions.map((position) => (
-                <MenuItem key={position.id} value={position.name}>
-                  {position.name}
+                <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
+                <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel shrink={Boolean(newEmployee.department)}>
+                {t('createEmployeeModal.department')}
+              </InputLabel>
+              <Select
+                name="department"
+                value={newEmployee.department || ""}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="">
+                  <em>None</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            fullWidth
-            margin="normal"
-            name="phone"
-            label={t('createEmployeeModal.phoneNumber')}
-            value={newEmployee.phone || ""}
-            onChange={handleInputChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            name="email"
-            label={t('createEmployeeModal.email')}
-            value={newEmployee.email || ""}
-            onChange={handleInputChange}
-            required
-          />
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-            <Button onClick={onClose} sx={{ mr: 1 }}>
-            {t('createEmployeeModal.cancelBtn')}
-            </Button>
-            <Button type="submit" variant="contained">
-              {t('createEmployeeModal.saveBtn')}
-            </Button>
-          </Box>
-        </form>
-      </Box>
-    </Modal>
+                {departments.map((department) => (
+                  <MenuItem key={department.id} value={department.name}>
+                    {department.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel shrink={Boolean(newEmployee.position)}>
+                {t('createEmployeeModal.position')}
+              </InputLabel>
+              <Select
+                name="position"
+                value={newEmployee.position || ""}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {positions.map((position) => (
+                  <MenuItem key={position.id} value={position.name}>
+                    {position.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              margin="normal"
+              name="phone"
+              label={t('createEmployeeModal.phoneNumber')}
+              value={newEmployee.phone || ""}
+              onChange={handleInputChange}
+              required
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              name="email"
+              label={t('createEmployeeModal.email')}
+              value={newEmployee.email || ""}
+              onChange={handleInputChange}
+              required
+            />
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+              <Button onClick={onClose} sx={{ mr: 1 }}>
+                {t('createEmployeeModal.cancelBtn')}
+              </Button>
+              <Button type="submit" variant="contained">
+                {t('createEmployeeModal.saveBtn')}
+              </Button>
+            </Box>
+          </form>
+        </Box>
+      </Modal>
+    </ThemeProvider>
   );
 };
 

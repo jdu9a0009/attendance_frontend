@@ -10,6 +10,8 @@ import {
   FormControl,
   InputLabel,
   SelectChangeEvent,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import { TableData } from "./types";
 import { updateUser } from "../../../utils/libs/axios";
@@ -53,7 +55,6 @@ const EditModal: React.FC<EditModalProps> = ({
       setFormData(data);
     }
   }, [data]);
-  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
@@ -99,120 +100,131 @@ const EditModal: React.FC<EditModalProps> = ({
 
   if (!formData) return null;
 
-  return (
-    <Modal open={open} onClose={onClose}>
-      <Box sx={{ ...modalStyle }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          従業員の編集
-        </Typography>
-        <TextField
-          label="氏名"
-          name="full_name"
-          value={formData.full_name}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="パスワード"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <FormControl fullWidth margin="normal">
-          <InputLabel shrink={Boolean(formData.role)}>役職</InputLabel>
-          <Select
-            name="role"
-            value={formData.role || ""}
-            onChange={handleSelectChange}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            <MenuItem value="Admin">管理者</MenuItem>
-            <MenuItem value="Employee">従業員</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel shrink={Boolean(formData.department)}>
-          部署
-          </InputLabel>
-          <Select
-            name="department"
-            value={formData.department || ""}
-            onChange={handleSelectChange}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {departments.map((department) => (
-              <MenuItem key={department.id} value={department.name}>
-                {department.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth margin="normal" required>
-          <InputLabel shrink={Boolean(formData.position)}>役職</InputLabel>
-          <Select
-            name="position"
-            value={formData.position || ""}
-            onChange={handleSelectChange}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {positions.map((position) => (
-              <MenuItem key={position.id} value={position.name}>
-                {position.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          label="電話番号"
-          name="phone"
-          value={formData.phone}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          required
-        />
-        <TextField
-          label="メールアドレス"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          required
-        />
+  // Создаем тему для компонента
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#105E82', // Цвет для кнопок и акцентов
+      },
+    },
+  });
 
-        <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-          <Button onClick={onClose} sx={{ mr: 1 }}>
-            キャンセル
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleSave}>
-            保存
-          </Button>
+  return (
+    <ThemeProvider theme={theme}>
+      <Modal open={open} onClose={onClose}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            従業員の編集
+          </Typography>
+          <TextField
+            label="氏名"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="パスワード"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel shrink={Boolean(formData.role)}>役職</InputLabel>
+            <Select
+              name="role"
+              value={formData.role || ""}
+              onChange={handleSelectChange}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value="Admin">管理者</MenuItem>
+              <MenuItem value="Employee">従業員</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel shrink={Boolean(formData.department)}>
+              部署
+            </InputLabel>
+            <Select
+              name="department"
+              value={formData.department || ""}
+              onChange={handleSelectChange}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {departments.map((department) => (
+                <MenuItem key={department.id} value={department.name}>
+                  {department.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel shrink={Boolean(formData.position)}>役職</InputLabel>
+            <Select
+              name="position"
+              value={formData.position || ""}
+              onChange={handleSelectChange}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {positions.map((position) => (
+                <MenuItem key={position.id} value={position.name}>
+                  {position.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            label="電話番号"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="メールアドレス"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={onClose} sx={{ mr: 1 }}>
+              キャンセル
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              保存
+            </Button>
+          </Box>
         </Box>
-      </Box>
-    </Modal>
+      </Modal>
+    </ThemeProvider>
   );
 };
 
 const modalStyle = {
   position: "absolute" as "absolute",
+  borderRadius: "10px",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
