@@ -53,7 +53,7 @@ const CompanySettings: React.FC = () => {
       reader.readAsDataURL(file);
     } else {
       // Показать сообщение об ошибке пользователю
-      alert('Пожалуйста, выберите файл формата JPG, JPEG или PNG');
+      alert(' ファイル形式はJPG、JPEG、PNGからお選びください。');
       // Сбросить значение input
       e.target.value = '';
     }

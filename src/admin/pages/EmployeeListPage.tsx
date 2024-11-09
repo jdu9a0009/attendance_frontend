@@ -175,7 +175,7 @@ const EmployeeListPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Ошибка при загрузке QR-кодов:", error);
-      alert("Не удалось загрузить QR-коды. Пожалуйста, попробуйте еще раз.");
+      alert(" QRコードの読み込みに失敗しました。もう一度お試しください。");
     }
   };
 
@@ -204,7 +204,7 @@ const EmployeeListPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Ошибка при экспорте сотрудников:", error);
-      alert("Не удалось экспортировать сотрудников. Попробуйте еще раз.");
+      alert("従業員のエクスポートに失敗しました。再試行してください。");
     }
   };
   

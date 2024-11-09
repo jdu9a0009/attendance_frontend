@@ -161,7 +161,7 @@ function DepartmentPositionManagement() {
       fetchData();
       handleClosePositionDialog();
     } else {
-      alert('Please enter a position name and select a department.');
+      alert('役職名を入力し、 部署を選択してください。');
     }
   };
 
@@ -175,12 +175,12 @@ function DepartmentPositionManagement() {
       fetchData();
       handleClosePositionDialog();
     } else {
-      alert('Please enter a valid position name and select a department.');
+      alert(' 有効な 役職名を入力し、 部署を選択してください。');
     }
   };
 
   const handleDeleteDepartment = (departmentId: number) => {
-    if (window.confirm('Are you sure you want to delete this department?')) {
+    if (window.confirm('この部署を削除しますか？')) {
       setDepartments(departments.filter(d => d.id !== departmentId));
       setPositions(positions.filter(p => p.department_id !== departmentId));
       fetchData();
@@ -188,7 +188,7 @@ function DepartmentPositionManagement() {
   };
 
   const handleDeletePosition = (positionId: number) => {
-    if (window.confirm('Are you sure you want to delete this position?')) {
+    if (window.confirm('この役職を削除しますか？')) {
       setPositions(positions.filter(p => p.id !== positionId));
       fetchData();
     }
