@@ -45,10 +45,11 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   textAlign: 'center',
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
+  fontSize: '28px',
 }));
 
 const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
-  backgroundColor: status === true ? '#e8f5e9' : status === false ? '#ffebee' : 'transparent',
+  backgroundColor: status === true ? '#43A047' : status === false ? '#E53935' : 'transparent',
   padding: theme.spacing(1),
   height: '100%',
   display: 'flex',
@@ -56,6 +57,7 @@ const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme 
   justifyContent: 'center',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  fontSize: '28px',
 }));
 
 const PaginationContainer = styled(Box)(({ theme }) => ({
