@@ -200,9 +200,9 @@ const MainContent: React.FC<MainContentProps> = ({
     } catch (error) {
       console.error('Ошибка при отправке запроса на отметку прихода:', error);
       if (axios.isAxiosError(error) && error.response) {
-        setMessage(error.response.data.error || '出勤記録にエラーが発生しました。');
+        setMessage(error.response.data.error || '');
       } else {
-        setMessage('不明なエラーが発生しました。出勤記録に失敗しました。');
+        setMessage('');
       }
       setMessageColor('#ff0000');
     }
@@ -227,9 +227,9 @@ const MainContent: React.FC<MainContentProps> = ({
       } catch (error) {
         console.error('Ошибка при отправке запроса на отметку выхода:', error);
         if (axios.isAxiosError(error) && error.response) {
-          setMessage(error.response.data.error || '退勤記録にエラーが発生しました。');
+          setMessage(error.response.data.error || '');
         } else {
-          setMessage('不明なエラーが発生しました。退勤記録に失敗しました。');
+          setMessage('');
         }
         setMessageColor('#ff0000');
       }
