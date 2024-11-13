@@ -8,7 +8,7 @@ export interface FilterState {
 
 export interface TableData {
     id: number;
-    employee_id?: string;
+    employee_id: string;
     password?: string;
     role?: string;
     full_name: string;

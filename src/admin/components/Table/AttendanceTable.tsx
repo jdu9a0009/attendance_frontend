@@ -114,11 +114,11 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
   }, [selectedDate]);
 
   useEffect(() => {
-    const filtered = data.filter((row) => {
+    let filtered = data.filter((row) => {
       const matchesSearch = row.full_name
         ? row.full_name.toLowerCase().includes(searchTerm.toLowerCase())
         : false;
-
+  
       const matchesFilters = Object.entries(filters).every(([key, values]) => {
         if (!values || values.length === 0) return true;
         const rowValue = row[key as keyof TableData];
@@ -127,9 +127,18 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
         }
         return rowValue ? values.includes(rowValue.toString()) : false;
       });
-
+  
       return matchesSearch && matchesFilters;
     });
+  
+    const hasActiveFilters = Object.values(filters).some((values) => values.length > 0) || searchTerm.length > 0;
+    if (!hasActiveFilters) {
+      filtered = filtered.sort((a, b) => {
+        const numA = parseInt(a.employee_id.replace(/\D/g, ""), 10);
+        const numB = parseInt(b.employee_id.replace(/\D/g, ""), 10);
+        return numB - numA; 
+      });
+    }
 
     // Sorting logic
     const getSortPriority = (row: TableData) => {
@@ -279,7 +288,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 20]}
+        rowsPerPageOptions={[10, 20, 30, 40, 50]}
         component="div"
         count={filteredData.length}
         rowsPerPage={rowsPerPage}

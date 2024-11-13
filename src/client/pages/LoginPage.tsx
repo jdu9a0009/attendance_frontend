@@ -31,19 +31,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     if (!employee_id || !password) {
-      setError('Please fill in all fields');
+      setError('すべての欄にご記入ください。');
       setIsLoading(false);
       return;
     }
 
     try {
-      console.log('Попытка входа с ID:', employee_id);
       const response = await axiosInstance().post("/sign-in", {
         employee_id: employee_id,
         password: password,
       });
 
-      console.log('Ответ от сервера:', response);
 
       if (response.data && response.data.data && response.data.data.access_token) {
         const accessToken = response.data.data.access_token;
@@ -100,12 +98,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         console.error("Данные ответа:", axiosError.response?.data);
         
         if (axiosError.response) {
-          const errorMessage = typeof axiosError.response.data === 'object' && axiosError.response.data !== null
-            ? (axiosError.response.data as { message?: string }).message || 'Неизвестная ошибка'
-            : 'Неизвестная ошибка';
+          const errorMessage = typeof axiosError.response.data;
           setError(`Ошибка ${axiosError.response.status}: ${errorMessage}`);
         } else if (axiosError.request) {
-          setError('Нет ответа от сервера. Проверьте подключение к интернету.');
+          setError(' サーバーからの応答がない。インターネット接続を確認してください。');
         } else {
           setError(`Ошибка: ${axiosError.message}`);
         }
