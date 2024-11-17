@@ -237,7 +237,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 20]}
+        rowsPerPageOptions={[10, 20, 30, 40, 50]}
         component="div"
         count={filteredData.length}
         rowsPerPage={rowsPerPage}
