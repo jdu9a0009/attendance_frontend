@@ -36,7 +36,8 @@ interface EmployeeData {
   department_id: number;
   department_name: string;
   display_number: number;
-  full_name: string;
+  last_name: string;
+  nick_name?: string;
   status: boolean;
 }
 
@@ -49,7 +50,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
-  backgroundColor: status === true ? '#43A047' : status === false ? '#E53935' : 'transparent',
+  backgroundColor: status === true ? '#fafafa' : status === false ? '#E53935' : 'transparent',
   padding: theme.spacing(1),
   height: '100%',
   display: 'flex',
@@ -139,6 +140,19 @@ const NewDepartmentTable: React.FC = () => {
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
+
+  const formatName = (employee: EmployeeData): string => {
+    if (!employee.last_name) {
+        return employee.nick_name || ""; // Если фамилия отсутствует, возвращаем nickname или пустую строку
+    }
+
+    if (employee.last_name.length > 7) {
+        return employee.nick_name || employee.last_name.substring(0, 7);
+    }
+
+    return employee.last_name;
+};
+
 
   useEffect(() => {
     const loadServerData = async () => {
@@ -242,7 +256,7 @@ const NewDepartmentTable: React.FC = () => {
     const isLastPage = currentPage === pages.length;
     const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
     const columnWidth = `${100 / totalColumns}%`;
-
+  
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
@@ -250,7 +264,9 @@ const NewDepartmentTable: React.FC = () => {
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee ? (
-                <EmployeeCell status={employee.status}>{employee.full_name}</EmployeeCell>
+                <EmployeeCell status={employee.status}>
+                  {formatName(employee)}
+                </EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}

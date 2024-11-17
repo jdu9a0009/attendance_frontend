@@ -103,11 +103,13 @@ const EmployeeListPage: React.FC = () => {
         updatedEmployee.id,
         updatedEmployee.password!,
         updatedEmployee.role!,
-        updatedEmployee.full_name,
+        updatedEmployee.first_name!,
+        updatedEmployee.last_name!,
         updatedEmployee.department_id!,
         updatedEmployee.position_id!,
         updatedEmployee.phone!,
-        updatedEmployee.email!
+        updatedEmployee.email!,
+        updatedEmployee.nick_name!,
       );
       setUserCreated(prev => !prev);
       setEditModalOpen(false);
@@ -211,26 +213,21 @@ const EmployeeListPage: React.FC = () => {
   
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>{t('')}</Typography>
-      
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          borderTopLeftRadius: '10px',
-          borderTopRightRadius: '10px',
-          borderBottomRightRadius: '0px',
-          borderBottomLeftRadius: '0px',
-          
+    <>
+      {/* Убрали лишний Box */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: '10px 10px 0 0',
           padding: '14px',
           marginBottom: '-1px',
-          display: 'flex', 
+          display: 'flex',
           justifyContent: 'space-between',
           backgroundColor: '#FFFFFF',
-          
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         }}
       >
-        {/* Левая группа кнопок - Основные действия */}
+        {/* Левая группа кнопок */}
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
@@ -250,7 +247,7 @@ const EmployeeListPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Правая группа кнопок - Экспорт и выгрузка */}
+        {/* Правая группа кнопок */}
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
@@ -269,6 +266,8 @@ const EmployeeListPage: React.FC = () => {
           </Button>
         </Box>
       </Paper>
+
+      {/* Таблица сотрудников */}
       <EmployeeTable
         departments={departments}
         positions={positions}
@@ -279,6 +278,8 @@ const EmployeeListPage: React.FC = () => {
         showCalendar={false}
         userCreated={userCreated}
       />
+
+      {/* Модальные окна */}
       <EditModal
         departments={departments}
         positions={positions}
@@ -300,8 +301,8 @@ const EmployeeListPage: React.FC = () => {
         onClose={() => setUploadModalOpen(false)}
         onUpload={handleFileUpload}
       />
-    </Box>
+    </>
   );
-  };  
+};
 
 export default EmployeeListPage;

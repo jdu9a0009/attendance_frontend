@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { TableData } from "./types";
 import { updateUser } from "../../../utils/libs/axios";
+import { useTranslation } from "react-i18next";
 
 interface EditModalProps {
   open: boolean;
@@ -48,10 +49,12 @@ const EditModal: React.FC<EditModalProps> = ({
   userCreated
 }) => {
   const [formData, setFormData] = useState<TableData | null>(data);
+  const [nickNameError, setNickNameError] = useState<string>("");
+  const { t } = useTranslation('admin');
 
   useEffect(() => {
     if (data) {
-      console.log("Data received in EditModal:", data); // Проверка данных
+      console.log("Data received in EditModal:", data);
       setFormData(data);
     }
   }, [data]);
@@ -59,6 +62,15 @@ const EditModal: React.FC<EditModalProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
       const { name, value } = e.target;
+      
+      if (name === 'nick_name') {
+        if (value.length > 7) {
+          setNickNameError("ニックネームは7文字以内で入力してください");
+          return;
+        }
+        setNickNameError("");
+      }
+
       setFormData({
         ...formData,
         [name]: value,
@@ -83,11 +95,13 @@ const EditModal: React.FC<EditModalProps> = ({
           formData.id,
           formData.password!,
           formData.role!,
-          formData.full_name,
+          formData.first_name!,
+          formData.last_name!,
           departments.find((d) => d.name === formData.department)?.id!,
           positions.find((p) => p.name === formData.position)?.id!,
           formData.phone!,
-          formData.email!
+          formData.email!,
+          formData.nick_name // Добавляем nick_name
         );
         
         onSave(formData);
@@ -100,11 +114,10 @@ const EditModal: React.FC<EditModalProps> = ({
 
   if (!formData) return null;
 
-  // Создаем тему для компонента
   const theme = createTheme({
     palette: {
       primary: {
-        main: '#105E82', // Цвет для кнопок и акцентов
+        main: '#105E82',
       },
     },
   });
@@ -114,19 +127,28 @@ const EditModal: React.FC<EditModalProps> = ({
       <Modal open={open} onClose={onClose}>
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            従業員の編集
+          {t('createEmployeeModal.title')}
           </Typography>
           <TextField
-            label="氏名"
-            name="full_name"
-            value={formData.full_name}
+            label={t('createEmployeeModal.firstName')}
+            name="first_name"
+            value={formData.first_name}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
             required
           />
           <TextField
-            label="パスワード"
+            label={t('createEmployeeModal.lastName')}
+            name="last_name"
+            value={formData.last_name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label={t('createEmployeeModal.password')}
             name="password"
             type="password"
             value={formData.password}
@@ -134,8 +156,20 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="normal"
           />
+          {/* Добавляем поле nick_name */}
+          <TextField
+            label={t('createEmployeeModal.nickName') || "Nickname"}
+            name="nick_name"
+            value={formData.nick_name || ""}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            error={Boolean(nickNameError)}
+            helperText={nickNameError}
+            inputProps={{ maxLength: 7 }}
+          />
           <FormControl fullWidth margin="normal">
-            <InputLabel shrink={Boolean(formData.role)}>役職</InputLabel>
+            <InputLabel shrink={Boolean(formData.role)}>{t('createEmployeeModal.role')}</InputLabel>
             <Select
               name="role"
               value={formData.role || ""}
@@ -144,13 +178,13 @@ const EditModal: React.FC<EditModalProps> = ({
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              <MenuItem value="Admin">管理者</MenuItem>
-              <MenuItem value="Employee">従業員</MenuItem>
+              <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
+              <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
             </Select>
           </FormControl>
           <FormControl fullWidth margin="normal" required>
             <InputLabel shrink={Boolean(formData.department)}>
-              部署
+            {t('createEmployeeModal.department')}
             </InputLabel>
             <Select
               name="department"
@@ -168,7 +202,7 @@ const EditModal: React.FC<EditModalProps> = ({
             </Select>
           </FormControl>
           <FormControl fullWidth margin="normal" required>
-            <InputLabel shrink={Boolean(formData.position)}>役職</InputLabel>
+            <InputLabel shrink={Boolean(formData.position)}>{t('createEmployeeModal.position')}</InputLabel>
             <Select
               name="position"
               value={formData.position || ""}
@@ -185,7 +219,7 @@ const EditModal: React.FC<EditModalProps> = ({
             </Select>
           </FormControl>
           <TextField
-            label="電話番号"
+            label={t('createEmployeeModal.phoneNumber')}
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
@@ -194,7 +228,7 @@ const EditModal: React.FC<EditModalProps> = ({
             required
           />
           <TextField
-            label="メールアドレス"
+            label={t('createEmployeeModal.email')}
             name="email"
             value={formData.email}
             onChange={handleInputChange}
@@ -205,10 +239,10 @@ const EditModal: React.FC<EditModalProps> = ({
 
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
             <Button onClick={onClose} sx={{ mr: 1 }}>
-              キャンセル
+            {t('createEmployeeModal.cancelBtn')}
             </Button>
             <Button variant="contained" color="primary" onClick={handleSave}>
-              保存
+            {t('createEmployeeModal.saveBtn')}
             </Button>
           </Box>
         </Box>

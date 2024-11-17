@@ -236,7 +236,10 @@ const adminResources = {
 
       createEmployeeModal: {
         title: 'Create Employee',
+        firstName: 'First Name',
+        lastName: 'Last Name',
         name: 'Name',
+        nickName: 'Nick Name',
         employeeId: 'Employee ID',
         password: 'Password',
         position: 'Position',
@@ -383,7 +386,10 @@ const adminResources = {
 
       createEmployeeModal: {
         title: '新入社員の作成',
+        firstName: '下の名前',
+        lastName: '上の名前',
         name: '氏名',
+        nickName: 'ニックネーム',
         employeeId: '従業員 ID',
         password: 'パスワード',
         position: '役職',

@@ -14,7 +14,7 @@ import {
   createTheme,
 } from "@mui/material";
 import { TableData } from "./types";
-import { createUser } from "../../../utils/libs/axios"; // Импортируем функцию createUser
+import { createUser } from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
 
 interface CreateEmployeeModalProps {
@@ -37,7 +37,6 @@ export interface Position {
   department: string;
 }
 
-// Создаем кастомную тему
 const theme = createTheme({
   palette: {
     primary: {
@@ -60,10 +59,20 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
     position: "",
     department: "",
   });
+  const [nickNameError, setNickNameError] = useState<string>("");
   const { t } = useTranslation('admin');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    if (name === 'nick_name') {
+      if (value.length > 7) {
+        setNickNameError(t('createEmployeeModal.nickNameError') || 'Nickname cannot be longer than 7 characters');
+        return;
+      }
+      setNickNameError("");
+    }
+    
     setNewEmployee({ ...newEmployee, [name]: value });
   };
 
@@ -79,11 +88,13 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
       const createdEmployee = await createUser(
         newEmployee.password!,
         newEmployee.role!,
-        newEmployee.full_name!,
+        newEmployee.first_name!,
+        newEmployee.last_name!,
         departments.find((d) => d.name === newEmployee.department)?.id!,
         positions.find((p) => p.name === newEmployee.position)?.id!,
         newEmployee.phone!,
-        newEmployee.email!
+        newEmployee.email!,
+        newEmployee.nick_name // Добавляем nick_name в вызов
       );
       onSave(createdEmployee);
       onClose();
@@ -115,9 +126,19 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <TextField
               fullWidth
               margin="normal"
-              name="full_name"
-              label={t('createEmployeeModal.name')}
-              value={newEmployee.full_name || ""}
+              name="first_name"
+              label={t('createEmployeeModal.firstName')}
+              value={newEmployee.first_name || ""}
+              onChange={handleInputChange}
+              autoComplete="off"
+              required
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              name="last_name"
+              label={t('createEmployeeModal.lastName')}
+              value={newEmployee.last_name || ""}
               onChange={handleInputChange}
               autoComplete="off"
               required
@@ -132,6 +153,17 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               value={newEmployee.password || ""}
               onChange={handleInputChange}
               autoComplete="new-password"
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              name="nick_name"
+              label={t('createEmployeeModal.nickName') || "Nickname"}
+              value={newEmployee.nick_name || ""}
+              onChange={handleInputChange}
+              error={Boolean(nickNameError)}
+              helperText={nickNameError}
+              inputProps={{ maxLength: 7 }}
             />
             <FormControl fullWidth margin="normal" required>
               <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>

@@ -11,7 +11,9 @@ export interface TableData {
     employee_id: string;
     password?: string;
     role?: string;
-    full_name: string;
+    full_name?: string;
+    last_name?: string;
+    first_name?: string;
     department: string;
     department_id?: number;
     position?: string;
@@ -23,6 +25,7 @@ export interface TableData {
     totalHrs?: number;
     phone?: string;
     email?: string;
+    nick_name?: string;
   }
 
 export interface Column {
@@ -38,7 +41,9 @@ export interface Column {
     department_id: number;
     department_name: string;
     display_number: number;
-    full_name: string;
+    full_name?: string;
+    last_name: string;
+    first_name?: string;
     status: boolean;
 }
 
