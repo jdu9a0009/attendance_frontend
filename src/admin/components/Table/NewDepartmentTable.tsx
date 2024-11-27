@@ -8,7 +8,6 @@ import {
   TableRow,
   Paper,
   Button,
-  ButtonGroup,
   Typography,
   Box,
   FormGroup,
@@ -18,12 +17,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { fetchDashboardList } from '../../../utils/libs/axios';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
-import io from 'socket.io-client';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -33,6 +27,8 @@ import {
   StyledButton,
   StyledCheckbox,
 } from './NewTableStyles';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 interface DepartmentData {
   department_name: string;
@@ -51,11 +47,7 @@ interface EmployeeData {
   status: boolean;
 }
 
-interface WebSocketResponse {
-  data: DepartmentData[];
-}
-
-const SOCKET_URL = 'ws://localhost:8080/api/v1/user/dashboardlist/ws'
+const SOCKET_URL = 'ws://104.248.251.150:8080/api/v1/user/dashboardlist/ws';
 
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -69,9 +61,11 @@ const NewDepartmentTable: React.FC = () => {
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
+  const wsRef = useRef<WebSocket | null>(null);
+
   const formatName = (employee: EmployeeData): string => {
     if (!employee.last_name) {
-      return employee.nick_name || ''; 
+      return employee.nick_name || '';
     }
 
     if (employee.last_name.length > 7) {
@@ -81,157 +75,59 @@ const NewDepartmentTable: React.FC = () => {
     return employee.last_name;
   };
 
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
-  const maxReconnectAttempts = 5; // Увеличил количество попыток
-  const reconnectAttemptRef = useRef<number>(0);
-  const pingIntervalRef = useRef<NodeJS.Timeout>();
-
   const initializeWebSocket = () => {
-    if (!wsRef.current) return;
+    wsRef.current = new WebSocket(SOCKET_URL);
 
     wsRef.current.onopen = () => {
       console.log('WebSocket connected');
       setLoading(true);
       setError(null);
-      reconnectAttemptRef.current = 0;
-      
-      // Отправляем инициализирующее сообщение
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({
-          action: 'subscribe',
-          data: {
-            type: 'dashboard'
-          }
-        }));
-      }
     };
 
     wsRef.current.onmessage = (event: MessageEvent) => {
-      console.group('WebSocket Message Received');
-      console.log('Raw message data:', event.data);
-      
       try {
         const fullResponse = JSON.parse(event.data);
-        console.log("Parsed response:", fullResponse);
-
-        // Проверяем тип сообщения
-        if (fullResponse.type === 'pong') {
-          console.log('Received pong response');
-          return;
-        }
-
         const data = fullResponse.data;
-        console.log("Extracted data:", data);
-        console.groupEnd();
 
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setDepartmentData(data);
           if (selectedDepartments.size === 0) {
             setSelectedDepartments(new Set(data.map((dept: DepartmentData) => dept.department_name)));
           }
           setError(null);
         } else {
-          setError('Нет данных для отображения.');
+          setError('No data available.');
         }
       } catch (parseError) {
-        console.error('Data parsing error:', parseError);
-        console.log('Received data that could not be parsed:', event.data);
-        setError('Ошибка при обработке данных.');
+        console.error('Error parsing WebSocket message:', parseError);
+        setError('Error processing data.');
       } finally {
         setLoading(false);
       }
     };
 
     wsRef.current.onerror = (event: Event) => {
-      console.group('WebSocket Error');
       console.error('WebSocket error:', event);
-      console.groupEnd();
-      setError('Ошибка подключения к серверу.');
+      setError('Connection error.');
       setLoading(false);
     };
 
     wsRef.current.onclose = (event: CloseEvent) => {
-      console.group('WebSocket Closed');
-      console.log('Close code:', event.code);
-      console.log('Close reason:', event.reason);
-      console.log('Was clean close:', event.wasClean);
-      console.groupEnd();
-      
-      if (!event.wasClean) {
-        console.warn('Abnormal WebSocket closure detected');
-        reconnectWebSocket();
-      }
+      console.log('WebSocket closed:', event.reason);
+      setError('Connection closed.');
     };
-  };
-
-  const reconnectWebSocket = () => {
-    if (reconnectAttemptRef.current >= maxReconnectAttempts) {
-      setError('Превышено максимальное количество попыток подключения');
-      return;
-    }
-
-    const timeout = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current), 10000);
-    console.log(`Attempting to reconnect in ${timeout}ms`);
-    
-    reconnectTimeoutRef.current = setTimeout(() => {
-      reconnectAttemptRef.current += 1;
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-      connectWebSocket();
-    }, timeout);
-  };
-
-  const connectWebSocket = () => {
-    try {
-      console.log('Attempting to connect to WebSocket URL:', SOCKET_URL);
-
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        return;
-      }
-
-      wsRef.current = new WebSocket(SOCKET_URL);
-      initializeWebSocket();
-
-      // Установка периодического ping
-      pingIntervalRef.current = setInterval(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({
-            action: 'ping',
-            data: {
-              timestamp: Date.now()
-            }
-          }));
-        }
-      }, 30000);
-
-    } catch (error) {
-      console.error('WebSocket initialization error:', error);
-      setError('Ошибка при создании соединения');
-      setLoading(false);
-    }
   };
 
   useEffect(() => {
-    connectWebSocket();
+    initializeWebSocket();
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (pingIntervalRef.current) {
-        clearInterval(pingIntervalRef.current);
-      }
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;
       }
-      reconnectAttemptRef.current = 0;
     };
   }, []);
-
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -252,7 +148,7 @@ const NewDepartmentTable: React.FC = () => {
   };
 
   const handleDepartmentToggle = (deptName: string) => {
-    setSelectedDepartments(prev => {
+    setSelectedDepartments((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(deptName)) {
         newSet.delete(deptName);
@@ -289,7 +185,7 @@ const NewDepartmentTable: React.FC = () => {
         const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
         currentPageDepts.push({
           ...dept,
-          result: chunk
+          result: chunk,
         });
         currentCol++;
       }
@@ -327,18 +223,18 @@ const NewDepartmentTable: React.FC = () => {
             </StyledTableCell>
           );
         })}
-        {isLastPage && currentData.length < maxColumnsPerPage &&
+        {isLastPage &&
+          currentData.length < maxColumnsPerPage &&
           Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
             <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
               <EmployeeCell status={null}>-</EmployeeCell>
             </StyledTableCell>
-          ))
-        }
+          ))}
       </TableRow>
     ));
   };
 
-  if (loading) return <div>...</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
@@ -399,11 +295,7 @@ const NewDepartmentTable: React.FC = () => {
             ))}
           </FormGroup>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <StyledButton
-              variant="outlined"
-              onClick={handleReset}
-              sx={{ flex: 1 }}
-            >
+            <StyledButton variant="outlined" onClick={handleReset} sx={{ flex: 1 }}>
               Reset
             </StyledButton>
             <Button
@@ -431,13 +323,13 @@ const NewDepartmentTable: React.FC = () => {
                   <strong>{dept.department_name}</strong>
                 </StyledTableCell>
               ))}
-              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage &&
+              {currentPage === pages.length &&
+                pages[currentPage - 1]?.length < maxColumnsPerPage &&
                 Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
                   <StyledTableCell key={`empty-header-${emptyIndex}`}>
                     <strong>-</strong>
                   </StyledTableCell>
-                ))
-              }
+                ))}
             </TableRow>
           </TableHead>
           <TableBody>{renderTableContent()}</TableBody>
