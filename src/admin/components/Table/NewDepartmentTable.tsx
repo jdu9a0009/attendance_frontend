@@ -361,4 +361,5 @@ const NewDepartmentTable: React.FC = () => {
   );
 };
 
+
 export default NewDepartmentTable;
