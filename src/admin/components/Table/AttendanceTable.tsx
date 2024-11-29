@@ -100,6 +100,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           come_time: item.come_time,
           leave_time: item.leave_time,
           total_hourse: item.total_hourse,
+          forget_leave: item.forget_leave,
         }));
 
         console.log("Отформатированные данные:", formattedData);
@@ -226,6 +227,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
     page * rowsPerPage,
     (page + 1) * rowsPerPage
   );
+  
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 4, mb: 5 }}>

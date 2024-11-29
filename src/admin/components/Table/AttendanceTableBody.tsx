@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { TableBody, TableRow, TableCell, Box, Button } from "@mui/material";
 import { TableData, Column, DateOrString } from "./types";
-import { useTranslation } from 'react-i18next';
-import { downloadEmployeeQRCode } from '../../../utils/libs/axios';
+import { useTranslation } from "react-i18next";
+import { downloadEmployeeQRCode } from "../../../utils/libs/axios";
 
 interface AttendanceTableBodyProps {
   columns: Column[];
@@ -11,50 +11,79 @@ interface AttendanceTableBodyProps {
   onDelete?: (id: number) => void;
 }
 
-const formatValue = (value: DateOrString | boolean, key?: string): string => {
-  if (value === undefined || value === null) {
-    return key === 'checkOut' ? '' : '--:--';
-  }
-  if (typeof value === 'boolean') {
-    return value ? 'Present' : 'Absent';
-  }
-  if (value instanceof Date) {
-    if (key === 'date') {
-      return value.toISOString().split('T')[0];
-    } else if (key === 'checkIn' || key === 'checkOut') {
-      return value.toTimeString().split(' ')[0];
-    }
-    return value.toLocaleString();
-  }
-  return value.toString();
-};
 
-const getStatusStyles = (status: boolean): { backgroundColor: string; color: string } => {
-  return status
-    ? { backgroundColor: '#e6effc', color: '#0764e6' }
-    : { backgroundColor: '#ffe5ee', color: '#aa0000' };
-};
 
-const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({ 
-  columns, 
-  filteredData, 
-  onEdit, 
-  onDelete 
+
+
+
+const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
+  columns,
+  filteredData,
+  onEdit,
+  onDelete,
 }) => {
-  const { t } = useTranslation('admin');
+  const { t } = useTranslation("admin");
+
+  const formatValue = (
+    value: DateOrString | boolean,
+    key?: string,
+  ): string => {
+    
+    if (value === undefined || value === null) {
+      return key === "checkOut" ? "" : "--:--";
+    }
+    
+      if (typeof value === "boolean") {
+        return value ? ("出席") : ("欠席");
+      }
+  
+  
+    if (value instanceof Date) {
+      if (key === "date") {
+        return value.toISOString().split("T")[0];
+      } else if (key === "checkIn" || key === "checkOut") {
+        return value.toTimeString().split(" ")[0];
+      }
+      return value.toLocaleString();
+    }
+    return value.toString();
+  };
+
+  const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean) => {
+    if (column === 'come_time' && forgetLeave) {
+      return { backgroundColor: '#ffffa3', color: '#000' }; // Yellow background with black text
+    }
+
+    if (column === 'status' && typeof value === 'boolean') {
+      return getStatusStyles(value as boolean);
+    }
+
+    return { backgroundColor: '', color: '#000' };
+  };
+  const getStatusStyles = (
+    status: boolean
+  ): { backgroundColor: string; color: string } => {
+    return status
+      ? { backgroundColor: "#e6effc", color: "#0764e6" }
+      : { backgroundColor: "#ffe5ee", color: "#aa0000" };
+  };
 
   return (
     <TableBody>
       {filteredData.map((row) => (
         <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
           {columns.map((column) => {
-            if (column.id === 'action') {
+            if (column.id === "action") {
               return (
-                <TableCell key={column.id} sx={{ padding: '8px 16px' }}>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <TableCell key={column.id} sx={{ padding: "8px 16px" }}>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
                     {onEdit && (
-                      <Button onClick={() => onEdit(row)} variant="outlined" size="small">
-                        {t('employeeTable.editBtn')}
+                      <Button
+                        onClick={() => onEdit(row)}
+                        variant="outlined"
+                        size="small"
+                      >
+                        {t("employeeTable.editBtn")}
                       </Button>
                     )}
                     {onDelete && (
@@ -64,7 +93,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
                         color="error"
                         onClick={() => onDelete(row.id)}
                       >
-                        {t('employeeTable.deleteBtn')}
+                        {t("employeeTable.deleteBtn")}
                       </Button>
                     )}
                     <Button
@@ -79,7 +108,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
                         }
                       }}
                     >
-                      {t('employeeTable.downloadQRCodeBtn')}
+                      {t("employeeTable.downloadQRCodeBtn")}
                     </Button>
                   </Box>
                 </TableCell>
@@ -87,21 +116,22 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
             }
 
             const value = row[column.id as keyof TableData];
-            const { backgroundColor, color } = column.id === 'status' && typeof value === 'boolean'
-              ? getStatusStyles(value as boolean)
-              : { backgroundColor: '#fff', color: '#000' };
+            const { backgroundColor, color } = getBackgroundColor(column.id, value, row.forget_leave);
 
             return (
-              <TableCell key={`${row.id}-${column.id}`} sx={{ padding: '8px 16px' }}>
+              <TableCell
+                key={`${row.id}-${column.id}`}
+                sx={{ padding: "8px 16px"}}
+              >
                 {column.id === 'status' && typeof value === 'boolean' ? (
                   <Box
                     sx={{
                       backgroundColor,
                       color,
                       borderRadius: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       height: 36,
                       minWidth: 100,
                     }}
@@ -109,7 +139,17 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
                     {formatValue(value, column.id)}
                   </Box>
                 ) : (
-                  formatValue(value, column.id)
+                  <Box
+                    sx={{
+                      backgroundColor,
+                      color,
+                      borderRadius: 1,
+                      display: "inline-block",
+                      padding: '4px 8px',
+                    }}
+                  >
+                    {formatValue(value, column.id)}
+                  </Box>
                 )}
               </TableCell>
             );

@@ -93,14 +93,35 @@ const EmployeeListPage: React.FC = () => {
   
 
   const handleEditOpen = (employee: TableData) => {
-    setSelectedEmployee(employee);
+    // Преобразование данных для EditModal
+    const transformedEmployee = {
+      id: employee.id,
+      employee_id: employee.employee_id,
+      full_name: employee.full_name,
+      first_name: employee.full_name.split(' ')[0], 
+      last_name: employee.full_name.split(' ')[1] || '', 
+      nick_name: employee.nick_name, 
+      role: employee.role, 
+      department: employee.department,
+      position: employee.position,
+      phone: employee.phone,
+      email: employee.email,
+      password: '', 
+      forget_leave: false,
+    };
+  
+    console.log("Transformed employee data: ", transformedEmployee);
+    setSelectedEmployee(transformedEmployee);
     setEditModalOpen(true);
   };
 
   const handleEditSave = async (updatedEmployee: TableData) => {
     try {
+      console.log('123: ', updatedEmployee);
+      
       await updateUser(
         updatedEmployee.id,
+        updatedEmployee.employee_id,
         updatedEmployee.password!,
         updatedEmployee.role!,
         updatedEmployee.first_name!,

@@ -9,14 +9,14 @@ export interface FilterState {
 export interface TableData {
     id: number;
     employee_id: string;
-    password?: string;
-    role?: string;
-    full_name?: string;
-    last_name?: string;
-    first_name?: string;
+    password: string;
+    role: string;
+    full_name: string;
+    last_name: string;
+    first_name: string;
     department: string;
     department_id?: number;
-    position?: string;
+    position: string;
     position_id?: number;
     date?: DateOrString;
     status?: boolean;
@@ -26,6 +26,7 @@ export interface TableData {
     phone?: string;
     email?: string;
     nick_name?: string;
+    forget_leave: boolean;
   }
 
 export interface Column {
@@ -62,13 +63,3 @@ export interface ApiResponse {
     data: ApiResponseData;
     status: boolean;
 }
-
-
-
-
-
-
-
-  
-
-  
