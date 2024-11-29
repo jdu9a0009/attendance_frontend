@@ -81,12 +81,12 @@ const MainContent: React.FC<MainContentProps> = ({
     try {
       const response = await axiosInstance().get<{ data: DashboardData, status: boolean }>('/user/dashboard');
       console.log('DashboardResponse:', response);
-
+  
       if (response.data.status) {
         const { come_time, leave_time, total_hours } = response.data.data;
-
+  
         setCheckInTime(formatTime(come_time) || '--:--');
-        setCheckOutTime(formatTime(leave_time) || '--:--');
+        setCheckOutTime(leave_time === null ? '--:--' : formatTime(leave_time) || '--:--');
         setTotalHours(total_hours || '--:--');
       }
     } catch (error) {
@@ -191,6 +191,7 @@ const MainContent: React.FC<MainContentProps> = ({
       const result = await sendComeData();
       if (result && result.status) {
         setCheckInTime(formatTime(result.data.come_time));
+        setCheckOutTime(result.data.leave_time === null ? '--:--' : formatTime(result.data.leave_time));
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
       } else {
@@ -202,7 +203,7 @@ const MainContent: React.FC<MainContentProps> = ({
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.error || '');
       } else {
-        setMessage('');
+        setMessage('サーバーエラーが発生しました。');
       }
       setMessageColor('#ff0000');
     }
