@@ -48,16 +48,20 @@ const EditModal: React.FC<EditModalProps> = ({
   departments,
   userCreated
 }) => {
-  const [formData, setFormData] = useState<TableData | null>(data);
+  const [formData, setFormData] = useState<TableData | null>(null);
   const [nickNameError, setNickNameError] = useState<string>("");
   const { t } = useTranslation('admin');
 
+  // Update formData when the data prop changes or modal opens
   useEffect(() => {
-    if (data) {
-      console.log("Data received in EditModal:", data);
-      setFormData(data);
+    if (open && data) {
+      // Deep copy to avoid direct mutation of the original data
+      setFormData({
+        ...data,
+        password: '', // Clear password field when opening
+      });
     }
-  }, [data]);
+  }, [open, data]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
@@ -91,17 +95,28 @@ const EditModal: React.FC<EditModalProps> = ({
   const handleSave = async () => {
     if (formData) {
       try {
+        
+        const departmentId = departments.find((d) => d.name === formData.department)?.id;
+        const positionId = positions.find((p) => p.name === formData.position)?.id;
+
+        
+        if (!departmentId || !positionId) {
+          console.error("Department or Position not found");
+          return;
+        }
+
         await updateUser(
           formData.id,
-          formData.password!,
+          formData.employee_id,
+          formData.password || '', 
           formData.role!,
           formData.first_name!,
           formData.last_name!,
-          departments.find((d) => d.name === formData.department)?.id!,
-          positions.find((p) => p.name === formData.position)?.id!,
+          departmentId,
+          positionId,
           formData.phone!,
           formData.email!,
-          formData.nick_name // Добавляем nick_name
+          formData.nick_name || '' 
         );
         
         onSave(formData);
@@ -112,7 +127,8 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   };
 
-  if (!formData) return null;
+  // If modal is not open or no data, return null
+  if (!open || !formData) return null;
 
   const theme = createTheme({
     palette: {
@@ -127,8 +143,17 @@ const EditModal: React.FC<EditModalProps> = ({
       <Modal open={open} onClose={onClose}>
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-          {t('createEmployeeModal.title')}
+            {t('createEmployeeModal.title')}
           </Typography>
+          <TextField
+            label={t('createEmployeeModal.employeeId')}
+            name="employee_id"
+            value={formData.employee_id}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+          />
           <TextField
             label={t('createEmployeeModal.firstName')}
             name="first_name"
@@ -155,12 +180,12 @@ const EditModal: React.FC<EditModalProps> = ({
             onChange={handleInputChange}
             fullWidth
             margin="normal"
+            autoComplete="off"
           />
-          {/* Добавляем поле nick_name */}
           <TextField
             label={t('createEmployeeModal.nickName') || "Nickname"}
             name="nick_name"
-            value={formData.nick_name || ""}
+            value={formData.nick_name}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
@@ -172,7 +197,7 @@ const EditModal: React.FC<EditModalProps> = ({
             <InputLabel shrink={Boolean(formData.role)}>{t('createEmployeeModal.role')}</InputLabel>
             <Select
               name="role"
-              value={formData.role || ""}
+              value={formData.role}
               onChange={handleSelectChange}
             >
               <MenuItem value="">
@@ -184,11 +209,11 @@ const EditModal: React.FC<EditModalProps> = ({
           </FormControl>
           <FormControl fullWidth margin="normal" required>
             <InputLabel shrink={Boolean(formData.department)}>
-            {t('createEmployeeModal.department')}
+              {t('createEmployeeModal.department')}
             </InputLabel>
             <Select
               name="department"
-              value={formData.department || ""}
+              value={formData.department}
               onChange={handleSelectChange}
             >
               <MenuItem value="">
@@ -205,7 +230,7 @@ const EditModal: React.FC<EditModalProps> = ({
             <InputLabel shrink={Boolean(formData.position)}>{t('createEmployeeModal.position')}</InputLabel>
             <Select
               name="position"
-              value={formData.position || ""}
+              value={formData.position}
               onChange={handleSelectChange}
             >
               <MenuItem value="">
@@ -239,10 +264,10 @@ const EditModal: React.FC<EditModalProps> = ({
 
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
             <Button onClick={onClose} sx={{ mr: 1 }}>
-            {t('createEmployeeModal.cancelBtn')}
+              {t('createEmployeeModal.cancelBtn')}
             </Button>
             <Button variant="contained" color="primary" onClick={handleSave}>
-            {t('createEmployeeModal.saveBtn')}
+              {t('createEmployeeModal.saveBtn')}
             </Button>
           </Box>
         </Box>

@@ -146,7 +146,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             required
             fullWidth
             id="employee_id"
-            label="社員ID"
+            label="社員番号 & メールアドレス"
             name="employee_id"
             autoComplete="employee_id"
             autoFocus

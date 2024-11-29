@@ -73,7 +73,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     const fetchEmployeeData = async () => {
       try {
         const response = await axiosInstance().get("/user/list");
-
+        
         const formattedData = response.data.data.results.map((item: any) => ({
           id: item.id,
           employee_id: item.employee_id,
