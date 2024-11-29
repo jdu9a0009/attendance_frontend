@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Table,
   TableBody,
@@ -8,7 +8,6 @@ import {
   TableRow,
   Paper,
   Button,
-  ButtonGroup,
   Typography,
   Box,
   FormGroup,
@@ -18,11 +17,18 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { fetchDashboardList } from '../../../utils/libs/axios';
+import { useTranslation } from 'react-i18next';
+import {
+  StyledTableCell,
+  EmployeeCell,
+  PaginationContainer,
+  PageIndicator,
+  StyledButtonGroup,
+  StyledButton,
+  StyledCheckbox,
+} from './NewTableStyles';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useTranslation } from 'react-i18next';
 
 interface DepartmentData {
   department_name: string;
@@ -41,93 +47,7 @@ interface EmployeeData {
   status: boolean;
 }
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  height: '60px',
-  border: '1px solid rgba(224, 224, 224, 1)',
-  fontSize: '28px',
-}));
-
-const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
-  backgroundColor: status === true ? '#fafafa' : status === false ? '#E53935' : 'transparent',
-  padding: theme.spacing(1),
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  fontSize: '28px',
-}));
-
-const PaginationContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-}));
-
-const PageIndicator = styled(Typography)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  lineHeight: 1,
-  padding: theme.spacing(2),
-  color: '#105E82',
-}));
-
-const StyledButtonGroup = styled(ButtonGroup)({
-  '& .MuiButton-outlined': {
-    borderColor: '#105E82',
-    color: '#105E82',
-    '&:hover': {
-      backgroundColor: 'rgba(16, 94, 130, 0.04)',
-      borderColor: '#105E82',
-    },
-    '&:disabled': {
-      borderColor: 'rgba(16, 94, 130, 0.3)',
-      color: 'rgba(16, 94, 130, 0.3)',
-    },
-  },
-  // Убираем двойную рамку между кнопками
-  '& .MuiButton-outlined:not(:last-child)': {
-    borderRightColor: '#105E82',
-  },
-  // Убираем лишнюю рамку у средней кнопки с номером страницы
-  '& .MuiButton-outlined:not(:first-child):not(:last-child)': {
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    '&:hover': {
-      borderLeftColor: 'transparent',
-      borderRightColor: 'transparent',
-    },
-  },
-});
-
-const StyledButton = styled(Button)({
-  '&.MuiButton-outlined': {
-    borderColor: '#105E82',
-    color: '#105E82',
-    '&:hover': {
-      borderColor: '#105E82',
-      backgroundColor: 'rgba(16, 94, 130, 0.04)',
-    },
-  },
-});
-
-const StyledCheckbox = styled(Checkbox)({
-  '&.MuiCheckbox-root': {
-    color: '#105E82',
-    '&.Mui-checked': {
-      color: '#105E82',
-    },
-    '&.Mui-indeterminate': {
-      color: '#105E82',
-    },
-  },
-});
+const SOCKET_URL = 'ws://104.248.251.150:8080/api/v1/user/dashboardlist/ws';
 
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -141,43 +61,73 @@ const NewDepartmentTable: React.FC = () => {
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
+  const wsRef = useRef<WebSocket | null>(null);
+
   const formatName = (employee: EmployeeData): string => {
     if (!employee.last_name) {
-        return employee.nick_name || ""; // Если фамилия отсутствует, возвращаем nickname или пустую строку
+      return employee.nick_name || '';
     }
 
     if (employee.last_name.length > 7) {
-        return employee.nick_name || employee.last_name.substring(0, 7);
+      return employee.nick_name || employee.last_name.substring(0, 7);
     }
 
     return employee.last_name;
-};
+  };
 
+  const initializeWebSocket = () => {
+    wsRef.current = new WebSocket(SOCKET_URL);
 
-  useEffect(() => {
-    const loadServerData = async () => {
+    wsRef.current.onopen = () => {
+      console.log('WebSocket connected');
+      setLoading(true);
+      setError(null);
+    };
+
+    wsRef.current.onmessage = (event: MessageEvent) => {
       try {
-        setLoading(true);
-        const { department } = await fetchDashboardList(currentPage);
+        const fullResponse = JSON.parse(event.data);
+        const data = fullResponse.data;
 
-        if (department && department.length > 0) {
-          setDepartmentData(department);
+        if (data && Array.isArray(data)) {
+          setDepartmentData(data);
           if (selectedDepartments.size === 0) {
-            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+            setSelectedDepartments(new Set(data.map((dept: DepartmentData) => dept.department_name)));
           }
+          setError(null);
         } else {
-          setError("Нет данных для отображения.");
+          setError('No data available.');
         }
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        setError("Ошибка при загрузке данных.");
+      } catch (parseError) {
+        console.error('Error parsing WebSocket message:', parseError);
+        setError('Error processing data.');
       } finally {
         setLoading(false);
       }
     };
 
-    loadServerData();
-  }, [currentPage]);
+    wsRef.current.onerror = (event: Event) => {
+      console.error('WebSocket error:', event);
+      setError('Connection error.');
+      setLoading(false);
+    };
+
+    wsRef.current.onclose = (event: CloseEvent) => {
+      console.log('WebSocket closed:', event.reason);
+      setError('Connection closed.');
+    };
+  };
+
+  useEffect(() => {
+    initializeWebSocket();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -187,18 +137,18 @@ const NewDepartmentTable: React.FC = () => {
     if (isAllSelected) {
       setSelectedDepartments(new Set());
     } else {
-      setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
+      setSelectedDepartments(new Set(departmentData.map((dept: DepartmentData) => dept.department_name)));
     }
     setCurrentPage(1);
   };
 
   const handleReset = () => {
-    setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
+    setSelectedDepartments(new Set(departmentData.map((dept: DepartmentData) => dept.department_name)));
     setCurrentPage(1);
   };
 
   const handleDepartmentToggle = (deptName: string) => {
-    setSelectedDepartments(prev => {
+    setSelectedDepartments((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(deptName)) {
         newSet.delete(deptName);
@@ -211,7 +161,7 @@ const NewDepartmentTable: React.FC = () => {
   };
 
   const filteredDepartmentData = useMemo(() => {
-    return departmentData.filter(dept => selectedDepartments.has(dept.department_name));
+    return departmentData.filter((dept: DepartmentData) => selectedDepartments.has(dept.department_name));
   }, [departmentData, selectedDepartments]);
 
   const pages = useMemo(() => {
@@ -235,7 +185,7 @@ const NewDepartmentTable: React.FC = () => {
         const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
         currentPageDepts.push({
           ...dept,
-          result: chunk
+          result: chunk,
         });
         currentCol++;
       }
@@ -256,7 +206,7 @@ const NewDepartmentTable: React.FC = () => {
     const isLastPage = currentPage === pages.length;
     const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
     const columnWidth = `${100 / totalColumns}%`;
-  
+
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
@@ -273,26 +223,26 @@ const NewDepartmentTable: React.FC = () => {
             </StyledTableCell>
           );
         })}
-        {isLastPage && currentData.length < maxColumnsPerPage &&
+        {isLastPage &&
+          currentData.length < maxColumnsPerPage &&
           Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
             <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
               <EmployeeCell status={null}>-</EmployeeCell>
             </StyledTableCell>
-          ))
-        }
+          ))}
       </TableRow>
     ));
   };
 
-  if (loading) return <div>...</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
-      <Button 
-        variant="contained" 
-        onClick={handleOpenModal} 
-        sx={{ 
+      <Button
+        variant="contained"
+        onClick={handleOpenModal}
+        sx={{
           mb: 2,
           backgroundColor: '#105E82',
           '&:hover': {
@@ -345,17 +295,13 @@ const NewDepartmentTable: React.FC = () => {
             ))}
           </FormGroup>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <StyledButton 
-              variant="outlined" 
-              onClick={handleReset}
-              sx={{ flex: 1 }}
-            >
+            <StyledButton variant="outlined" onClick={handleReset} sx={{ flex: 1 }}>
               Reset
             </StyledButton>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={handleCloseModal}
-              sx={{ 
+              sx={{
                 flex: 1,
                 backgroundColor: '#105E82',
                 '&:hover': {
@@ -369,26 +315,26 @@ const NewDepartmentTable: React.FC = () => {
         </Box>
       </Modal>
       <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-  <Table>
-    <TableHead>
-      <TableRow>
-        {pages[currentPage - 1]?.map((dept, index) => (
-          <StyledTableCell key={index}>
-            <strong>{dept.department_name}</strong>
-          </StyledTableCell>
-        ))}
-        {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
-          Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-            <StyledTableCell key={`empty-header-${emptyIndex}`}>
-              <strong>-</strong>
-            </StyledTableCell>
-          ))
-        }
-      </TableRow>
-    </TableHead>
-    <TableBody>{renderTableContent()}</TableBody>
-  </Table>
-</TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {pages[currentPage - 1]?.map((dept, index) => (
+                <StyledTableCell key={index}>
+                  <strong>{dept.department_name}</strong>
+                </StyledTableCell>
+              ))}
+              {currentPage === pages.length &&
+                pages[currentPage - 1]?.length < maxColumnsPerPage &&
+                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
+                    <strong>-</strong>
+                  </StyledTableCell>
+                ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>{renderTableContent()}</TableBody>
+        </Table>
+      </TableContainer>
 
       <PaginationContainer>
         <StyledButtonGroup variant="outlined" size="large">
@@ -414,5 +360,6 @@ const NewDepartmentTable: React.FC = () => {
     </div>
   );
 };
+
 
 export default NewDepartmentTable;
