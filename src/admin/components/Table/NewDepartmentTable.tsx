@@ -47,7 +47,7 @@ interface EmployeeData {
   status: boolean;
 }
 
-const SOCKET_URL = 'ws://104.248.251.150:8080/api/v1/user/dashboardlist/ws';
+const SOCKET_URL = 'wss://104.248.251.150:8080/api/v1/user/dashboardlist/ws';
 
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
