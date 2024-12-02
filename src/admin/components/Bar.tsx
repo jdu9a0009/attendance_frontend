@@ -49,7 +49,7 @@ export default function SimpleBarChart() {
           data,
           label: t('barLabel'),
           id: "pvId",
-          
+          color: "#3082DB"
         },
       ]}
       xAxis={[{ data: xLabels, scaleType: "band" }]}

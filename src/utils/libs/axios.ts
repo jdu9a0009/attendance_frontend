@@ -1,10 +1,9 @@
 import axios from "axios";
 import { Employee, Department, ApiResponse } from '../../admin/components/Table/types';
-import dotenv from 'dotenv';
 
 const axiosInstance = () => {
   const defaultOptions = {
-    baseURL: "https://api.eduflow.uz/api/v1",
+    baseURL: process.env.REACT_APP_BASE_URL,
     headers: {
       "Content-Type": "application/json",
     },
@@ -16,7 +15,7 @@ const axiosInstance = () => {
     const token = localStorage.getItem('access_token');
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
-    // console.log('Токен:', token);
+    
     // console.log('Данные запроса:', config.data);
 
     return config;
