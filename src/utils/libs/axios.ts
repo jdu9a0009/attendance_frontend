@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Employee, Department, ApiResponse } from '../../admin/components/Table/types';
+import dotenv from 'dotenv';
 
 const axiosInstance = () => {
   const defaultOptions = {
@@ -56,7 +57,7 @@ export const fetchDashboardList = async (page: number): Promise<{
 }> => {
   try {
     const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
-      // params: { page }
+      params: { page }
     });
 
     console.log("Ответ API:", response.data);
@@ -178,7 +179,6 @@ export const deleteUser = async (id: number) => {
   return response.data;
 };
 
-// Обновленная функция uploadExcelFile
 export const uploadExcelFile = async (excell: FormData) => {
   try {
     // Проверка значения mode

@@ -216,9 +216,7 @@ const CompanySettings: React.FC = () => {
           margin="normal"
           disabled={!editMode}
         />
-  
-        {/* Логотип компании */}
-        <Box sx={{ mt: 2, mb: 2 }}>
+        {/* <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
           {t('settings.logo')}
           </Typography>
@@ -240,7 +238,7 @@ const CompanySettings: React.FC = () => {
               {t('settings.selectedFile')} {settings.logo.name}
             </Typography>
           )}
-        </Box>
+        </Box> */}
   
         {/* Предварительный просмотр логотипа */}
         {logoPreview && (
