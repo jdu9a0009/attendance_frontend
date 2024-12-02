@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -20,10 +20,6 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { fetchDashboardList } from '../../../utils/libs/axios';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useTranslation } from 'react-i18next';
-import io from 'socket.io-client';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -33,6 +29,10 @@ import {
   StyledButton,
   StyledCheckbox,
 } from './NewTableStyles';
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { useTranslation } from 'react-i18next';
+
 
 interface DepartmentData {
   department_name: string;
@@ -51,12 +51,6 @@ interface EmployeeData {
   status: boolean;
 }
 
-interface WebSocketResponse {
-  data: DepartmentData[];
-}
-
-const SOCKET_URL = 'ws://localhost:8080/api/v1/user/dashboardlist/ws'
-
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [departmentData, setDepartmentData] = useState<DepartmentData[]>([]);
@@ -71,167 +65,41 @@ const NewDepartmentTable: React.FC = () => {
 
   const formatName = (employee: EmployeeData): string => {
     if (!employee.last_name) {
-      return employee.nick_name || ''; 
+        return employee.nick_name || ""; // Если фамилия отсутствует, возвращаем nickname или пустую строку
     }
 
     if (employee.last_name.length > 7) {
-      return employee.nick_name || employee.last_name.substring(0, 7);
+        return employee.nick_name || employee.last_name.substring(0, 7);
     }
 
     return employee.last_name;
-  };
+};
 
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
-  const maxReconnectAttempts = 5; // Увеличил количество попыток
-  const reconnectAttemptRef = useRef<number>(0);
-  const pingIntervalRef = useRef<NodeJS.Timeout>();
 
-  const initializeWebSocket = () => {
-    if (!wsRef.current) return;
-
-    wsRef.current.onopen = () => {
-      console.log('WebSocket connected');
-      setLoading(true);
-      setError(null);
-      reconnectAttemptRef.current = 0;
-      
-      // Отправляем инициализирующее сообщение
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({
-          action: 'subscribe',
-          data: {
-            type: 'dashboard'
-          }
-        }));
-      }
-    };
-
-    wsRef.current.onmessage = (event: MessageEvent) => {
-      console.group('WebSocket Message Received');
-      console.log('Raw message data:', event.data);
-      
+  useEffect(() => {
+    const loadServerData = async () => {
       try {
-        const fullResponse = JSON.parse(event.data);
-        console.log("Parsed response:", fullResponse);
+        setLoading(true);
+        const { department } = await fetchDashboardList(currentPage);
 
-        // Проверяем тип сообщения
-        if (fullResponse.type === 'pong') {
-          console.log('Received pong response');
-          return;
-        }
-
-        const data = fullResponse.data;
-        console.log("Extracted data:", data);
-        console.groupEnd();
-
-        if (data && data.length > 0) {
-          setDepartmentData(data);
+        if (department && department.length > 0) {
+          setDepartmentData(department);
           if (selectedDepartments.size === 0) {
-            setSelectedDepartments(new Set(data.map((dept: DepartmentData) => dept.department_name)));
+            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
           }
-          setError(null);
         } else {
-          setError('Нет данных для отображения.');
+          setError("Нет данных для отображения.");
         }
-      } catch (parseError) {
-        console.error('Data parsing error:', parseError);
-        console.log('Received data that could not be parsed:', event.data);
-        setError('Ошибка при обработке данных.');
+      } catch (error) {
+        console.error("Ошибка при получении данных:", error);
+        setError("Ошибка при загрузке данных.");
       } finally {
         setLoading(false);
       }
     };
 
-    wsRef.current.onerror = (event: Event) => {
-      console.group('WebSocket Error');
-      console.error('WebSocket error:', event);
-      console.groupEnd();
-      setError('Ошибка подключения к серверу.');
-      setLoading(false);
-    };
-
-    wsRef.current.onclose = (event: CloseEvent) => {
-      console.group('WebSocket Closed');
-      console.log('Close code:', event.code);
-      console.log('Close reason:', event.reason);
-      console.log('Was clean close:', event.wasClean);
-      console.groupEnd();
-      
-      if (!event.wasClean) {
-        console.warn('Abnormal WebSocket closure detected');
-        reconnectWebSocket();
-      }
-    };
-  };
-
-  const reconnectWebSocket = () => {
-    if (reconnectAttemptRef.current >= maxReconnectAttempts) {
-      setError('Превышено максимальное количество попыток подключения');
-      return;
-    }
-
-    const timeout = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current), 10000);
-    console.log(`Attempting to reconnect in ${timeout}ms`);
-    
-    reconnectTimeoutRef.current = setTimeout(() => {
-      reconnectAttemptRef.current += 1;
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-      connectWebSocket();
-    }, timeout);
-  };
-
-  const connectWebSocket = () => {
-    try {
-      console.log('Attempting to connect to WebSocket URL:', SOCKET_URL);
-
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        return;
-      }
-
-      wsRef.current = new WebSocket(SOCKET_URL);
-      initializeWebSocket();
-
-      // Установка периодического ping
-      pingIntervalRef.current = setInterval(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({
-            action: 'ping',
-            data: {
-              timestamp: Date.now()
-            }
-          }));
-        }
-      }, 30000);
-
-    } catch (error) {
-      console.error('WebSocket initialization error:', error);
-      setError('Ошибка при создании соединения');
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (pingIntervalRef.current) {
-        clearInterval(pingIntervalRef.current);
-      }
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-      reconnectAttemptRef.current = 0;
-    };
-  }, []);
-
+    loadServerData();
+  }, [currentPage]);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -241,13 +109,13 @@ const NewDepartmentTable: React.FC = () => {
     if (isAllSelected) {
       setSelectedDepartments(new Set());
     } else {
-      setSelectedDepartments(new Set(departmentData.map((dept: DepartmentData) => dept.department_name)));
+      setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
     }
     setCurrentPage(1);
   };
 
   const handleReset = () => {
-    setSelectedDepartments(new Set(departmentData.map((dept: DepartmentData) => dept.department_name)));
+    setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
     setCurrentPage(1);
   };
 
@@ -265,7 +133,7 @@ const NewDepartmentTable: React.FC = () => {
   };
 
   const filteredDepartmentData = useMemo(() => {
-    return departmentData.filter((dept: DepartmentData) => selectedDepartments.has(dept.department_name));
+    return departmentData.filter(dept => selectedDepartments.has(dept.department_name));
   }, [departmentData, selectedDepartments]);
 
   const pages = useMemo(() => {
@@ -310,7 +178,7 @@ const NewDepartmentTable: React.FC = () => {
     const isLastPage = currentPage === pages.length;
     const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
     const columnWidth = `${100 / totalColumns}%`;
-
+  
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
@@ -343,10 +211,10 @@ const NewDepartmentTable: React.FC = () => {
 
   return (
     <div>
-      <Button
-        variant="contained"
-        onClick={handleOpenModal}
-        sx={{
+      <Button 
+        variant="contained" 
+        onClick={handleOpenModal} 
+        sx={{ 
           mb: 2,
           backgroundColor: '#105E82',
           '&:hover': {
@@ -399,17 +267,17 @@ const NewDepartmentTable: React.FC = () => {
             ))}
           </FormGroup>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <StyledButton
-              variant="outlined"
+            <StyledButton 
+              variant="outlined" 
               onClick={handleReset}
               sx={{ flex: 1 }}
             >
               Reset
             </StyledButton>
-            <Button
-              variant="contained"
+            <Button 
+              variant="contained" 
               onClick={handleCloseModal}
-              sx={{
+              sx={{ 
                 flex: 1,
                 backgroundColor: '#105E82',
                 '&:hover': {
@@ -423,26 +291,26 @@ const NewDepartmentTable: React.FC = () => {
         </Box>
       </Modal>
       <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {pages[currentPage - 1]?.map((dept, index) => (
-                <StyledTableCell key={index}>
-                  <strong>{dept.department_name}</strong>
-                </StyledTableCell>
-              ))}
-              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage &&
-                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
-                    <strong>-</strong>
-                  </StyledTableCell>
-                ))
-              }
-            </TableRow>
-          </TableHead>
-          <TableBody>{renderTableContent()}</TableBody>
-        </Table>
-      </TableContainer>
+  <Table>
+    <TableHead>
+      <TableRow>
+        {pages[currentPage - 1]?.map((dept, index) => (
+          <StyledTableCell key={index}>
+            <strong>{dept.department_name}</strong>
+          </StyledTableCell>
+        ))}
+        {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+          Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-header-${emptyIndex}`}>
+              <strong>-</strong>
+            </StyledTableCell>
+          ))
+        }
+      </TableRow>
+    </TableHead>
+    <TableBody>{renderTableContent()}</TableBody>
+  </Table>
+</TableContainer>
 
       <PaginationContainer>
         <StyledButtonGroup variant="outlined" size="large">
