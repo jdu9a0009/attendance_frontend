@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import { PieChart } from '@mui/x-charts/PieChart';
 import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
@@ -36,7 +36,7 @@ function PieCenterLabel({ children }: PieCenterLabelProps) {
 }
 
 export default function PieChartWithCenterLabel() {
-  const [data, setData] = useState<{ value: number; label: string }[]>([]);
+  const [data, setData] = useState<{ value: number; label: string; color: string }[]>([]);
   const { t } = useTranslation('admin'); // Используем useTranslation для получения функции t
 
   useEffect(() => {
@@ -49,17 +49,37 @@ export default function PieChartWithCenterLabel() {
       const pieValue: PieData = response.data.data;
       
       setData([
-        { value: pieValue.come, label: t('pieChart.come') }, // Используем перевод для меток
-        { value: pieValue.absent, label: t('pieChart.absent') }, // Используем перевод для меток
+        { value: pieValue.come, label: t('pieChart.come'), color: '#3082db' }, 
+        { value: pieValue.absent, label: t('pieChart.absent'), color: '#f75454' }, 
       ]);
     } catch (err) {
       console.log(err);
     }
   };
 
+  // Добавим сдвиг текста правее с помощью dx
+  const PieLabel = styled('text')({
+    fill: 'black',
+    textAnchor: 'middle',
+    dominantBaseline: 'central',
+    fontSize: 14,
+    transform: 'translate(20px)', // смещаем текст правее
+  });
+
   return (
-    <PieChart series={[{ data, innerRadius: 80 }]} {...size}>
-      {data.length > 0 && <PieCenterLabel>{data[0].value}%</PieCenterLabel>}
+    <PieChart
+      series={[{ data, innerRadius: 80 }]} // Не нужно передавать color сюда
+      {...size}
+    >
+      {data.length > 0 && (
+        <>
+          {/* Отодвигаем текст с помощью transform или dx */}
+          <PieLabel x={size.width / 2} y={size.height / 2}>
+            
+          </PieLabel>
+          <PieCenterLabel>{data[0].value}%</PieCenterLabel>
+        </>
+      )}
     </PieChart>
   );
 }
