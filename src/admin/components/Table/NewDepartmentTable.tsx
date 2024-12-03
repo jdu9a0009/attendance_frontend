@@ -68,24 +68,33 @@ const NewDepartmentTable: React.FC = () => {
   };
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/user/dashboardlist'); // SSE endpoint
+    const eventSource = new EventSource('/api/v1/dashboardlist'); // Corrected SSE endpoint
 
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data); // Parse server's message
+      const data = JSON.parse(event.data);
+      const { results, count } = data.data; // Extract results and count
+
+      // Assuming 'department_name' and 'display_number' are part of the backend response
+      const updatedData = {
+        department_name: "Department Name", // Replace with actual department data from server
+        display_number: 1,
+        result: results,
+      };
+
       setDepartmentData((prev) => {
-        const updatedData = [...prev];
-        const index = updatedData.findIndex((dept) => dept.department_name === data.department_name);
+        const updated = [...prev];
+        const index = updated.findIndex((dept) => dept.department_name === updatedData.department_name);
 
         if (index >= 0) {
-          // Update existing department
-          updatedData[index] = data;
+          updated[index] = updatedData;
         } else {
-          // Add new department
-          updatedData.push(data);
+          updated.push(updatedData);
         }
 
-        return updatedData;
+        return updated;
       });
+
+      setLoading(false); // Set loading to false after first message
     };
 
     eventSource.onerror = (err) => {
@@ -167,12 +176,52 @@ const NewDepartmentTable: React.FC = () => {
     return result;
   }, [filteredDepartmentData]);
 
-  if (loading) return <div>...</div>;
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
-      {/* Rest of the component */}
+      {/* Render the Table with departmentData */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Department</TableCell>
+              <TableCell>Employees</TableCell>
+              {/* Add more headers as needed */}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {pages[currentPage - 1]?.map((dept) => (
+              <TableRow key={dept.department_name}>
+                <TableCell>{dept.department_name}</TableCell>
+                <TableCell>
+                  {dept.result.map((employee) => (
+                    <div key={employee.id}>{formatName(employee)}</div>
+                  ))}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Pagination controls */}
+      <PaginationContainer>
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          <NavigateBeforeIcon />
+        </Button>
+        <Typography>{currentPage}</Typography>
+        <Button
+          disabled={currentPage === pages.length}
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          <NavigateNextIcon />
+        </Button>
+      </PaginationContainer>
     </div>
   );
 };

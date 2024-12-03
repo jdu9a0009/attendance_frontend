@@ -56,7 +56,6 @@ export const fetchDashboardList = async (page: number): Promise<{
 }> => {
   try {
     const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
-      params: { page }
     });
 
     console.log("Ответ API:", response.data);
