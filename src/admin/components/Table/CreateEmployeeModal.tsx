@@ -138,9 +138,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <TextField
               fullWidth
               margin="normal"
-              name="first_name"
-              label={t('createEmployeeModal.firstName')}
-              value={newEmployee.first_name}
+              name="last_name"
+              label={t('createEmployeeModal.lastName')}
+              value={newEmployee.last_name}
               onChange={handleInputChange}
               autoComplete="off"
               required
@@ -148,9 +148,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <TextField
               fullWidth
               margin="normal"
-              name="last_name"
-              label={t('createEmployeeModal.lastName')}
-              value={newEmployee.last_name}
+              name="first_name"
+              label={t('createEmployeeModal.firstName')}
+              value={newEmployee.first_name}
               onChange={handleInputChange}
               autoComplete="off"
               required
