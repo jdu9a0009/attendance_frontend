@@ -14,7 +14,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   textAlign: 'center',
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
-  fontSize: '24px',
+  fontSize: '28px',
 }));
 
 export const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
@@ -27,7 +27,7 @@ export const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status,
   justifyContent: 'center',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  fontSize: '24px',
+  fontSize: '28px',
 }));
 
 export const PaginationContainer = styled(Box)(({ theme }) => ({
