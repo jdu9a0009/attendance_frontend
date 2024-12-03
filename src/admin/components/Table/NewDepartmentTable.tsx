@@ -64,16 +64,14 @@ const NewDepartmentTable: React.FC = () => {
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
-    if (!employee.last_name) {
-        return employee.nick_name || ""; // Если фамилия отсутствует, возвращаем nickname или пустую строку
+    // Если есть никнейм, возвращаем его
+    if (employee.nick_name) {
+      return employee.nick_name;
     }
-
-    if (employee.last_name.length > 7) {
-        return employee.nick_name || employee.last_name.substring(0, 7);
-    }
-
-    return employee.last_name;
-};
+  
+    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
+    return employee.last_name ? employee.last_name.substring(0, 7) : "";
+  };
 
 
   useEffect(() => {
@@ -186,9 +184,9 @@ const NewDepartmentTable: React.FC = () => {
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee ? (
-                <EmployeeCell status={employee.status}>
-                  {formatName(employee)}
-                </EmployeeCell>
+     <EmployeeCell status={employee.status}>
+     <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
+   </EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}

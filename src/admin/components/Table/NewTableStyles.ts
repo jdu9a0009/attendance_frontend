@@ -27,8 +27,19 @@ export const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status,
   justifyContent: 'center',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  fontSize: '28px',
+  whiteSpace: 'nowrap',
+  fontSize: '28px', // Базовый размер шрифта
+  // Уменьшение шрифта при переполнении
+  '& span': {
+    display: 'block',
+    maxWidth: '100%',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: 'clamp(18px, 2.5vw, 28px)', // Минимальный шрифт 18px, максимальный 28px
+  },
 }));
+
 
 export const PaginationContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
