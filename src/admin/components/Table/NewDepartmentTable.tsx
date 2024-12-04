@@ -19,7 +19,7 @@ import {
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { fetchDashboardList } from '../../../utils/libs/axios';
+import { setupDashboardSSE  } from '../../../utils/libs/axios';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -32,6 +32,7 @@ import {
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
+import { Department } from './types';
 
 
 interface DepartmentData {
@@ -75,29 +76,30 @@ const NewDepartmentTable: React.FC = () => {
 
 
   useEffect(() => {
-    const loadServerData = async () => {
-      try {
-        setLoading(true);
-        const { department } = await fetchDashboardList(currentPage);
-
-        if (department && department.length > 0) {
-          setDepartmentData(department);
-          if (selectedDepartments.size === 0) {
-            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
-          }
-        } else {
-          setError("Нет данных для отображения.");
+    const handleSSEMessage = (data: { department: Department[] }) => {
+      const { department } = data;
+  
+      if (department && department.length > 0) {
+        setDepartmentData(department);
+        if (selectedDepartments.size === 0) {
+          setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
         }
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        setError("Ошибка при загрузке данных.");
-      } finally {
-        setLoading(false);
+      } else {
+        setError("Нет данных для отображения.");
       }
+      setLoading(false);
     };
-
-    loadServerData();
-  }, [currentPage]);
+  
+    const handleSSEError = (error: Error) => {
+      console.error("Ошибка SSE:", error);
+      setError("Ошибка при загрузке данных.");
+      setLoading(false);
+    };
+  
+    const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
+  
+    return () => closeSSE(); // Закрываем соединение при размонтировании.
+  }, []);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
