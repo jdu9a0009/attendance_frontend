@@ -18,6 +18,8 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { fetchDashboardList } from '../../../utils/libs/axios';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -30,6 +32,7 @@ import {
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
+
 
 interface DepartmentData {
   department_name: string;
@@ -61,51 +64,40 @@ const NewDepartmentTable: React.FC = () => {
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
+    // Если есть никнейм, возвращаем его
     if (employee.nick_name) {
       return employee.nick_name;
     }
-    return employee.last_name ? employee.last_name.substring(0, 7) : '';
+  
+    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
+    return employee.last_name ? employee.last_name.substring(0, 7) : "";
   };
 
+
   useEffect(() => {
-    const eventSource = new EventSource('/api/v1/dashboardlist'); // Corrected SSE endpoint
+    const loadServerData = async () => {
+      try {
+        setLoading(true);
+        const { department } = await fetchDashboardList(currentPage);
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const { results, count } = data.data; // Extract results and count
-
-      // Assuming 'department_name' and 'display_number' are part of the backend response
-      const updatedData = {
-        department_name: "Department Name", // Replace with actual department data from server
-        display_number: 1,
-        result: results,
-      };
-
-      setDepartmentData((prev) => {
-        const updated = [...prev];
-        const index = updated.findIndex((dept) => dept.department_name === updatedData.department_name);
-
-        if (index >= 0) {
-          updated[index] = updatedData;
+        if (department && department.length > 0) {
+          setDepartmentData(department);
+          if (selectedDepartments.size === 0) {
+            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+          }
         } else {
-          updated.push(updatedData);
+          setError("Нет данных для отображения.");
         }
-
-        return updated;
-      });
-
-      setLoading(false); // Set loading to false after first message
+      } catch (error) {
+        console.error("Ошибка при получении данных:", error);
+        setError("Ошибка при загрузке данных.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    eventSource.onerror = (err) => {
-      console.error('SSE connection error:', err);
-      setError('Connection lost. Trying to reconnect...');
-    };
-
-    return () => {
-      eventSource.close(); // Cleanup SSE connection on unmount
-    };
-  }, []);
+    loadServerData();
+  }, [currentPage]);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -115,18 +107,18 @@ const NewDepartmentTable: React.FC = () => {
     if (isAllSelected) {
       setSelectedDepartments(new Set());
     } else {
-      setSelectedDepartments(new Set(departmentData.map((dept) => dept.department_name)));
+      setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
     }
     setCurrentPage(1);
   };
 
   const handleReset = () => {
-    setSelectedDepartments(new Set(departmentData.map((dept) => dept.department_name)));
+    setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
     setCurrentPage(1);
   };
 
   const handleDepartmentToggle = (deptName: string) => {
-    setSelectedDepartments((prev) => {
+    setSelectedDepartments(prev => {
       const newSet = new Set(prev);
       if (newSet.has(deptName)) {
         newSet.delete(deptName);
@@ -139,7 +131,7 @@ const NewDepartmentTable: React.FC = () => {
   };
 
   const filteredDepartmentData = useMemo(() => {
-    return departmentData.filter((dept) => selectedDepartments.has(dept.department_name));
+    return departmentData.filter(dept => selectedDepartments.has(dept.department_name));
   }, [departmentData, selectedDepartments]);
 
   const pages = useMemo(() => {
@@ -149,6 +141,7 @@ const NewDepartmentTable: React.FC = () => {
 
     filteredDepartmentData.forEach((dept) => {
       const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
+
 
       if (currentCol + columnsNeeded > maxColumnsPerPage) {
         if (currentPageDepts.length > 0) {
@@ -163,7 +156,7 @@ const NewDepartmentTable: React.FC = () => {
         const chunk = remainingEmployees.splice(0, maxEmployeesPerColumn);
         currentPageDepts.push({
           ...dept,
-          result: chunk,
+          result: chunk
         });
         currentCol++;
       }
@@ -176,51 +169,169 @@ const NewDepartmentTable: React.FC = () => {
     return result;
   }, [filteredDepartmentData]);
 
-  if (loading) return <div>Loading...</div>;
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
+  const renderTableContent = () => {
+    const currentData = pages[currentPage - 1] || [];
+    const isLastPage = currentPage === pages.length;
+    const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
+    const columnWidth = `${100 / totalColumns}%`;
+  
+    return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
+      <TableRow key={rowIndex}>
+        {currentData.map((dept, colIndex) => {
+          const employee = dept.result[rowIndex];
+          return (
+            <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
+              {employee ? (
+     <EmployeeCell status={employee.status}>
+     <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
+   </EmployeeCell>
+              ) : (
+                <EmployeeCell status={null}>-</EmployeeCell>
+              )}
+            </StyledTableCell>
+          );
+        })}
+        {isLastPage && currentData.length < maxColumnsPerPage &&
+          Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
+              <EmployeeCell status={null}>-</EmployeeCell>
+            </StyledTableCell>
+          ))
+        }
+      </TableRow>
+    ));
+  };
+
+  if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
+
 
   return (
     <div>
-      {/* Render the Table with departmentData */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Department</TableCell>
-              <TableCell>Employees</TableCell>
-              {/* Add more headers as needed */}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pages[currentPage - 1]?.map((dept) => (
-              <TableRow key={dept.department_name}>
-                <TableCell>{dept.department_name}</TableCell>
-                <TableCell>
-                  {dept.result.map((employee) => (
-                    <div key={employee.id}>{formatName(employee)}</div>
-                  ))}
-                </TableCell>
-              </TableRow>
+      <Button 
+        variant="contained" 
+        onClick={handleOpenModal} 
+        sx={{ 
+          mb: 2,
+          backgroundColor: '#105E82',
+          '&:hover': {
+            backgroundColor: '#0D4D6B',
+          },
+        }}
+      >
+        部門を選択
+      </Button>
+      <Modal open={modalOpen} onClose={handleCloseModal}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" component="h2" gutterBottom>
+            部門の選択
+          </Typography>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <StyledCheckbox
+                  checked={isAllSelected}
+                  indeterminate={selectedDepartments.size > 0 && !isAllSelected}
+                  onChange={handleSelectAll}
+                />
+              }
+              label="All"
+            />
+            <Divider sx={{ my: 1 }} />
+            {departmentData.map((dept) => (
+              <FormControlLabel
+                key={dept.department_name}
+                control={
+                  <StyledCheckbox
+                    checked={selectedDepartments.has(dept.department_name)}
+                    onChange={() => handleDepartmentToggle(dept.department_name)}
+                  />
+                }
+                label={`${dept.department_name} (${dept.display_number})`}
+              />
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </FormGroup>
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            <StyledButton 
+              variant="outlined" 
+              onClick={handleReset}
+              sx={{ flex: 1 }}
+            >
+              Reset
+            </StyledButton>
+            <Button 
+              variant="contained" 
+              onClick={handleCloseModal}
+              sx={{ 
+                flex: 1,
+                backgroundColor: '#105E82',
+                '&:hover': {
+                  backgroundColor: '#0D4D6B',
+                },
+              }}
+            >
+              閉じる
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+  <Table>
+    <TableHead>
+      <TableRow>
+        {pages[currentPage - 1]?.map((dept, index) => (
+          <StyledTableCell key={index}>
+            <strong>{dept.department_name}</strong>
+          </StyledTableCell>
+        ))}
+        {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+          Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+            <StyledTableCell key={`empty-header-${emptyIndex}`}>
+              <strong>-</strong>
+            </StyledTableCell>
+          ))
+        }
+      </TableRow>
+    </TableHead>
+    <TableBody>{renderTableContent()}</TableBody>
+  </Table>
+</TableContainer>
 
-      {/* Pagination controls */}
       <PaginationContainer>
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
-        >
-          <NavigateBeforeIcon />
-        </Button>
-        <Typography>{currentPage}</Typography>
-        <Button
-          disabled={currentPage === pages.length}
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
-          <NavigateNextIcon />
-        </Button>
+        <StyledButtonGroup variant="outlined" size="large">
+          <Button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            <NavigateBeforeIcon />
+          </Button>
+          <Button disabled sx={{ pointerEvents: 'none' }}>
+            <PageIndicator>
+              {currentPage} / {pages.length}
+            </PageIndicator>
+          </Button>
+          <Button
+            onClick={() => setCurrentPage((prev) => Math.min(pages.length, prev + 1))}
+            disabled={currentPage === pages.length}
+          >
+            <NavigateNextIcon />
+          </Button>
+        </StyledButtonGroup>
       </PaginationContainer>
     </div>
   );
