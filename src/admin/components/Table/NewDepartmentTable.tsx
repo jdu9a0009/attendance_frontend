@@ -19,7 +19,7 @@ import {
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { fetchDashboardList } from '../../../utils/libs/axios';
+import { setupDashboardSSE } from '../../../utils/libs/axios';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -32,6 +32,7 @@ import {
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
+import { Department } from './types';
 
 
 interface DepartmentData {
@@ -64,42 +65,43 @@ const NewDepartmentTable: React.FC = () => {
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
-    if (!employee.last_name) {
-        return employee.nick_name || ""; // Если фамилия отсутствует, возвращаем nickname или пустую строку
+    // Если есть никнейм, возвращаем его
+    if (employee.nick_name) {
+      return employee.nick_name;
     }
-
-    if (employee.last_name.length > 7) {
-        return employee.nick_name || employee.last_name.substring(0, 7);
-    }
-
-    return employee.last_name;
-};
+  
+    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
+    return employee.last_name ? employee.last_name.substring(0, 7) : "";
+  };
+  
 
 
-  useEffect(() => {
-    const loadServerData = async () => {
-      try {
-        setLoading(true);
-        const { department } = await fetchDashboardList(currentPage);
+useEffect(() => {
+  const handleSSEMessage = (data: { department: Department[] }) => {
+    const { department } = data;
 
-        if (department && department.length > 0) {
-          setDepartmentData(department);
-          if (selectedDepartments.size === 0) {
-            setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
-          }
-        } else {
-          setError("Нет данных для отображения.");
-        }
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        setError("Ошибка при загрузке данных.");
-      } finally {
-        setLoading(false);
+    if (department && department.length > 0) {
+      setDepartmentData(department);
+      if (selectedDepartments.size === 0) {
+        setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
       }
-    };
+    } else {
+      setError("Нет данных для отображения.");
+    }
+    setLoading(false);
+  };
 
-    loadServerData();
-  }, [currentPage]);
+  const handleSSEError = (error: Error) => {
+    console.error("Ошибка SSE:", error);
+    setError("Ошибка при загрузке данных.");
+    setLoading(false);
+  };
+
+  const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
+
+  return () => closeSSE(); // Закрываем соединение при размонтировании.
+}, []);
+
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;

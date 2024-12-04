@@ -49,54 +49,121 @@ const axiosInstance = () => {
 
 export default axiosInstance;
 
-// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
-export const fetchDashboardList = async (page: number): Promise<{
-  employee_list: Employee[];
-  total_employee_count: number;
-  department: Department[];
-}> => {
-  try {
-    const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
-      params: { page }
-    });
+export const setupDashboardSSE = (
+  onDataUpdate: (data: {
+    employee_list: Employee[];
+    total_employee_count: number;
+    department: Department[];
+  }) => void,
+  onError?: (error: Error) => void
+) => {
+  const eventSource = new EventSource('http://164.90.180.82:8080/api/v1/user/dashboardlist'); // SSE эндпоинт.
 
-    console.log("Ответ API:", response.data);
+  eventSource.onmessage = (event) => {
+    try {
+      // Логирование ответа от сервера
+      console.log("Сырой ответ от сервера (SSE):", event.data);
 
-    // Проверка структуры данных
-    if (!response.data?.data?.results) {
-      throw new Error("Не удалось получить данные. Пожалуйста, проверьте API.");
+      const rawData = JSON.parse(event.data);
+
+      if (!rawData?.data?.results) {
+        throw new Error("Неверная структура данных SSE. Проверьте сервер.");
+      }
+
+      // Преобразование списка сотрудников
+      const employee_list: Employee[] = rawData.data.results.flatMap((dept: any) =>
+        dept.result.map((emp: any) => ({
+          id: emp.id,
+          employee_id: emp.employee_id,
+          department_id: emp.department_id,
+          department_name: emp.department_name,
+          display_number: emp.display_number,
+          last_name: emp.last_name,
+          status: emp.status,
+        }))
+      );
+
+      // Преобразование списка департаментов
+      const department: Department[] = rawData.data.results.map((dept: any) => ({
+        department_name: dept.department_name,
+        display_number: dept.display_number,
+        result: dept.result,
+      }));
+
+      // Итоговые данные
+      const transformedData = {
+        employee_list,
+        total_employee_count: rawData.data.count,
+        department,
+      };
+
+      console.log("Преобразованные данные:", transformedData); // Лог преобразованных данных
+
+      onDataUpdate(transformedData);
+    } catch (error) {
+      console.error("Ошибка при обработке данных SSE:", error);
+      onError && onError(error as Error);
     }
+  };
 
-    // Преобразование списка сотрудников
-    const employee_list: Employee[] = response.data.data.results.flatMap(dept => 
-      dept.result.map(emp => ({
-        id: emp.id,
-        employee_id: emp.employee_id,
-        department_id: emp.department_id,
-        department_name: emp.department_name,
-        display_number: emp.display_number,
-        last_name: emp.last_name,
-        status: emp.status
-      }))
-    );
+  eventSource.onerror = (error) => {
+    console.error("Ошибка SSE:", error);
+    onError && onError(new Error("Ошибка подключения SSE"));
+    eventSource.close();
+  };
 
-    // Преобразование списка департаментов
-    const department: Department[] = response.data.data.results.map(dept => ({
-      department_name: dept.department_name,
-      display_number: dept.display_number,
-      result: dept.result
-    }));
-
-    return {
-      employee_list,
-      total_employee_count: response.data.data.count,
-      department,
-    };
-  } catch (error) {
-    console.error('Error fetching dashboard list:', error);
-    throw error;
-  }
+  return () => eventSource.close(); // Закрытие соединения.
 };
+
+
+// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
+// export const fetchDashboardList = async (page: number): Promise<{
+//   employee_list: Employee[];
+//   total_employee_count: number;
+//   department: Department[];
+// }> => {
+//   try {
+//     const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
+//       params: { page }
+//     });
+
+//     console.log("Ответ API:", response.data);
+
+//     // Проверка структуры данных
+//     if (!response.data?.data?.results) {
+//       throw new Error("Не удалось получить данные. Пожалуйста, проверьте API.");
+//     }
+
+//     // Преобразование списка сотрудников
+//     const employee_list: Employee[] = response.data.data.results.flatMap(dept => 
+//       dept.result.map(emp => ({
+//         id: emp.id,
+//         employee_id: emp.employee_id,
+//         department_id: emp.department_id,
+//         department_name: emp.department_name,
+//         display_number: emp.display_number,
+//         last_name: emp.last_name,
+//         status: emp.status
+//       }))
+//     );
+
+//     // Преобразование списка департаментов
+//     const department: Department[] = response.data.data.results.map(dept => ({
+//       department_name: dept.department_name,
+//       display_number: dept.display_number,
+//       result: dept.result
+//     }));
+
+//     return {
+//       employee_list,
+//       total_employee_count: response.data.data.count,
+//       department,
+//     };
+//   } catch (error) {
+//     console.error('Error fetching dashboard list:', error);
+//     throw error;
+//   }
+// };
 
 export const fetchDepartments = async () => {
   try {
