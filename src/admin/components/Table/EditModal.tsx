@@ -155,18 +155,18 @@ const EditModal: React.FC<EditModalProps> = ({
             required
           />
           <TextField
-            label={t('createEmployeeModal.firstName')}
-            name="first_name"
-            value={formData.first_name}
+            label={t('createEmployeeModal.lastName')}
+            name="last_name"
+            value={formData.last_name}
             onChange={handleInputChange}
             fullWidth
             margin="normal"
             required
           />
           <TextField
-            label={t('createEmployeeModal.lastName')}
-            name="last_name"
-            value={formData.last_name}
+            label={t('createEmployeeModal.firstName')}
+            name="first_name"
+            value={formData.first_name}
             onChange={handleInputChange}
             fullWidth
             margin="normal"

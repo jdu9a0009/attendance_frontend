@@ -101,7 +101,7 @@ const EmployeeListPage: React.FC = () => {
       first_name: employee.full_name.split(' ')[0], 
       last_name: employee.full_name.split(' ')[1] || '', 
       nick_name: employee.nick_name, 
-      role: employee.role, 
+      role: employee.role || "Employee", 
       department: employee.department,
       position: employee.position,
       phone: employee.phone,

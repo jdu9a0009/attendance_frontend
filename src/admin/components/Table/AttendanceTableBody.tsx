@@ -50,7 +50,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
   };
 
   const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean) => {
-    if (column === 'come_time' && forgetLeave) {
+    if (column === 'leave_time' && forgetLeave) {
       return { backgroundColor: '#ffffa3', color: '#000' }; // Yellow background with black text
     }
 
