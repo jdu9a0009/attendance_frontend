@@ -144,6 +144,7 @@ const NewDepartmentTable: React.FC = () => {
     filteredDepartmentData.forEach((dept) => {
       const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
 
+
       if (currentCol + columnsNeeded > maxColumnsPerPage) {
         if (currentPageDepts.length > 0) {
           result.push(currentPageDepts);
@@ -208,6 +209,7 @@ const NewDepartmentTable: React.FC = () => {
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
+
 
   return (
     <div>
