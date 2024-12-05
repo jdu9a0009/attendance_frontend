@@ -1,10 +1,9 @@
 import axios from "axios";
 import { Employee, Department, ApiResponse } from '../../admin/components/Table/types';
-import dotenv from 'dotenv';
 
 const axiosInstance = () => {
   const defaultOptions = {
-    baseURL: "https://api.eduflow.uz/api/v1",
+    baseURL: process.env.REACT_APP_BASE_URL,
     headers: {
       "Content-Type": "application/json",
     },
@@ -16,7 +15,7 @@ const axiosInstance = () => {
     const token = localStorage.getItem('access_token');
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
-    // console.log('Токен:', token);
+    
     // console.log('Данные запроса:', config.data);
 
     return config;
@@ -49,6 +48,7 @@ const axiosInstance = () => {
 
 export default axiosInstance;
 
+
 export const setupDashboardSSE = (
   onDataUpdate: (data: {
     employee_list: Employee[];
@@ -57,11 +57,15 @@ export const setupDashboardSSE = (
   }) => void,
   onError?: (error: Error) => void
 ) => {
-  const eventSource = new EventSource('http://164.90.180.82:8080/api/v1/user/dashboardlist'); // SSE эндпоинт.
+  const sseUrl = 'http://164.90.180.82:8080/api/v1/user/dashboardlist'; // SSE эндпоинт.
+  
+  // Логирование информации о запросе
+  console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
+
+  const eventSource = new EventSource(sseUrl);
 
   eventSource.onmessage = (event) => {
     try {
-      // Логирование ответа от сервера
       console.log("Сырой ответ от сервера (SSE):", event.data);
 
       const rawData = JSON.parse(event.data);
@@ -97,7 +101,7 @@ export const setupDashboardSSE = (
         department,
       };
 
-      console.log("Преобразованные данные:", transformedData); // Лог преобразованных данных
+      console.log("Преобразованные данные:", transformedData);
 
       onDataUpdate(transformedData);
     } catch (error) {
@@ -114,6 +118,8 @@ export const setupDashboardSSE = (
 
   return () => eventSource.close(); // Закрытие соединения.
 };
+
+
 
 
 // Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
@@ -231,13 +237,13 @@ export const deletePosition = async (id: number) => {
   return response.data;
 };
 
-export const createUser = async (password: string, role: string, last_name: string, first_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
-  const response = await axiosInstance().post(`/user/create`, {password, role, last_name, first_name, department_id, position_id, phone, email, nick_name});
-  return response.data;
+export const createUser = async (password: string, employee_id: string, role: string, first_name: string, last_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
+  const response = await axiosInstance().post(`/user/create`, {password, employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name});
+  return response.data; 
 };
 
-export const updateUser = async (id: number, password: string, role: string, last_name: string, first_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
-  const response = await axiosInstance().patch(`/user/${id}`, {password, role, last_name, first_name, department_id, position_id, phone, email, nick_name});
+export const updateUser = async (id: number, employee_id: string, password: string, role: string, first_name: string, last_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
+  const response = await axiosInstance().patch(`/user/${id}`, {password,employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name});
   return response.data;
 };
 

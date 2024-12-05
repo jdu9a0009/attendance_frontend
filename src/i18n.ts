@@ -118,7 +118,7 @@ const userResources = {
       statusC: {
         early_come: '早出',
         early_leave: '早退',
-        absent: '欠勤',
+        absent: '欠席',
         late: '遅刻',
       },
       weeklyTimesheet: {
@@ -307,7 +307,7 @@ const adminResources = {
       lateArrival: '遅刻',
       earlyDepartures: '早退',
       earlyCome: '早出',
-      employeeId: 'ID',
+      employeeId: '社員番号',
       fullName: '名前',
       department: '部署',
       position: '役職',
@@ -371,7 +371,7 @@ const adminResources = {
       },
 
       employeeTable: {
-        employeeId: 'ID',
+        employeeId: '社員番号',
         fullName: 'フルネーム',
         department: '部署',
         position: '役職',
@@ -386,15 +386,15 @@ const adminResources = {
 
       createEmployeeModal: {
         title: '新入社員の作成',
-        firstName: '下の名前',
-        lastName: '上の名前',
+        firstName: '名',
+        lastName: '姓',
         name: '氏名',
-        nickName: 'ニックネーム',
-        employeeId: '従業員 ID',
+        nickName: '表示名',
+        employeeId: '社員番号',
         password: 'パスワード',
         position: '役職',
         department: '部署',
-        role: '役職',
+        role: '権限',
         roleAdmin: '管理者',
         roleEmployee: '従業員',
         phoneNumber: '電話番号',

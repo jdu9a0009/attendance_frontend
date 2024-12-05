@@ -81,7 +81,7 @@ function LineChartComponent() {
       const monthString = String(monthIndex).padStart(2, "0");
 
       const response = await axiosInstance().get(
-        `https://api.eduflow.uz/api/v1/attendance/graph`,
+        `/attendance/graph`,
         {
           params: {
             month: `${selectedYear}-${monthString}-01`,

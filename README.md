@@ -1,46 +1,57 @@
-# Getting Started with Create React App
+# Attendance Web  
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Introduction  
+**Attendance Web** is a web application designed for monitoring employee attendance and performance. It helps manage attendance data and provides analytical insights to improve team efficiency.  
 
-## Available Scripts
+## Technical Requirements  
+1. **Core Technologies:**  
+   - TypeScript  
+   - React  
+   - Material UI  
+2. **System Requirements:**  
+   - Node.js  
+3. **Libraries Used:**  
+   - "axios": "^1.7.7"  
+   - "date-fns": "^2.30.0"  
+   - "dayjs": "^1.11.13"  
+   - "dotenv": "^16.4.5"  
+   - "i18n": "^0.15.1"  
+   - "i18next": "^23.15.1"  
+   - "jsqr": "^1.4.0"  
+   - "leaflet": "^1.9.4"  
 
-In the project directory, you can run:
+## Project Structure  
+src/ ├── @types/ # TypeScript types ├── admin/ # Admin pages ├── client/ # Client-side components ├── shared/ # Shared components and utilities ├── utils/ # Helper functions └── libs/ # API integrations ├── App.test.tsx # Application tests ├── App.tsx # Main component ├── employees.tsx # Employee list page ├── i18n.ts # i18n configuration ├── index.css # Main styles ├── index.tsx # Entry point of the application ├── LanguageSwitcher.tsx # Language switcher component ├── react-app-env.d.ts
+├── reportWebVitals.ts
+└── setupTests.ts
 
-### `npm start`
+## Other files:
+.env # Environment configuration file
+.gitignore # Git ignored files
+docker-compose.yml # Docker Compose settings
+Dockerfile # Docker image definition
+nginx.conf # Nginx configuration
+package-lock.json
+package.json
+tsconfig.json # TypeScript configuration
+README.md # Documentation file
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Installation  
+1. Ensure that **Node.js** is installed on your machine.  
+2. Clone the project repository:  
+   ```bash
+   git clone <repository-url>
+   cd <project-folder>
+3. Install the dependencies: **npm install**
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Running and Building
+1. To run the project in development mode: **npm start** 
+2. To build the project for production: **npm run build**
 
-### `npm test`
+## API
+All API interactions are defined in **utils/libs/axios.ts.**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Base URL: Defined in the **.env** file via the **BASE_URL** variable.
+Axios Instance: Used for simplifying API requests.
+Example **.env** configuration: **BASE_URL=https://api.example.com**
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).

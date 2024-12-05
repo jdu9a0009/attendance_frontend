@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   react-attendance-app:
     build:
@@ -7,3 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80"
+
+
+
+
+

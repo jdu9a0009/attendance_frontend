@@ -19,7 +19,7 @@ import {
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { setupDashboardSSE } from '../../../utils/libs/axios';
+import { setupDashboardSSE  } from '../../../utils/libs/axios';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -73,35 +73,33 @@ const NewDepartmentTable: React.FC = () => {
     // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
     return employee.last_name ? employee.last_name.substring(0, 7) : "";
   };
+
+
+  useEffect(() => {
+    const handleSSEMessage = (data: { department: Department[] }) => {
+      const { department } = data;
   
-
-
-useEffect(() => {
-  const handleSSEMessage = (data: { department: Department[] }) => {
-    const { department } = data;
-
-    if (department && department.length > 0) {
-      setDepartmentData(department);
-      if (selectedDepartments.size === 0) {
-        setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+      if (department && department.length > 0) {
+        setDepartmentData(department);
+        if (selectedDepartments.size === 0) {
+          setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+        }
+      } else {
+        setError("Нет данных для отображения.");
       }
-    } else {
-      setError("Нет данных для отображения.");
-    }
-    setLoading(false);
-  };
-
-  const handleSSEError = (error: Error) => {
-    console.error("Ошибка SSE:", error);
-    setError("Ошибка при загрузке данных.");
-    setLoading(false);
-  };
-
-  const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
-
-  return () => closeSSE(); // Закрываем соединение при размонтировании.
-}, []);
-
+      setLoading(false);
+    };
+  
+    const handleSSEError = (error: Error) => {
+      console.error("Ошибка SSE:", error);
+      setError("Ошибка при загрузке данных.");
+      setLoading(false);
+    };
+  
+    const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
+  
+    return () => closeSSE(); // Закрываем соединение при размонтировании.
+  }, []);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -146,6 +144,7 @@ useEffect(() => {
     filteredDepartmentData.forEach((dept) => {
       const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
 
+
       if (currentCol + columnsNeeded > maxColumnsPerPage) {
         if (currentPageDepts.length > 0) {
           result.push(currentPageDepts);
@@ -188,9 +187,9 @@ useEffect(() => {
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee ? (
-                <EmployeeCell status={employee.status}>
-                  {formatName(employee)}
-                </EmployeeCell>
+     <EmployeeCell status={employee.status}>
+     <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
+   </EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}
@@ -210,6 +209,7 @@ useEffect(() => {
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
+
 
   return (
     <div>

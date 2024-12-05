@@ -87,6 +87,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
     try {
       const createdEmployee = await createUser(
         newEmployee.password!,
+        newEmployee.employee_id!,
         newEmployee.role!,
         newEmployee.first_name!,
         newEmployee.last_name!,
@@ -94,8 +95,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
         positions.find((p) => p.name === newEmployee.position)?.id!,
         newEmployee.phone!,
         newEmployee.email!,
-        newEmployee.nick_name // Добавляем nick_name в вызов
+        newEmployee.nick_name 
       );
+      console.log("checking   ", createdEmployee);
       onSave(createdEmployee);
       onClose();
     } catch (error) {
@@ -123,12 +125,12 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             {t('createEmployeeModal.title')}
           </Typography>
           <form onSubmit={handleSubmit} autoComplete="off">
-            <TextField
+          <TextField
               fullWidth
               margin="normal"
-              name="first_name"
-              label={t('createEmployeeModal.firstName')}
-              value={newEmployee.first_name || ""}
+              name="employee_id"
+              label={t('createEmployeeModal.employeeId')}
+              value={newEmployee.employee_id}
               onChange={handleInputChange}
               autoComplete="off"
               required
@@ -138,7 +140,17 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               margin="normal"
               name="last_name"
               label={t('createEmployeeModal.lastName')}
-              value={newEmployee.last_name || ""}
+              value={newEmployee.last_name}
+              onChange={handleInputChange}
+              autoComplete="off"
+              required
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              name="first_name"
+              label={t('createEmployeeModal.firstName')}
+              value={newEmployee.first_name}
               onChange={handleInputChange}
               autoComplete="off"
               required
@@ -150,7 +162,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               name="password"
               label={t('createEmployeeModal.password')}
               type="password"
-              value={newEmployee.password || ""}
+              value={newEmployee.password}
               onChange={handleInputChange}
               autoComplete="new-password"
             />
@@ -169,7 +181,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
               <Select
                 name="role"
-                value={newEmployee.role || ""}
+                value={newEmployee.role}
                 onChange={handleSelectChange}
               >
                 <MenuItem value="">
@@ -185,7 +197,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               </InputLabel>
               <Select
                 name="department"
-                value={newEmployee.department || ""}
+                value={newEmployee.department}
                 onChange={handleSelectChange}
               >
                 <MenuItem value="">
@@ -204,7 +216,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               </InputLabel>
               <Select
                 name="position"
-                value={newEmployee.position || ""}
+                value={newEmployee.position}
                 onChange={handleSelectChange}
               >
                 <MenuItem value="">
@@ -222,7 +234,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               margin="normal"
               name="phone"
               label={t('createEmployeeModal.phoneNumber')}
-              value={newEmployee.phone || ""}
+              value={newEmployee.phone}
               onChange={handleInputChange}
               required
             />
@@ -231,7 +243,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               margin="normal"
               name="email"
               label={t('createEmployeeModal.email')}
-              value={newEmployee.email || ""}
+              value={newEmployee.email}
               onChange={handleInputChange}
               required
             />
