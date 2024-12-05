@@ -110,6 +110,7 @@ const EditModal: React.FC<EditModalProps> = ({
           formData.employee_id,
           formData.password || '', 
           formData.role!,
+          formData.first_name!,
           formData.last_name!,
           departmentId,
           positionId,
