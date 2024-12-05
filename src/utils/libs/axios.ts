@@ -57,11 +57,17 @@ export const setupDashboardSSE = (
   }) => void,
   onError?: (error: Error) => void
 ) => {
-  const eventSource = new EventSource('http://164.90.180.82:8080/api/v1/user/dashboardlist'); // SSE эндпоинт.
+  const sseUrl = 'http://164.90.180.82:8080/api/v1/user/dashboardlist'; // SSE эндпоинт.
+  
+  // Логирование информации о запросе
+  console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
+
+  const eventSource = new EventSource(sseUrl);
 
   eventSource.onmessage = (event) => {
     try {
       console.log("Сырой ответ от сервера (SSE):", event.data);
+
       const rawData = JSON.parse(event.data);
 
       if (!rawData?.data?.results) {
@@ -112,6 +118,7 @@ export const setupDashboardSSE = (
 
   return () => eventSource.close(); // Закрытие соединения.
 };
+
 
 
 
