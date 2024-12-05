@@ -36,6 +36,7 @@ function AdminDashboardContent() {
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeId') },
     { id: 'full_name', label: t('fullName'), filterable: true },
+    { id: 'nick_name', label: t('nickName')},
     { id: 'department', label: t('department'), filterable: true },
     { id: 'position', label: t('position'), filterable: true },
     { id: 'work_day', label: t('workDay') },

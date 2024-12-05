@@ -309,6 +309,7 @@ const adminResources = {
       earlyCome: '早出',
       employeeId: '社員番号',
       fullName: '名前',
+      nickName: '表示名',
       department: '部署',
       position: '役職',
       workDay: '勤務日',
@@ -372,7 +373,8 @@ const adminResources = {
 
       employeeTable: {
         employeeId: '社員番号',
-        fullName: 'フルネーム',
+        fullName: '名前',
+        nickName: '表示名',
         department: '部署',
         position: '役職',
         phone: '電話番号',

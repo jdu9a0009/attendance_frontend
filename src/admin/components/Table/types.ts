@@ -25,7 +25,7 @@ export interface TableData {
     totalHrs?: number;
     phone?: string;
     email?: string;
-    nick_name?: string;
+    nick_name: string;
     forget_leave: boolean;
   }
 

@@ -36,6 +36,7 @@ const EmployeeListPage: React.FC = () => {
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeTable.employeeId') },
     { id: 'full_name', label: t('employeeTable.fullName') },
+    { id: 'nick_name', label: t('employeeTable.nickName') },
     { id: 'department', label: t('employeeTable.department') },
     { id: 'position', label: t('employeeTable.position') },
     { id: 'phone', label: t('employeeTable.phone') },
