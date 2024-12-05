@@ -32,12 +32,11 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
     if (value === undefined || value === null) {
       return key === "checkOut" ? "" : "--:--";
     }
-    
+
       if (typeof value === "boolean") {
         return value ? ("出席") : ("欠席");
       }
-  
-  
+
     if (value instanceof Date) {
       if (key === "date") {
         return value.toISOString().split("T")[0];
@@ -49,17 +48,30 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
     return value.toString();
   };
 
-  const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean) => {
-    if (column === 'come_time' && forgetLeave) {
-      return { backgroundColor: '#ffffa3', color: '#000' }; // Yellow background with black text
+  const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean, row: TableData) => {
+    const formattedValue = formatValue(value, column);
+    const isBothTimeEmpty = formattedValue === "--:--";
+    const isComeTimeNotEmpty = formatValue(row.come_time, "come_time") !== "--:--";
+
+    if (column === "leave_time" && forgetLeave) {
+      return { backgroundColor: "#ffffa3", color: "#000" }; 
     }
 
-    if (column === 'status' && typeof value === 'boolean') {
+    if (column === "leave_time" && isComeTimeNotEmpty) {
+      return { backgroundColor: "", color: "#000" };
+    }
+  
+    if ((column === "leave_time" || column === "come_time") && isBothTimeEmpty) {
+      return { backgroundColor: "#FFE5EE", color: "#AA0000" };
+    }
+  
+    if (column === "status" && typeof value === "boolean") {
       return getStatusStyles(value as boolean);
     }
-
-    return { backgroundColor: '', color: '#000' };
+  
+    return { backgroundColor: "", color: "#000" };
   };
+  
   const getStatusStyles = (
     status: boolean
   ): { backgroundColor: string; color: string } => {
@@ -116,7 +128,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
             }
 
             const value = row[column.id as keyof TableData];
-            const { backgroundColor, color } = getBackgroundColor(column.id, value, row.forget_leave);
+            const { backgroundColor, color } = getBackgroundColor(column.id, value, row.forget_leave, row);
 
             return (
               <TableCell

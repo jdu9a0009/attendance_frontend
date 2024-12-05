@@ -95,6 +95,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           position: item.position,
           employee_id: item.employee_id,
           full_name: item.full_name,
+          nick_name: item.nick_name,
           status: item.status,
           work_day: item.work_day,
           come_time: item.come_time,
@@ -222,11 +223,13 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
       console.log("Selected date:", date);
     }
   };
-
+  
+  
   const paginatedData = filteredData.slice(
     page * rowsPerPage,
     (page + 1) * rowsPerPage
   );
+  console.log("paginated",paginatedData);
   
 
   return (

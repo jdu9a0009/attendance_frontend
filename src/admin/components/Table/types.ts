@@ -20,12 +20,12 @@ export interface TableData {
     position_id?: number;
     date?: DateOrString;
     status?: boolean;
-    checkIn?: DateOrString;
-    checkOut?: DateOrString;
+    come_time?: DateOrString;
+    leave_time?: DateOrString;
     totalHrs?: number;
     phone?: string;
     email?: string;
-    nick_name?: string;
+    nick_name: string;
     forget_leave: boolean;
   }
 
