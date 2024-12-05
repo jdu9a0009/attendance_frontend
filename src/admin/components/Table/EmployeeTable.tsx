@@ -82,7 +82,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           position: item.position,
           phone: item.phone,
           email: item.email,
-          nick_name: item.nick_name || "—",
+          nick_name: item.nick_name,
         }));
         console.log("123455: ", formattedData)
         setData(formattedData);
