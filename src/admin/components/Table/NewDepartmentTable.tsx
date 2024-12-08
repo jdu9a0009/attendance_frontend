@@ -186,10 +186,10 @@ const NewDepartmentTable: React.FC = () => {
           const employee = dept.result[rowIndex];
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
-              {employee ? (
-     <EmployeeCell status={employee.status}>
-     <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
-   </EmployeeCell>
+              {employee && employee.employee_id !== null ? (
+                <EmployeeCell status={employee.status}>
+                  <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
+                </EmployeeCell>
               ) : (
                 <EmployeeCell status={null}>-</EmployeeCell>
               )}
@@ -206,6 +206,7 @@ const NewDepartmentTable: React.FC = () => {
       </TableRow>
     ));
   };
+  
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
