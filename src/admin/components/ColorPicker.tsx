@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Button, Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogTitle, DialogContent, Typography, TextField } from '@mui/material';
 
 interface HSV {
   h: number;
@@ -277,18 +277,38 @@ const ColorPickerButton: React.FC<{
               />
             </Box>
 
-            {/* Current Color Display */}
-            <Box
-              sx={{
-                width: '100%',
-                height: 40,
-                marginTop: 2,
-                backgroundColor: localColor,
-                borderRadius: 1,
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-            />
+            {/* Current Color Display and HEX Input */}
+            <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  height: 40,
+                  backgroundColor: localColor,
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  flex: 1,
+                }}
+              />
+              <TextField
+                value={localColor}
+                size="small"
+                onChange={(e) => {
+                  const newColor = e.target.value;
+                  if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
+                    setLocalColor(newColor);
+                    setHsv(hexToHsv(newColor));
+                    onChange(newColor);
+                  } else if (newColor.startsWith('#') && newColor.length <= 7) {
+                    setLocalColor(newColor);
+                  }
+                }}
+                sx={{ width: '110px' }}
+                inputProps={{
+                  style: { textTransform: 'uppercase' }
+                }}
+              />
+            </Box>
           </Box>
         </DialogContent>
       </Dialog>
