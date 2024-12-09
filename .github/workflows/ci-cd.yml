@@ -64,24 +64,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            # Pull the latest image
+            # Pull the latest Docker image
             docker pull ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
 
             # Stop and remove any running container with the same name
-            if [ "$(docker ps -q -f name=attendance_frontend)" ]; then
-              echo "Stopping existing container..."
-              docker stop attendance_frontend
-            fi
-            if [ "$(docker ps -aq -f name=attendance_frontend)" ]; then
-              echo "Removing existing container..."
-              docker rm attendance_frontend
-            fi
+            docker stop attendance_frontend || true
+            docker rm attendance_frontend || true
 
-            # Check if port 3000 is in use, and free it if necessary
-            PORT_IN_USE=$(lsof -i :3000 | grep LISTEN | awk '{print $2}' || true)
+            # Kill the process using port 3000, if any
+            PORT_IN_USE=$(lsof -t -i :3000 || true)
             if [ "$PORT_IN_USE" ]; then
-              echo "Port 3000 is in use by PID $PORT_IN_USE. Stopping the process..."
-              kill -9 $PORT_IN_USE
+              echo "Port 3000 is in use. Stopping process with PID $PORT_IN_USE..."
+              kill -9 $PORT_IN_USE || true
             fi
 
             # Start the new container
