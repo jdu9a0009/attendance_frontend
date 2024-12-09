@@ -11,6 +11,7 @@ import ColorPickerButton from '../components/ColorPicker';
 import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
+
 interface CompanySettings {
   id?: number;
   company_name: string;
