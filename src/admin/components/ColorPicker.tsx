@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, Grid } from '@mui/material';
+import { Box, Typography, Button, Dialog, DialogTitle, DialogContent } from '@mui/material';
 
-const PRESET_COLORS = [
-  '#FF0000', '#FF4500', '#FFA500', '#FFD700', '#FFFF00', '#9ACD32',
-  '#008000', '#20B2AA', '#87CEEB', '#0000FF', '#4B0082', '#800080',
-  '#FF1493', '#FF69B4', '#FFC0CB', '#FFFFFF', '#808080', '#000000',
-];
+// const PRESET_COLORS = [
+//   '#FF0000', '#FF4500', '#FFA500', '#FFD700', '#FFFF00', '#9ACD32',
+//   '#008000', '#20B2AA', '#87CEEB', '#0000FF', '#4B0082', '#800080',
+//   '#FF1493', '#FF69B4', '#FFC0CB', '#FFFFFF', '#808080', '#000000',
+// ];
 
 interface HSV {
   h: number;
