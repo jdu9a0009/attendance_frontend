@@ -18,41 +18,32 @@ jobs:
       - name: Set CI to false
         run: echo "CI=false" >> $GITHUB_ENV
 
-      # Step 3: Cache Node.js modules
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # Step 4: Set up Node.js and install dependencies
+      # Step 3: Set up Node.js and install dependencies
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18  # Make sure this matches your app's Node version
 
-      # Step 5: Install app dependencies
+      # Step 4: Install app dependencies
       - name: Install dependencies
         run: npm ci  # Use `npm ci` for clean installs
 
-      # Step 6: Build the React app
+      # Step 5: Build the React app
       - name: Build the React app
         run: npm run build
 
-      # Step 7: Set up Docker Buildx (for building multi-platform images)
+      # Step 6: Set up Docker Buildx (for building multi-platform images)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 8: Log in to Docker Hub using secrets
+      # Step 7: Log in to Docker Hub using secrets
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 9: Build and push Docker image
+      # Step 8: Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -80,7 +71,6 @@ jobs:
             # Stop and remove any existing containers
             docker-compose down || true
 
-         
             # Pull the latest changes
             git pull origin main
 
