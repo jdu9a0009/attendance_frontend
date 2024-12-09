@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Employee, Department, ApiResponse } from '../../admin/components/Table/types';
+import { Employee, Department } from '../../admin/components/Table/types';
 
 const axiosInstance = () => {
   const defaultOptions = {
@@ -51,13 +51,14 @@ export default axiosInstance;
 
 export const setupDashboardSSE = (
   onDataUpdate: (data: {
+    colors?: { new_absent_color: string; new_present_color: string };
     employee_list: Employee[];
     total_employee_count: number;
     department: Department[];
   }) => void,
   onError?: (error: Error) => void
 ) => {
-  const sseUrl = 'http://164.90.180.82:8080/api/v1/user/dashboardlist'; // SSE эндпоинт.
+  const sseUrl = 'https://api.eduflow.uz/api/v1/user/dashboardlist'; // SSE эндпоинт.
   
   // Логирование информации о запросе
   console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
@@ -96,6 +97,7 @@ export const setupDashboardSSE = (
 
       // Итоговые данные
       const transformedData = {
+        colors: rawData.Colors,
         employee_list,
         total_employee_count: rawData.data.count,
         department,
@@ -175,14 +177,14 @@ export const fetchDepartments = async () => {
   try {
     const response = await axiosInstance().get('/department/list');
 
-    console.log('Server response:', response.data); 
+    // console.log('Server response:', response.data); 
 
     if (response.data.status) {
       const departments = response.data.data.results;
       const nextDisplayNumber = response.data.data.displayNumber; 
 
-      console.log('Departments:', departments); // Логируем список департаментов
-      console.log('Next Display Number:', nextDisplayNumber); // Логируем следующее значение для display_number
+      // console.log('Departments:', departments); // Логируем список департаментов
+      // console.log('Next Display Number:', nextDisplayNumber); // Логируем следующее значение для display_number
 
       return { departments, nextDisplayNumber }; 
     }

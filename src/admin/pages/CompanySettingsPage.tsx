@@ -11,7 +11,6 @@ import ColorPickerButton from '../components/ColorPicker';
 import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
-
 interface CompanySettings {
   id?: number;
   company_name: string;
@@ -23,13 +22,13 @@ interface CompanySettings {
   over_end_time: Date | null;
   company_coordinates: LatLngTuple;
   company_location: string;
-  apsent_color: string;
+  absent_color: string;
   present_color: string;
   come_time_color: string;
   leave_time_color: string;
   forget_time_color: string;
   new_present_color: string;
-  new_apsent_color: string;
+  new_absent_color: string;
 }
 
 const CompanySettings: React.FC = () => {
@@ -44,13 +43,13 @@ const CompanySettings: React.FC = () => {
     over_end_time: null,
     company_location: '',
     company_coordinates: [35.6762, 139.6503], // Tokyo Default
-    apsent_color: '', // Пример
+    absent_color: '', // Пример
     present_color: '', // Пример
     come_time_color: '', // Пример
     leave_time_color: '', // Пример
     forget_time_color: '', // Пример
     new_present_color: '', // Пример
-    new_apsent_color: '', // Пример
+    new_absent_color: '', // Пример
   });
 
   const isValidFileType = (file: File): boolean => {
@@ -103,6 +102,13 @@ const CompanySettings: React.FC = () => {
             over_end_time: results.over_end_time ? parseTime(results.over_end_time) : null,
             company_coordinates: [parseFloat(results.latitude), parseFloat(results.longitude)] as LatLngTuple,
             company_location: `${results.latitude}, ${results.longitude}`,
+            absent_color: results.absent_color,
+            present_color: results.present_color,
+            come_time_color: results.come_time_color,
+            leave_time_color: results.leave_time_color,
+            forget_time_color: results.forget_time_color,
+            new_present_color: results.new_present_color,
+            new_absent_color: results.new_absent_color,
           }));
   
           if (results.logo) {
@@ -119,7 +125,6 @@ const CompanySettings: React.FC = () => {
   
     loadSettings();
   }, []);
-  
   
 
   const handleChange = (field: keyof CompanySettings, value: any) => {
@@ -157,13 +162,13 @@ const CompanySettings: React.FC = () => {
       } else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
-      formData.append('apsent_color', settings.apsent_color);
+      formData.append('absent_color', settings.absent_color);
       formData.append('present_color', settings.present_color);
       formData.append('come_time_color', settings.come_time_color);
       formData.append('leave_time_color', settings.leave_time_color);
       formData.append('forget_time_color', settings.forget_time_color);
       formData.append('new_present_color', settings.new_present_color);
-      formData.append('new_apsent_color', settings.new_apsent_color);
+      formData.append('new_absent_color', settings.new_absent_color);
     });
   
     console.log('Sending data to API:', Object.fromEntries(formData));
@@ -186,9 +191,6 @@ const CompanySettings: React.FC = () => {
     return `${hours}:${minutes}`;
   };
 
-  
-  
-
   const parseTime = (timeString: string | null): Date | null => {
     if (!timeString) return null;
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
@@ -197,7 +199,6 @@ const CompanySettings: React.FC = () => {
     return date;
   };
   
-
   const handlePositionChange = useCallback((newPosition: LatLngTuple) => {
     setSettings(prev => ({
       ...prev,
@@ -324,9 +325,9 @@ const CompanySettings: React.FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography>{t('settings.absentColor')}</Typography>
             <ColorPickerButton
-              color={settings.apsent_color}
+              color={settings.absent_color}
               label={t('settings.changeColor')}
-              onChange={(color) => handleChange('apsent_color', color)}
+              onChange={(color) => handleChange('absent_color', color)}
               disabled={!editMode}
             />
           </Box>
@@ -378,9 +379,9 @@ const CompanySettings: React.FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography>{t('settings.newAbsentColor')}</Typography>
             <ColorPickerButton
-              color={settings.new_apsent_color}
+              color={settings.new_absent_color}
               label={t('settings.changeColor')}
-              onChange={(color) => handleChange('new_apsent_color', color)}
+              onChange={(color) => handleChange('new_absent_color', color)}
               disabled={!editMode}
             />
           </Box>

@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, Grid } from '@mui/material';
-
-const PRESET_COLORS = [
-  '#FF0000', '#FF4500', '#FFA500', '#FFD700', '#FFFF00', '#9ACD32',
-  '#008000', '#20B2AA', '#87CEEB', '#0000FF', '#4B0082', '#800080',
-  '#FF1493', '#FF69B4', '#FFC0CB', '#FFFFFF', '#808080', '#000000',
-];
+import { Box, Button, Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
 
 interface HSV {
   h: number;
@@ -19,16 +13,53 @@ const ColorPickerButton: React.FC<{
   onChange: (color: string) => void;
   disabled?: boolean;
 }> = ({ color, label, onChange, disabled = false }) => {
-  const [open, setOpen] = useState(false);
-  const [localColor, setLocalColor] = useState(color);
-  const [hsv, setHsv] = useState<HSV>({ h: 0, s: 100, v: 100 });
-  const [isDraggingHue, setIsDraggingHue] = useState(false);
-  const [isDraggingSV, setIsDraggingSV] = useState(false);
-  
-  const hueRef = useRef<HTMLDivElement>(null);
-  const svRef = useRef<HTMLDivElement>(null);
+  const hexToRgb = (hex: string): number[] => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? [
+          parseInt(result[1], 16),
+          parseInt(result[2], 16),
+          parseInt(result[3], 16),
+        ]
+      : [0, 0, 0];
+  };
 
-  // Преобразование HSV в RGB
+  const rgbToHsv = (r: number, g: number, b: number): HSV => {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const diff = max - min;
+    
+    let h = 0;
+    const s = max === 0 ? 0 : diff / max;
+    const v = max;
+
+    if (diff !== 0) {
+      switch (max) {
+        case r:
+          h = (g - b) / diff + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / diff + 2;
+          break;
+        case b:
+          h = (r - g) / diff + 4;
+          break;
+      }
+      h /= 6;
+    }
+
+    return { h, s: s * 100, v: v * 100 };
+  };
+
+  const hexToHsv = (hex: string): HSV => {
+    const rgb = hexToRgb(hex);
+    return rgbToHsv(rgb[0], rgb[1], rgb[2]);
+  };
+
   const hsvToRgb = (h: number, s: number, v: number): number[] => {
     s = s / 100;
     v = v / 100;
@@ -55,146 +86,181 @@ const ColorPickerButton: React.FC<{
     ];
   };
 
-  // Преобразование RGB в HEX
   const rgbToHex = (r: number, g: number, b: number): string => 
     `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
 
-  const handleHueMouseDown = (e: React.MouseEvent) => {
-    if (disabled) return;
-    setIsDraggingHue(true);
-    updateHue(e);
+  const [open, setOpen] = useState(false);
+  const [localColor, setLocalColor] = useState(color);
+  const [hsv, setHsv] = useState<HSV>(() => hexToHsv(color));
+  const [isDraggingHue, setIsDraggingHue] = useState(false);
+  const [isDraggingSV, setIsDraggingSV] = useState(false);
+
+  const hueRef = useRef<HTMLDivElement>(null);
+  const svRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setLocalColor(color);
+    setHsv(hexToHsv(color));
+  }, [color]);
+
+  const handleMouseDown = (event: React.MouseEvent, type: 'hue' | 'sv') => {
+    if (type === 'hue') {
+      setIsDraggingHue(true);
+      updateHue(event);
+    } else {
+      setIsDraggingSV(true);
+      updateSV(event);
+    }
   };
 
-  const handleSVMouseDown = (e: React.MouseEvent) => {
-    if (disabled) return;
-    setIsDraggingSV(true);
-    updateSV(e);
+  const handleMouseUp = () => {
+    setIsDraggingHue(false);
+    setIsDraggingSV(false);
   };
 
-  const updateHue = (e: React.MouseEvent | MouseEvent) => {
-    if (!hueRef.current || disabled) return;
-    const rect = hueRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    setHsv(prev => ({ ...prev, h: x }));
-  };
-
-  const updateSV = (e: React.MouseEvent | MouseEvent) => {
-    if (!svRef.current || disabled) return;
-    const rect = svRef.current.getBoundingClientRect();
-    const s = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    const v = Math.max(0, Math.min(100, (1 - (e.clientY - rect.top) / rect.height) * 100));
-    setHsv(prev => ({ ...prev, s, v }));
+  const handleMouseMove = (event: MouseEvent) => {
+    if (isDraggingHue) {
+      updateHue(event);
+    }
+    if (isDraggingSV) {
+      updateSV(event);
+    }
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDraggingHue) updateHue(e);
-      if (isDraggingSV) updateSV(e);
-    };
-
-    const handleMouseUp = () => {
-      setIsDraggingHue(false);
-      setIsDraggingSV(false);
-    };
-
-    if (isDraggingHue || isDraggingSV) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDraggingHue, isDraggingSV]);
 
-  useEffect(() => {
-    const rgb = hsvToRgb(hsv.h, hsv.s, hsv.v);
-    const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-    setLocalColor(hex);
-    onChange(hex);
-  }, [hsv, onChange]);
+  const updateHue = (event: MouseEvent | React.MouseEvent) => {
+    if (!hueRef.current) return;
+
+    const rect = hueRef.current.getBoundingClientRect();
+    let h = (event.clientX - rect.left) / rect.width;
+    h = Math.max(0, Math.min(1, h));
+
+    setHsv(prev => {
+      const newHsv = { ...prev, h };
+      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      setLocalColor(hex);
+      onChange(hex);
+      return newHsv;
+    });
+  };
+
+  const updateSV = (event: MouseEvent | React.MouseEvent) => {
+    if (!svRef.current) return;
+
+    const rect = svRef.current.getBoundingClientRect();
+    let s = ((event.clientX - rect.left) / rect.width) * 100;
+    let v = (1 - (event.clientY - rect.top) / rect.height) * 100;
+
+    s = Math.max(0, Math.min(100, s));
+    v = Math.max(0, Math.min(100, v));
+
+    setHsv(prev => {
+      const newHsv = { ...prev, s, v };
+      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      setLocalColor(hex);
+      onChange(hex);
+      return newHsv;
+    });
+  };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-      <Box
-        sx={{
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          backgroundColor: localColor,
-          cursor: disabled ? 'default' : 'pointer',
-          border: '1px solid grey',
-          opacity: disabled ? 0.5 : 1,
-        }}
-      />
+    <>
       <Button
-        variant="outlined"
-        size="small"
-        onClick={() => !disabled && setOpen(true)}
+        onClick={() => setOpen(true)}
         disabled={disabled}
+        sx={{
+          minWidth: '200px',
+          justifyContent: 'space-between',
+          border: '1px solid',
+          borderColor: 'divider',
+        }}
       >
-        {label}
+        <Typography>{label}</Typography>
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            backgroundColor: localColor,
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 0.5,
+          }}
+        />
       </Button>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Выберите цвет</DialogTitle>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Change Color</DialogTitle>
         <DialogContent>
-          <Box sx={{ p: 2 }}>
-            {/* Основная область выбора цвета */}
+          <Box sx={{ width: '100%', p: 2 }}>
+            {/* SV Picker */}
             <Box
               ref={svRef}
-              onMouseDown={handleSVMouseDown}
+              onMouseDown={(e) => handleMouseDown(e, 'sv')}
               sx={{
                 width: '100%',
-                height: 200,
+                paddingTop: '100%',
                 position: 'relative',
                 marginBottom: 2,
+                borderRadius: 1,
                 cursor: 'crosshair',
-                background: `linear-gradient(to right, #fff, hsl(${hsv.h * 360}, 100%, 50%))`,
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(to top, #000, transparent)',
-                },
+                background: `
+                  linear-gradient(to top, #000, transparent),
+                  linear-gradient(to right, #fff, transparent),
+                  linear-gradient(to right, 
+                    hsl(${hsv.h * 360}deg, 100%, 50%),
+                    hsl(${hsv.h * 360}deg, 100%, 50%)
+                  )
+                `
               }}
             >
-              {/* Указатель выбранного цвета */}
               <Box
                 sx={{
                   position: 'absolute',
-                  left: `${hsv.s}%`,
-                  top: `${100 - hsv.v}%`,
                   width: 10,
                   height: 10,
                   border: '2px solid white',
                   borderRadius: '50%',
                   transform: 'translate(-50%, -50%)',
-                  zIndex: 1,
+                  left: `${hsv.s}%`,
+                  top: `${100 - hsv.v}%`,
                   pointerEvents: 'none',
+                  boxShadow: '0 0 0 1px rgba(0,0,0,0.3)',
                 }}
               />
             </Box>
 
-            {/* Полоса выбора оттенка */}
+            {/* Hue Slider */}
             <Box
               ref={hueRef}
-              onMouseDown={handleHueMouseDown}
+              onMouseDown={(e) => handleMouseDown(e, 'hue')}
               sx={{
                 width: '100%',
                 height: 20,
-                marginBottom: 2,
-                cursor: 'ew-resize',
-                background: 'linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)',
                 position: 'relative',
                 borderRadius: 1,
+                cursor: 'ew-resize',
+                background: `linear-gradient(
+                  to right,
+                  #f00 0%,
+                  #ff0 17%,
+                  #0f0 33%,
+                  #0ff 50%,
+                  #00f 67%,
+                  #f0f 83%,
+                  #f00 100%
+                )`
               }}
             >
-              {/* Указатель выбранного оттенка */}
               <Box
                 sx={{
                   position: 'absolute',
@@ -202,79 +268,31 @@ const ColorPickerButton: React.FC<{
                   top: '50%',
                   width: 4,
                   height: '140%',
-                  background: 'white',
-                  border: '1px solid #000',
                   transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'white',
+                  borderRadius: 4,
                   pointerEvents: 'none',
+                  boxShadow: '0 0 0 1px rgba(0,0,0,0.3)',
                 }}
               />
             </Box>
 
-            {/* <Typography sx={{ mb: 1 }}>Предустановленные цвета:</Typography>
-            <Grid container spacing={1}>
-              {PRESET_COLORS.map((presetColor) => (
-                <Grid item key={presetColor}>
-                  <Box
-                    onClick={() => {
-                      setLocalColor(presetColor);
-                      onChange(presetColor);
-                    }}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      backgroundColor: presetColor,
-                      cursor: 'pointer',
-                      border: localColor === presetColor ? '2px solid #000' : '1px solid #ccc',
-                      borderRadius: 1,
-                      '&:hover': {
-                        transform: 'scale(1.1)',
-                        transition: 'transform 0.2s',
-                      },
-                    }}
-                  />
-                </Grid>
-              ))}
-            </Grid> */}
-
-            <Typography sx={{ mt: 2, mb: 1 }}>Текущий цвет:</Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 2,
-              padding: 1,
-              border: '1px solid #ddd',
-              borderRadius: 1,
-              backgroundColor: '#f5f5f5'
-            }}>
-              <Box sx={{
-                width: 50,
-                height: 50,
+            {/* Current Color Display */}
+            <Box
+              sx={{
+                width: '100%',
+                height: 40,
+                marginTop: 2,
                 backgroundColor: localColor,
                 borderRadius: 1,
-                border: '1px solid #ccc',
-                boxShadow: '0 0 4px rgba(0,0,0,0.1)',
-                // Добавляем шахматный фон для прозрачных цветов
-                backgroundImage: `linear-gradient(45deg, #ccc 25%, transparent 25%),
-                                  linear-gradient(-45deg, #ccc 25%, transparent 25%),
-                                  linear-gradient(45deg, transparent 75%, #ccc 75%),
-                                  linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                backgroundSize: '10px 10px',
-                backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
-              }} />
-              <Typography 
-                sx={{ 
-                  fontFamily: 'monospace',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold'
-                }}
-              >
-                {localColor.toUpperCase()}
-              </Typography>
-            </Box>
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            />
           </Box>
         </DialogContent>
       </Dialog>
-    </Box>
+    </>
   );
 };
 

@@ -20,13 +20,18 @@ export interface TableData {
     position_id?: number;
     date?: DateOrString;
     status?: boolean;
-    checkIn?: DateOrString;
-    checkOut?: DateOrString;
+    come_time?: DateOrString;
+    leave_time?: DateOrString;
     totalHrs?: number;
     phone?: string;
     email?: string;
     nick_name?: string;
     forget_leave: boolean;
+    apsent_color?: string;
+    come_time_color?: string;
+    forget_time_color?: string;
+    leave_time_color?: string;
+    present_color?: string;
   }
 
 export interface Column {

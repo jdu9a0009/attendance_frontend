@@ -19,6 +19,7 @@ import AttendanceTableBody from "./AttendanceTableBody";
 import CalendarModal from "./CalendarModal";
 import axiosInstance from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
+import { Colors, DEFAULT_COLORS  } from "./AttendanceTableBody";
 
 interface AttendanceTableProps {
   columns: Column[];
@@ -68,6 +69,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
   const [isCalendarOpen, setCalendarOpen] = useState(false);
   const [pendingSearch, setPendingSearch] = useState("");
   const { t } = useTranslation("common");
+  const [colors, setColors] = useState<Colors>(DEFAULT_COLORS);
   const [filters, setFilters] = useState<FilterState>({
     status: [],
     department: [],
@@ -79,15 +81,24 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
       try {
         const formattedDate = selectedDate
           ? selectedDate.toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0]; // Если нет выбранной даты, берём текущую
-
+          : new Date().toISOString().split("T")[0];
+  
         console.log("Отправляем запрос с датой:", formattedDate);
-
+  
         const response = await axiosInstance().get(
           `/attendance/list?date=${formattedDate}`
         );
-
+  
         console.log("Ответ с сервера:", response);
+  
+        // Проверяем наличие цветов в ответе
+        if (response.data.Colors) {  // Здесь изменил colors на Colors
+          console.log("Получены цвета:", response.data.Colors);
+          setColors(response.data.Colors); // Устанавливаем цвета напрямую
+        } else {
+          console.log("Цвета не получены, используются дефолтные");
+          setColors(DEFAULT_COLORS);
+        }
 
         const formattedData = response.data.data.results.map((item: any) => ({
           id: item.id,
@@ -113,6 +124,8 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
 
     fetchEmployeeData();
   }, [selectedDate]);
+
+
 
   useEffect(() => {
     let filtered = data.filter((row) => {
@@ -284,6 +297,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           <AttendanceTableBody
             columns={columns}
             filteredData={paginatedData}
+            colors={colors}
             onEdit={onEdit}
             onDelete={onDelete}
           />
