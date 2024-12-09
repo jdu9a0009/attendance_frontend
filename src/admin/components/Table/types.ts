@@ -27,6 +27,11 @@ export interface TableData {
     email?: string;
     nick_name: string;
     forget_leave: boolean;
+    apsent_color?: string;
+    come_time_color?: string;
+    forget_time_color?: string;
+    leave_time_color?: string;
+    present_color?: string;
   }
 
 export interface Column {

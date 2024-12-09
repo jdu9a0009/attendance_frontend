@@ -52,6 +52,11 @@ interface EmployeeData {
   status: boolean;
 }
 
+interface Colors {
+  new_absent_color: string;
+  new_present_color: string;
+}
+
 const NewDepartmentTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [departmentData, setDepartmentData] = useState<DepartmentData[]>([]);
@@ -59,6 +64,10 @@ const NewDepartmentTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [colors, setColors] = useState<Colors>({
+    new_absent_color: '#e53935',  // значение по умолчанию
+    new_present_color: '#fafafa'  // значение по умолчанию
+  });
   const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
@@ -76,8 +85,11 @@ const NewDepartmentTable: React.FC = () => {
 
 
   useEffect(() => {
-    const handleSSEMessage = (data: { department: Department[] }) => {
-      const { department } = data;
+    const handleSSEMessage = (data: { 
+      department: Department[], 
+      colors?: Colors 
+    }) => {
+      const { department, colors: newColors } = data;
   
       if (department && department.length > 0) {
         setDepartmentData(department);
@@ -87,6 +99,15 @@ const NewDepartmentTable: React.FC = () => {
       } else {
         setError("Нет данных для отображения.");
       }
+
+      // Обновляем цвета, если они пришли
+      if (newColors) {
+        setColors({
+          new_absent_color: newColors.new_absent_color || colors.new_absent_color,
+          new_present_color: newColors.new_present_color || colors.new_present_color
+        });
+      }
+
       setLoading(false);
     };
   
@@ -98,7 +119,7 @@ const NewDepartmentTable: React.FC = () => {
   
     const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
   
-    return () => closeSSE(); // Закрываем соединение при размонтировании.
+    return () => closeSSE();
   }, []);
 
   const isAllSelected = useMemo(() => {
@@ -187,11 +208,19 @@ const NewDepartmentTable: React.FC = () => {
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee && employee.employee_id !== null ? (
-                <EmployeeCell status={employee.status}>
-                  <span>{formatName(employee)}</span> {/* Заворачиваем текст */}
+                <EmployeeCell 
+                  status={employee.status}
+                  colors={colors} // Передаем цвета
+                >
+                  <span>{formatName(employee)}</span>
                 </EmployeeCell>
               ) : (
-                <EmployeeCell status={null}>-</EmployeeCell>
+                <EmployeeCell 
+                  status={null}
+                  colors={colors} // Передаем цвета
+                >
+                  -
+                </EmployeeCell>
               )}
             </StyledTableCell>
           );
@@ -199,7 +228,12 @@ const NewDepartmentTable: React.FC = () => {
         {isLastPage && currentData.length < maxColumnsPerPage &&
           Array.from({ length: maxColumnsPerPage - currentData.length }).map((_, emptyIndex) => (
             <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
-              <EmployeeCell status={null}>-</EmployeeCell>
+              <EmployeeCell 
+                status={null}
+                colors={colors} // Передаем цвета
+              >
+                -
+              </EmployeeCell>
             </StyledTableCell>
           ))
         }

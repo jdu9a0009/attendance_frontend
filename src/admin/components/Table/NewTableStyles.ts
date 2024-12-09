@@ -17,9 +17,20 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: '28px',
 }));
 
-export const EmployeeCell = styled('div')<{ status: boolean | null }>(({ status, theme }) => ({
-  backgroundColor: status === true ? '#fafafa' : status === false ? '#e53935' : 'transparent', 
-  color: status === true ? '#000000' : status === false ? '#000000' : '#000000', // Цвет текста
+export const EmployeeCell = styled('div')<{ 
+  status: boolean | null, 
+  colors?: { 
+    new_absent_color: string; 
+    new_present_color: string; 
+  } 
+}>(({ status, theme, colors }) => ({
+  backgroundColor: 
+    status === true 
+      ? colors?.new_present_color || '#fafafa' 
+      : status === false 
+        ? colors?.new_absent_color || '#026db0' 
+        : 'transparent', 
+  color: '#000000',
   padding: theme.spacing(1),
   height: '100%',
   display: 'flex',

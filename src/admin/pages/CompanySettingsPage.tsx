@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material';
 import { LatLngTuple } from 'leaflet';
 import MapComponent from '../components/MapComponent'; 
+import ColorPickerButton from '../components/ColorPicker';
 import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
@@ -21,6 +22,13 @@ interface CompanySettings {
   over_end_time: Date | null;
   company_coordinates: LatLngTuple;
   company_location: string;
+  absent_color: string;
+  present_color: string;
+  come_time_color: string;
+  leave_time_color: string;
+  forget_time_color: string;
+  new_present_color: string;
+  new_absent_color: string;
 }
 
 const CompanySettings: React.FC = () => {
@@ -35,6 +43,13 @@ const CompanySettings: React.FC = () => {
     over_end_time: null,
     company_location: '',
     company_coordinates: [35.6762, 139.6503], // Tokyo Default
+    absent_color: '', // Пример
+    present_color: '', // Пример
+    come_time_color: '', // Пример
+    leave_time_color: '', // Пример
+    forget_time_color: '', // Пример
+    new_present_color: '', // Пример
+    new_absent_color: '', // Пример
   });
 
   const isValidFileType = (file: File): boolean => {
@@ -87,6 +102,13 @@ const CompanySettings: React.FC = () => {
             over_end_time: results.over_end_time ? parseTime(results.over_end_time) : null,
             company_coordinates: [parseFloat(results.latitude), parseFloat(results.longitude)] as LatLngTuple,
             company_location: `${results.latitude}, ${results.longitude}`,
+            absent_color: results.absent_color,
+            present_color: results.present_color,
+            come_time_color: results.come_time_color,
+            leave_time_color: results.leave_time_color,
+            forget_time_color: results.forget_time_color,
+            new_present_color: results.new_present_color,
+            new_absent_color: results.new_absent_color,
           }));
   
           if (results.logo) {
@@ -103,7 +125,6 @@ const CompanySettings: React.FC = () => {
   
     loadSettings();
   }, []);
-  
   
 
   const handleChange = (field: keyof CompanySettings, value: any) => {
@@ -141,6 +162,13 @@ const CompanySettings: React.FC = () => {
       } else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
+      formData.append('absent_color', settings.absent_color);
+      formData.append('present_color', settings.present_color);
+      formData.append('come_time_color', settings.come_time_color);
+      formData.append('leave_time_color', settings.leave_time_color);
+      formData.append('forget_time_color', settings.forget_time_color);
+      formData.append('new_present_color', settings.new_present_color);
+      formData.append('new_absent_color', settings.new_absent_color);
     });
   
     console.log('Sending data to API:', Object.fromEntries(formData));
@@ -163,9 +191,6 @@ const CompanySettings: React.FC = () => {
     return `${hours}:${minutes}`;
   };
 
-  
-  
-
   const parseTime = (timeString: string | null): Date | null => {
     if (!timeString) return null;
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
@@ -174,7 +199,6 @@ const CompanySettings: React.FC = () => {
     return date;
   };
   
-
   const handlePositionChange = useCallback((newPosition: LatLngTuple) => {
     setSettings(prev => ({
       ...prev,
@@ -216,31 +240,6 @@ const CompanySettings: React.FC = () => {
           margin="normal"
           disabled={!editMode}
         />
-        {/* <Box sx={{ mt: 2, mb: 2 }}>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          {t('settings.logo')}
-          </Typography>
-          <input
-      accept="image/jpeg,image/jpg,image/png"
-      style={{ display: 'none' }}
-      id="logo-upload"
-      type="file"
-      onChange={handleLogoChange}
-      disabled={!editMode}
-    />
-          <label htmlFor="logo-upload">
-            <Button variant="contained" component="span" disabled={!editMode}>
-            {t('settings.logoBtn')}
-            </Button>
-          </label>
-          {settings.logo && (
-            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-              {t('settings.selectedFile')} {settings.logo.name}
-            </Typography>
-          )}
-        </Box> */}
-  
-        {/* Предварительный просмотр логотипа */}
         {logoPreview && (
           <Box sx={{ mt: 2, mb: 2 }}>
             <img src={logoPreview} alt="Logo Preview" style={{ maxWidth: '200px', maxHeight: '100px' }} />
@@ -251,7 +250,7 @@ const CompanySettings: React.FC = () => {
       {/* Локация компании */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
-        {t('settings.chapter2Title')}
+          {t('settings.chapter2Title')}
         </Typography>
         <TextField
           label={t('settings.coordinatesLabel')}
@@ -269,7 +268,7 @@ const CompanySettings: React.FC = () => {
       {/* Правила посещаемости */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
-        {t('settings.chapter3Title')}
+          {t('settings.chapter3Title')}
         </Typography>
   
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2 }}>
@@ -309,11 +308,83 @@ const CompanySettings: React.FC = () => {
           </LocalizationProvider>
         </Box>
   
-        {/* Время сверхурочной работы */}
         <Box sx={{ mt: 2 }}>
           <Typography variant="subtitle1">{t('settings.overTitle')}</Typography>
           <Typography variant="body2">{t('settings.overStartTitle')} {formatTime(settings.end_time)}</Typography>
           <Typography variant="body2">{t('settings.overEndTitle')} {formatTime(settings.over_end_time)}</Typography>
+        </Box>
+      </Box>
+  
+      {/* Новый блок для настройки цветов */}
+      <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          {t('settings.colorSettingsTitle')}
+        </Typography>
+  
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.absentColor')}</Typography>
+            <ColorPickerButton
+              color={settings.absent_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('absent_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.presentColor')}</Typography>
+            <ColorPickerButton
+              color={settings.present_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('present_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.comeTimeColor')}</Typography>
+            <ColorPickerButton
+              color={settings.come_time_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('come_time_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.leaveTimeColor')}</Typography>
+            <ColorPickerButton
+              color={settings.leave_time_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('leave_time_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.forgetTimeColor')}</Typography>
+            <ColorPickerButton
+              color={settings.forget_time_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('forget_time_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.newPresentColor')}</Typography>
+            <ColorPickerButton
+              color={settings.new_present_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('new_present_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>{t('settings.newAbsentColor')}</Typography>
+            <ColorPickerButton
+              color={settings.new_absent_color}
+              label={t('settings.changeColor')}
+              onChange={(color) => handleChange('new_absent_color', color)}
+              disabled={!editMode}
+            />
+          </Box>
         </Box>
       </Box>
   

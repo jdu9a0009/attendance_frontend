@@ -1,41 +1,57 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { TableBody, TableRow, TableCell, Box, Button } from "@mui/material";
 import { TableData, Column, DateOrString } from "./types";
 import { useTranslation } from "react-i18next";
 import { downloadEmployeeQRCode } from "../../../utils/libs/axios";
 
+export interface Colors {
+  absent_color: string;
+  come_time_color: string;
+  forget_time_color: string;
+  leave_time_color: string;
+  present_color: string;
+}
+
+export const DEFAULT_COLORS: Colors = {
+  absent_color: "#82909a",
+  come_time_color: "#ff0000",
+  forget_time_color: "#ff0000",
+  leave_time_color: "#ff0000",
+  present_color: "#ff0000"
+};
+
 interface AttendanceTableBodyProps {
   columns: Column[];
   filteredData: TableData[];
+  colors?: Colors;
   onEdit?: (item: TableData) => void;
   onDelete?: (id: number) => void;
 }
 
-
-
-
-
-
 const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
   columns,
   filteredData,
+  colors = DEFAULT_COLORS,
   onEdit,
   onDelete,
 }) => {
+  const mergedColors = {
+    ...DEFAULT_COLORS,
+    ...(colors || {})
+  };
   const { t } = useTranslation("admin");
 
   const formatValue = (
     value: DateOrString | boolean,
     key?: string,
   ): string => {
-    
     if (value === undefined || value === null) {
       return key === "checkOut" ? "" : "--:--";
     }
-
-      if (typeof value === "boolean") {
-        return value ? ("出席") : ("欠席");
-      }
+    
+    if (typeof value === "boolean") {
+      return value ? ("出席") : ("欠席");
+    }
 
     if (value instanceof Date) {
       if (key === "date") {
@@ -48,13 +64,28 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
     return value.toString();
   };
 
+  // const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean) => {
+  //   if (column === 'come_time' && forgetLeave) {
+  //     return { 
+  //       backgroundColor: mergedColors.forget_time_color, 
+  //       color: '#000' 
+  //     };
+  //   }
+
+  //   if (column === 'status' && typeof value === 'boolean') {
+  //     return getStatusStyles(value as boolean);
+  //   }
+
+  //   return { backgroundColor: '', color: '#000' };
+  // };
+
   const getBackgroundColor = (column: string, value: DateOrString | boolean, forgetLeave: boolean, row: TableData) => {
     const formattedValue = formatValue(value, column);
     const isBothTimeEmpty = formattedValue === "--:--";
     const isComeTimeNotEmpty = formatValue(row.come_time, "come_time") !== "--:--";
 
     if (column === "leave_time" && forgetLeave) {
-      return { backgroundColor: "#ffffa3", color: "#000" }; 
+      return { backgroundColor: mergedColors.forget_time_color, color: "#000" }; 
     }
 
     if (column === "leave_time" && isComeTimeNotEmpty) {
@@ -62,7 +93,7 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
     }
   
     if ((column === "leave_time" || column === "come_time") && isBothTimeEmpty) {
-      return { backgroundColor: "#FFE5EE", color: "#AA0000" };
+      return { backgroundColor: mergedColors.leave_time_color, color: "#00000" };
     }
   
     if (column === "status" && typeof value === "boolean") {
@@ -71,14 +102,20 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
   
     return { backgroundColor: "", color: "#000" };
   };
-  
-  const getStatusStyles = (
-    status: boolean
-  ): { backgroundColor: string; color: string } => {
+
+
+  const getStatusStyles = (status: boolean) => {
     return status
-      ? { backgroundColor: "#e6effc", color: "#0764e6" }
-      : { backgroundColor: "#ffe5ee", color: "#aa0000" };
+      ? { 
+          backgroundColor: mergedColors.present_color,
+          color: "#212121" 
+        }
+      : { 
+          backgroundColor: mergedColors.absent_color,
+          color: "#212121" 
+        };
   };
+  
 
   return (
     <TableBody>
