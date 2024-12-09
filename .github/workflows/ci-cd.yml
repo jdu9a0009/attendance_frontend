@@ -13,7 +13,8 @@ jobs:
       # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
-         # Set CI to false to prevent warnings from blocking the build
+
+      # Set CI to false to prevent warnings from blocking the build
       - name: Set CI to false
         run: echo "CI=false" >> $GITHUB_ENV
 
@@ -63,7 +64,26 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
+            # Pull the latest image
             docker pull ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
-            docker stop attendance_frontend || true
-            docker rm attendance_frontend || true
+
+            # Stop and remove any running container with the same name
+            if [ "$(docker ps -q -f name=attendance_frontend)" ]; then
+              echo "Stopping existing container..."
+              docker stop attendance_frontend
+            fi
+            if [ "$(docker ps -aq -f name=attendance_frontend)" ]; then
+              echo "Removing existing container..."
+              docker rm attendance_frontend
+            fi
+
+            # Check if port 3000 is in use, and free it if necessary
+            PORT_IN_USE=$(lsof -i :3000 | grep LISTEN | awk '{print $2}' || true)
+            if [ "$PORT_IN_USE" ]; then
+              echo "Port 3000 is in use by PID $PORT_IN_USE. Stopping the process..."
+              kill -9 $PORT_IN_USE
+            fi
+
+            # Start the new container
+            echo "Starting new container..."
             docker run -d --name attendance_frontend -p 3000:80 ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
