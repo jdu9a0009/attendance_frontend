@@ -58,26 +58,13 @@ jobs:
     steps:
       # SSH into the server to deploy the Docker container
       - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.6
+        uses: appleboy/ssh-action@latest
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            # Pull the latest Docker image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
-
-            # Stop and remove any running container with the same name
+            docker pull ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest || exit 1
             docker stop attendance_frontend || true
             docker rm attendance_frontend || true
-
-            # Kill the process using port 3000, if any
-            PORT_IN_USE=$(lsof -t -i :3000 || true)
-            if [ "$PORT_IN_USE" ]; then
-              echo "Port 3000 is in use. Stopping process with PID $PORT_IN_USE..."
-              kill -9 $PORT_IN_USE || true
-            fi
-
-            # Start the new container
-            echo "Starting new container..."
             docker run -d --name attendance_frontend -p 3000:80 ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
