@@ -58,7 +58,7 @@ export const setupDashboardSSE = (
   }) => void,
   onError?: (error: Error) => void
 ) => {
-  const sseUrl = 'https://api.eduflow.uz/api/v1/user/dashboardlist'; // SSE эндпоинт.
+  const sseUrl = `${process.env.REACT_APP_BASE_URL}/user/dashboardlist`;// SSE эндпоинт.
   
   // Логирование информации о запросе
   console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
