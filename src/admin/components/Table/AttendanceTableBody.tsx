@@ -84,20 +84,26 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
     const isBothTimeEmpty = formattedValue === "--:--";
     const isComeTimeNotEmpty = formatValue(row.come_time, "come_time") !== "--:--";
 
+
     if (column === "leave_time" && forgetLeave) {
       return { backgroundColor: mergedColors.forget_time_color, color: "#000" }; 
     }
 
+
+
     if (column === "leave_time" && isComeTimeNotEmpty) {
-      return { backgroundColor: "", color: "#000" };
+      return { backgroundColor: mergedColors.leave_time_color, color: "#000" };
     }
   
     if ((column === "leave_time" || column === "come_time") && isBothTimeEmpty) {
-      return { backgroundColor: mergedColors.leave_time_color, color: "#00000" };
+      return { backgroundColor: mergedColors.absent_color, color: "#000" };
     }
   
     if (column === "status" && typeof value === "boolean") {
       return getStatusStyles(value as boolean);
+    }
+    if(column === "come_time") {
+      return{backgroundColor: mergedColors.come_time_color, color: "#000"}
     }
   
     return { backgroundColor: "", color: "#000" };
