@@ -26,7 +26,7 @@ jobs:
 
       # Step 4: Install app dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci  # Use `npm ci` for clean installs
 
       # Step 5: Build the React app
       - name: Build the React app
