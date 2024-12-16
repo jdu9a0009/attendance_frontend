@@ -183,7 +183,7 @@ const EditModal: React.FC<EditModalProps> = ({
             autoComplete="off"
           />
           <TextField
-            label={t('createEmployeeModal.nickName') || "Nickname"}
+            label={t('createEmployeeModal.nickName')}
             name="nick_name"
             value={formData.nick_name}
             onChange={handleInputChange}

@@ -6,6 +6,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import EditIcon from '@mui/icons-material/Edit';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -59,8 +60,8 @@ function SideMenu({ companyName }: SideMenuProps) {
 
   const menuItems = [
     { path: '/admin', icon: <DashboardIcon />, text: t('admin:sideMenu.dashboard') },
-    { path: '/admin/department-and-position', icon: <PeopleIcon />, text: t('admin:sideMenu.departmentAndPosition') },
-    { path: '/admin/employee-edit', icon: <EditIcon />, text: t('admin:sideMenu.employeeEdit') },
+    { path: '/admin/department-and-position', icon: <WorkIcon />, text: t('admin:sideMenu.departmentAndPosition') },
+    { path: '/admin/employee-edit', icon: <PeopleIcon />, text: t('admin:sideMenu.employeeEdit') },
     { path: '/admin/company-settings', icon: <SettingsIcon />, text: t('admin:sideMenu.companySettings') },
     { path: '/admin/new-table', icon: <TableChartIcon />, text: t('admin:sideMenu.newTable') },
   ];
