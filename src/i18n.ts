@@ -198,7 +198,7 @@ const adminResources = {
         departmentAndPosition: 'Department and Position',
         employeeEdit: 'Edit Employees',
         companySettings: 'Company Settings',
-        newTable: 'New Table',
+        newTable: 'Attendance List',
       },
       pieChart: {
         come: 'Come',
@@ -365,7 +365,7 @@ const adminResources = {
         departmentAndPosition: '部署と役職',
         employeeEdit: '従業員の編集',
         companySettings: '会社の設定',
-        newTable: '新しいテーブル',
+        newTable: '出社表',
       },
 
       pieChart: {
