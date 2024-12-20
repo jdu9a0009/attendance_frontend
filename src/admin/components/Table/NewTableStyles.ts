@@ -41,7 +41,6 @@ export const EmployeeCell = styled('div')<{
   alignItems: 'center',
   justifyContent: 'center',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   fontSize: '28px', // Базовый размер шрифта
   // Уменьшение шрифта при переполнении
