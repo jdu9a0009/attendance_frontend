@@ -15,6 +15,10 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
   fontSize: '28px',
+  maxWidth: '100px', // Ограничиваем ширину ячейки
+  overflow: 'hidden', // Скрываем лишний текст
+  textOverflow: 'ellipsis', // Добавляем многоточие
+  whiteSpace: 'nowrap', // Запрещаем перенос текста
 }));
 
 export const EmployeeCell = styled('div')<{ 

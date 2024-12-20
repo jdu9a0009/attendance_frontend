@@ -33,6 +33,8 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useTranslation } from 'react-i18next';
 import { Department } from './types';
+import { Tooltip } from '@mui/material';
+import '../../../shared/styles/App.css'
 
 
 interface DepartmentData {
@@ -205,6 +207,8 @@ const NewDepartmentTable: React.FC = () => {
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
+          const formattedName = employee ? formatName(employee) : "-";
+          const tooltipTitle = employee ? employee.last_name : "No data"; 
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee && employee.employee_id !== null ? (
@@ -212,7 +216,7 @@ const NewDepartmentTable: React.FC = () => {
                   status={employee.status}
                   colors={colors} // Передаем цвета
                 >
-                  <span>{formatName(employee)}</span>
+                  <span>{formattedName}</span>
                 </EmployeeCell>
               ) : (
                 <EmployeeCell 
@@ -329,22 +333,25 @@ const NewDepartmentTable: React.FC = () => {
       </Modal>
       <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
   <Table>
-    <TableHead>
-      <TableRow>
-        {pages[currentPage - 1]?.map((dept, index) => (
-          <StyledTableCell key={index}>
-            <strong>{dept.department_name}</strong>
-          </StyledTableCell>
-        ))}
-        {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
-          Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-            <StyledTableCell key={`empty-header-${emptyIndex}`}>
-              <strong>-</strong>
-            </StyledTableCell>
-          ))
-        }
-      </TableRow>
-    </TableHead>
+  <TableHead>
+  <TableRow>
+    {pages[currentPage - 1]?.map((dept, index) => (
+      <Tooltip key={index} title={dept.department_name} arrow className="custom-tooltip">
+  <StyledTableCell>
+    <strong>{dept.department_name}</strong>
+  </StyledTableCell>
+</Tooltip>
+
+    ))}
+    {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+      Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+        <StyledTableCell key={`empty-header-${emptyIndex}`}>
+          <strong>-</strong>
+        </StyledTableCell>
+      ))
+    }
+  </TableRow>
+</TableHead>
     <TableBody>{renderTableContent()}</TableBody>
   </Table>
 </TableContainer>

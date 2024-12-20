@@ -266,3 +266,16 @@
     margin-top: 20px;
     flex-grow: 1;
   }
+
+  .custom-tooltip .MuiTooltip-tooltip {
+    background-color: #105E82 !important;
+    color: white;
+    font-size: 14px;
+    border-radius: 4px;
+    padding: 8px;
+  }
+  
+  .custom-tooltip .MuiTooltip-arrow {
+    color: #105E82 !important;
+  }
+  
