@@ -11,6 +11,8 @@ COPY package*.json ./
 
 RUN npm install
 
+ENV CI=false
+
 COPY . .
 
 RUN npm run build
