@@ -7,7 +7,7 @@ import EditModal from '../components/Table/EditModal';
 import CreateEmployeeModal from '../components/Table/CreateEmployeeModal';
 import UploadExcelModal from '../components/Table/UploadExcelModal';
 import { TableData, Column } from '../components/Table/types';
-import axiosInstance, { updateUser, createUser, uploadExcelFile, fetchDepartments, fetchPositions, fetchQRCodeList } from '../../utils/libs/axios';
+import axiosInstance, { updateUser, fetchDepartments, fetchPositions, fetchQRCodeList } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
 export interface Department {

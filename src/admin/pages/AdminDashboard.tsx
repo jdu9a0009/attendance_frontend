@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../shared/styles/App.css";
 import DashboardContent from "./AdminDashboardContent";
-import { Grid, Box, Button, Select, MenuItem, SelectChangeEvent, Typography } from "@mui/material";
+import { Grid, Box, Button, Select, MenuItem, SelectChangeEvent,} from "@mui/material";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import DepartmentPositionManagement from "./DepartmentPositionManagement";
 import EmployeeListPage from "./EmployeeListPage";

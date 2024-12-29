@@ -3,7 +3,6 @@ import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Ty
 import { styled } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
-import EditIcon from '@mui/icons-material/Edit';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import WorkIcon from '@mui/icons-material/Work';

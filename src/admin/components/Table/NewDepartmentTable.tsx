@@ -2,23 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
   Paper,
   Button,
-  ButtonGroup,
   Typography,
   Box,
   FormGroup,
   FormControlLabel,
-  Checkbox,
   Modal,
   Stack,
   Divider,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { setupDashboardSSE  } from '../../../utils/libs/axios';
 import {
   StyledTableCell,
@@ -70,7 +66,7 @@ const NewDepartmentTable: React.FC = () => {
     new_absent_color: '#e53935',  // значение по умолчанию
     new_present_color: '#fafafa'  // значение по умолчанию
   });
-  const { t } = useTranslation(['admin']);
+  // const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;

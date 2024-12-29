@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Button, Dialog, DialogTitle, DialogContent, Typography, TextField } from '@mui/material';
 
 interface HSV {
@@ -55,10 +55,10 @@ const ColorPickerButton: React.FC<{
     return { h, s: s * 100, v: v * 100 };
   };
 
-  const hexToHsv = (hex: string): HSV => {
+  const hexToHsv = useCallback((hex: string): HSV => {
     const rgb = hexToRgb(hex);
     return rgbToHsv(rgb[0], rgb[1], rgb[2]);
-  };
+  }, []);
 
   const hsvToRgb = (h: number, s: number, v: number): number[] => {
     s = s / 100;
@@ -101,7 +101,7 @@ const ColorPickerButton: React.FC<{
   useEffect(() => {
     setLocalColor(color);
     setHsv(hexToHsv(color));
-  }, [color]);
+  }, [color, hexToHsv]);
 
   const handleMouseDown = (event: React.MouseEvent, type: 'hue' | 'sv') => {
     if (type === 'hue') {
@@ -118,14 +118,14 @@ const ColorPickerButton: React.FC<{
     setIsDraggingSV(false);
   };
 
-  const handleMouseMove = (event: MouseEvent) => {
+  const handleMouseMove = useCallback((event: MouseEvent) => {
     if (isDraggingHue) {
       updateHue(event);
     }
     if (isDraggingSV) {
       updateSV(event);
     }
-  };
+  }, [isDraggingHue, isDraggingSV]);
 
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
@@ -134,7 +134,7 @@ const ColorPickerButton: React.FC<{
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDraggingHue, isDraggingSV]);
+  }, [handleMouseMove]);
 
   const updateHue = (event: MouseEvent | React.MouseEvent) => {
     if (!hueRef.current) return;
