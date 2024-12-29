@@ -113,6 +113,8 @@ const ColorPickerButton: React.FC<{
     }
   };
 
+
+  
   const handleMouseUp = () => {
     setIsDraggingHue(false);
     setIsDraggingSV(false);
