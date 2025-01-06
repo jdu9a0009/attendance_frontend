@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            sudo  docker pull ${{ secrets.DOCKER_USERNAME }}/attendance:latest
-            sudo  docker stop attendance-backend || true
-            sudo  docker rm attendance-backend || true
-            sudo  docker run -d --name attendance-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/attendance:latest
+            sudo  docker pull ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
+            sudo  docker stop attendance-frontend || true
+            sudo  docker rm attendance-frontend || true
+            sudo  docker run -d --name attendance-frontend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/attendance_frontend:latest
