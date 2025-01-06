@@ -27,7 +27,6 @@ import {
 } from './NewTableStyles';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useTranslation } from 'react-i18next';
 import { Department } from './types';
 import { Tooltip } from '@mui/material';
 import '../../../shared/styles/App.css'
@@ -63,24 +62,19 @@ const NewDepartmentTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<Colors>({
-    new_absent_color: '#e53935',  // значение по умолчанию
-    new_present_color: '#fafafa'  // значение по умолчанию
+    new_absent_color: '#e53935',
+    new_present_color: '#fafafa'
   });
-  // const { t } = useTranslation(['admin']);
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
-    // Если есть никнейм, возвращаем его
     if (employee.nick_name) {
       return employee.nick_name;
     }
-  
-    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
     return employee.last_name ? employee.last_name.substring(0, 7) : "";
   };
-
 
   useEffect(() => {
     const handleSSEMessage = (data: { 
@@ -91,19 +85,19 @@ const NewDepartmentTable: React.FC = () => {
   
       if (department && department.length > 0) {
         setDepartmentData(department);
-        if (selectedDepartments.size === 0) {
-          setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
-        }
+        // Move this check inside the effect to use the latest selectedDepartments value
+        setSelectedDepartments(prev => 
+          prev.size === 0 ? new Set(department.map(dept => dept.department_name)) : prev
+        );
       } else {
         setError("Нет данных для отображения.");
       }
 
-      // Обновляем цвета, если они пришли
       if (newColors) {
-        setColors({
-          new_absent_color: newColors.new_absent_color || colors.new_absent_color,
-          new_present_color: newColors.new_present_color || colors.new_present_color
-        });
+        setColors(prevColors => ({
+          new_absent_color: newColors.new_absent_color || prevColors.new_absent_color,
+          new_present_color: newColors.new_present_color || prevColors.new_present_color
+        }));
       }
 
       setLoading(false);
@@ -111,14 +105,14 @@ const NewDepartmentTable: React.FC = () => {
   
     const handleSSEError = (error: Error) => {
       console.error("Ошибка SSE:", error);
-      setError("Ошибка при загрузке данных.");
+      setError("データの読み込み中にエラーが発生しました");
       setLoading(false);
     };
   
     const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
   
     return () => closeSSE();
-  }, []);
+  }, []); // Now the effect has no external dependencies
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -204,20 +198,20 @@ const NewDepartmentTable: React.FC = () => {
         {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
           const formattedName = employee ? formatName(employee) : "-";
-          const tooltipTitle = employee ? employee.last_name : "No data"; 
+          
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee && employee.employee_id !== null ? (
                 <EmployeeCell 
                   status={employee.status}
-                  colors={colors} // Передаем цвета
+                  colors={colors}
                 >
                   <span>{formattedName}</span>
                 </EmployeeCell>
               ) : (
                 <EmployeeCell 
                   status={null}
-                  colors={colors} // Передаем цвета
+                  colors={colors}
                 >
                   -
                 </EmployeeCell>

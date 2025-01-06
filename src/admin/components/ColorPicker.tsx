@@ -13,7 +13,7 @@ const ColorPickerButton: React.FC<{
   onChange: (color: string) => void;
   disabled?: boolean;
 }> = ({ color, label, onChange, disabled = false }) => {
-  const hexToRgb = (hex: string): number[] => {
+  const hexToRgb = useCallback((hex: string): number[] => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? [
@@ -22,9 +22,9 @@ const ColorPickerButton: React.FC<{
           parseInt(result[3], 16),
         ]
       : [0, 0, 0];
-  };
+  }, []);
 
-  const rgbToHsv = (r: number, g: number, b: number): HSV => {
+  const rgbToHsv = useCallback((r: number, g: number, b: number): HSV => {
     r /= 255;
     g /= 255;
     b /= 255;
@@ -53,14 +53,9 @@ const ColorPickerButton: React.FC<{
     }
 
     return { h, s: s * 100, v: v * 100 };
-  };
-
-  const hexToHsv = useCallback((hex: string): HSV => {
-    const rgb = hexToRgb(hex);
-    return rgbToHsv(rgb[0], rgb[1], rgb[2]);
   }, []);
 
-  const hsvToRgb = (h: number, s: number, v: number): number[] => {
+  const hsvToRgb = useCallback((h: number, s: number, v: number): number[] => {
     s = s / 100;
     v = v / 100;
     const i = Math.floor(h * 6);
@@ -84,10 +79,16 @@ const ColorPickerButton: React.FC<{
       Math.round(g * 255),
       Math.round(b * 255)
     ];
-  };
+  }, []);
 
-  const rgbToHex = (r: number, g: number, b: number): string => 
-    `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+  const rgbToHex = useCallback((r: number, g: number, b: number): string => 
+    `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`,
+  []);
+
+  const hexToHsv = useCallback((hex: string): HSV => {
+    const rgb = hexToRgb(hex);
+    return rgbToHsv(rgb[0], rgb[1], rgb[2]);
+  }, [hexToRgb, rgbToHsv]);
 
   const [open, setOpen] = useState(false);
   const [localColor, setLocalColor] = useState(color);
@@ -102,6 +103,44 @@ const ColorPickerButton: React.FC<{
     setLocalColor(color);
     setHsv(hexToHsv(color));
   }, [color, hexToHsv]);
+
+  const updateHue = useCallback((event: MouseEvent | React.MouseEvent) => {
+    if (!hueRef.current) return;
+  
+    const rect = hueRef.current.getBoundingClientRect();
+    let h = (event.clientX - rect.left) / rect.width;
+    h = Math.max(0, Math.min(1, h));
+  
+    setHsv((prev) => {
+      const newHsv = { ...prev, h };
+      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      setLocalColor(hex);
+      onChange(hex);
+      return newHsv;
+    });
+  }, [hsvToRgb, rgbToHex, onChange]);
+  
+  const updateSV = useCallback((event: MouseEvent | React.MouseEvent) => {
+    if (!svRef.current) return;
+  
+    const rect = svRef.current.getBoundingClientRect();
+    let s = ((event.clientX - rect.left) / rect.width) * 100;
+    let v = (1 - (event.clientY - rect.top) / rect.height) * 100;
+  
+    s = Math.max(0, Math.min(100, s));
+    v = Math.max(0, Math.min(100, v));
+  
+    setHsv((prev) => {
+      const newHsv = { ...prev, s, v };
+      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      setLocalColor(hex);
+      onChange(hex);
+      return newHsv;
+    });
+  }, [hsvToRgb, rgbToHex, onChange]);
+  
 
   const handleMouseDown = (event: React.MouseEvent, type: 'hue' | 'sv') => {
     if (type === 'hue') {
@@ -125,7 +164,9 @@ const ColorPickerButton: React.FC<{
     if (isDraggingSV) {
       updateSV(event);
     }
-  }, [isDraggingHue, isDraggingSV]);
+  }, [isDraggingHue, isDraggingSV, updateHue, updateSV]);
+  
+  
 
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
@@ -136,42 +177,6 @@ const ColorPickerButton: React.FC<{
     };
   }, [handleMouseMove]);
 
-  const updateHue = (event: MouseEvent | React.MouseEvent) => {
-    if (!hueRef.current) return;
-
-    const rect = hueRef.current.getBoundingClientRect();
-    let h = (event.clientX - rect.left) / rect.width;
-    h = Math.max(0, Math.min(1, h));
-
-    setHsv(prev => {
-      const newHsv = { ...prev, h };
-      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
-      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-      setLocalColor(hex);
-      onChange(hex);
-      return newHsv;
-    });
-  };
-
-  const updateSV = (event: MouseEvent | React.MouseEvent) => {
-    if (!svRef.current) return;
-
-    const rect = svRef.current.getBoundingClientRect();
-    let s = ((event.clientX - rect.left) / rect.width) * 100;
-    let v = (1 - (event.clientY - rect.top) / rect.height) * 100;
-
-    s = Math.max(0, Math.min(100, s));
-    v = Math.max(0, Math.min(100, v));
-
-    setHsv(prev => {
-      const newHsv = { ...prev, s, v };
-      const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
-      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-      setLocalColor(hex);
-      onChange(hex);
-      return newHsv;
-    });
-  };
 
   return (
     <>

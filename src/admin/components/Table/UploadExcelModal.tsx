@@ -14,13 +14,12 @@ import {
   Link,
   ThemeProvider,
   createTheme,
+  SelectChangeEvent,
 } from "@mui/material";
 import { uploadExcelFile, downloadSampleFile } from "../../../utils/libs/axios";
-import { useTranslation } from "react-i18next";
 import { SnackbarCloseReason } from "@mui/material";
 import axios from "axios";
 
-// Создаем кастомную тему
 const theme = createTheme({
   palette: {
     primary: {
@@ -42,10 +41,8 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [mode, setMode] = useState<number>(1);
-  // const { t } = useTranslation('admin');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [userCreated, setUserCreated] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -53,8 +50,8 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     }
   };
 
-  const handleModeChange = (event: any) => {
-    setMode(event.target.value);
+  const handleModeChange = (event: SelectChangeEvent<number>) => {
+    setMode(event.target.value as number);
   };
 
   const handleSnackbarClose = (
@@ -70,8 +67,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   const handleDownloadSample = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      const response = await downloadSampleFile(); // Ожидаем ответ от функции
-      // Обработка успешного скачивания
+      await downloadSampleFile();
     } catch (error) {
       console.error("Error downloading sample file:", error);
       showSnackbar("Error downloading file");
@@ -93,14 +89,13 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   
     try {
       const formData = new FormData();
-      formData.append("excell", selectedFile); // Замените "file" на "excell"
-      formData.append("mode", mode.toString()); // Добавляем mode как строку
+      formData.append("excell", selectedFile);
+      formData.append("mode", mode.toString());
   
-      const response = await uploadExcelFile(formData);
+      await uploadExcelFile(formData);
   
       showSnackbar("File uploaded successfully");
       onUpload(selectedFile, mode);
-      setUserCreated(prev => !prev);
       onClose();
     } catch (error) {
       console.error("Error uploading file:", error);

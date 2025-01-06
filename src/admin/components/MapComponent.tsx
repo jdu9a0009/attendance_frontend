@@ -11,9 +11,9 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 interface SearchResult {
-  display_name: string;
-  lat: string;
-  lon: string;
+    display_name: string;
+    lat: string;
+    lon: string;
 }
 
 const defaultIcon = L.icon({
@@ -32,14 +32,15 @@ interface MapComponentProps {
 }
 
 const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {
-    const map = useMap();
     const markerRef = useRef<L.Marker>(null);
+    const map = useMap();
 
     useEffect(() => {
         if (markerRef.current) {
             markerRef.current.setLatLng(coordinates);
+            map.setView(coordinates); // Using map to update view when coordinates change
         }
-    }, [coordinates]);
+    }, [coordinates, map]);
 
     return (
         <Marker
@@ -94,47 +95,47 @@ const SearchBox: React.FC<{
     }, [searchQuery]);
 
     return (
-      <Autocomplete
-          freeSolo
-          options={searchResults}
-          getOptionLabel={(option) => 
-              typeof option === 'string' ? option : option.display_name
-          }
-          loading={loading}
-          style={{
-              position: 'absolute',
-              top: '10px',
-              left: '50%',
-              transform: 'translateX(-50%)', // центрирование элемента
-              zIndex: 1000,
-              width: '300px',
-          }}
-          renderInput={(params) => (
-              <Paper elevation={3}>
-                  <TextField
-                      {...params}
-                      variant="outlined"
-                      size="small"
-                      placeholder="Search location..."
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      InputProps={{
-                          ...params.InputProps,
-                          startAdornment: <SearchIcon />,
-                          style: { 
-                              backgroundColor: 'white',
-                              borderRadius: '4px',
-                          }
-                      }}
-                  />
-              </Paper>
-          )}
-          onChange={(event, value) => {
-              if (value && typeof value !== 'string') {
-                  onSelectLocation(parseFloat(value.lat), parseFloat(value.lon));
-              }
-          }}
-      />
-  );
+        <Autocomplete
+            freeSolo
+            options={searchResults}
+            getOptionLabel={(option) => 
+                typeof option === 'string' ? option : option.display_name
+            }
+            loading={loading}
+            style={{
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                width: '300px',
+            }}
+            renderInput={(params) => (
+                <Paper elevation={3}>
+                    <TextField
+                        {...params}
+                        variant="outlined"
+                        size="small"
+                        placeholder="Search location..."
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        InputProps={{
+                            ...params.InputProps,
+                            startAdornment: <SearchIcon />,
+                            style: { 
+                                backgroundColor: 'white',
+                                borderRadius: '4px',
+                            }
+                        }}
+                    />
+                </Paper>
+            )}
+            onChange={(event, value) => {
+                if (value && typeof value !== 'string') {
+                    onSelectLocation(parseFloat(value.lat), parseFloat(value.lon));
+                }
+            }}
+        />
+    );
 };
 
 const MapComponent: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {

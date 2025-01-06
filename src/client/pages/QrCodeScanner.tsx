@@ -30,88 +30,93 @@ const QRCodeScanner: React.FC = () => {
   const [messageType, setMessageType] = useState<'check-in' | 'check-out' | 'error' | null>(null);
   const webcamRef = useRef<Webcam | null>(null);
 
-  const getCurrentPosition = (): Promise<GeolocationPosition> => {
+  const getCurrentPosition = useCallback((): Promise<GeolocationPosition> => {
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('お使いのブラウザは位置情報をサポートしていません'));
-      } else {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        });
-      }
+        if (!navigator.geolocation) {
+            reject(new Error('お使いのブラウザは位置情報をサポートしていません'));
+        } else {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0,
+            });
+        }
     });
-  };
+}, []);
 
-  const sendEmployeeIdWithLocation = async (employeeId: string) => {
+const sendEmployeeIdWithLocation = useCallback(async (employeeId: string) => {
     setIsProcessing(true);
     try {
-      const position = await getCurrentPosition();
-      console.log('サーバーにリクエストを送信中:', {
-        employeeId,
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      });
-      
-      const response: ServerResponse = await createByQRCode(employeeId, position.coords.latitude, position.coords.longitude);
-      console.log('サーバーからのレスポンス:', response);
-      
-      if (response.status) {
-        setServerMessage(response.message);
-        setEmployeeName(response.data?.full_name || '');
-        setResult(response.data?.employee_id || '');
-        setSnackbarMessage('記録が正常に作成されました');
-        
-        if (response.message.toLowerCase().includes('welcome')) {
-          setMessageType('check-in');
-        } else if (response.message.toLowerCase().includes('get home safely') || 
-                   response.message.toLowerCase().includes('goodbye')) {
-          setMessageType('check-out');
-        } else {
-          setMessageType(null);
-        }
-      } else {
-        setServerMessage('位置情報エラー：許可されたスキャンエリアから離れすぎています。オフィス/大学内にいることを確認してください。');
-        setMessageType('error');
-        setSnackbarMessage('記録の作成エラー：位置情報が無効です');
-      }
-    } catch (error) {
-      console.error('データ送信エラー:', error);
-      setServerMessage('リクエストの処理中にエラーが発生しました。もう一度お試しください。');
-      setMessageType('error');
-      setSnackbarMessage('記録の作成エラー');
-    } finally {
-      setIsProcessing(false);
-      setSnackbarOpen(true);
-    }
-  };
+        const position = await getCurrentPosition();
+        console.log('サーバーにリクエストを送信中:', {
+            employeeId,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+        });
 
-  const capture = useCallback(() => {
+        const response: ServerResponse = await createByQRCode(employeeId, position.coords.latitude, position.coords.longitude);
+        console.log('サーバーからのレスポンス:', response);
+
+        if (response.status) {
+            setServerMessage(response.message);
+            setEmployeeName(response.data?.full_name || '');
+            setResult(response.data?.employee_id || '');
+            setSnackbarMessage('記録が正常に作成されました');
+
+            if (response.message.toLowerCase().includes('welcome')) {
+                setMessageType('check-in');
+            } else if (
+                response.message.toLowerCase().includes('get home safely') ||
+                response.message.toLowerCase().includes('goodbye')
+            ) {
+                setMessageType('check-out');
+            } else {
+                setMessageType(null);
+            }
+        } else {
+            setServerMessage('位置情報エラー：許可されたスキャンエリアから離れすぎています。オフィス/大学内にいることを確認してください。');
+            setMessageType('error');
+            setSnackbarMessage('記録の作成エラー：位置情報が無効です');
+        }
+    } catch (error) {
+        console.error('データ送信エラー:', error);
+        setServerMessage('リクエストの処理中にエラーが発生しました。もう一度お試しください。');
+        setMessageType('error');
+        setSnackbarMessage('記録の作成エラー');
+    } finally {
+        setIsProcessing(false);
+        setSnackbarOpen(true);
+    }
+}, [getCurrentPosition]);
+
+const capture = useCallback(() => {
     if (isProcessing || !isScanning || !webcamRef.current) return;
 
     const imageSrc = webcamRef.current.getScreenshot();
     if (imageSrc) {
-      const image = new Image();
-      image.src = imageSrc;
-      image.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(image, 0, 0, image.width, image.height);
-          const imageData = ctx.getImageData(0, 0, image.width, image.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-          if (code) {
-            console.log('QRコードを検出しました:', code.data);
-            setIsScanning(false);
-            sendEmployeeIdWithLocation(code.data);
-          }
-        }
-      };
+        const image = new Image();
+        image.src = imageSrc;
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(image, 0, 0, image.width, image.height);
+                const imageData = ctx.getImageData(0, 0, image.width, image.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code) {
+                    console.log('QRコードを検出しました:', code.data);
+                    setIsScanning(false);
+                    sendEmployeeIdWithLocation(code.data);
+                }
+            }
+        };
     }
-  }, [isProcessing, isScanning, webcamRef]);
+}, [isProcessing, isScanning, webcamRef, sendEmployeeIdWithLocation]);
+
+
+
 
   useEffect(() => {
     if (isScanning) {

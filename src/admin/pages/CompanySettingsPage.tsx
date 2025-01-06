@@ -11,8 +11,7 @@ import ColorPickerButton from '../components/ColorPicker';
 import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
-
-interface CompanySettings {
+interface ICompanySettings {
   id?: number;
   company_name: string;
   logo: File | null;
@@ -33,7 +32,7 @@ interface CompanySettings {
 }
 
 const CompanySettings: React.FC = () => {
-  const [settings, setSettings] = useState<CompanySettings>({
+  const [settings, setSettings] = useState<ICompanySettings>({
     id: undefined,
     company_name: '',
     logo: null,
@@ -44,40 +43,44 @@ const CompanySettings: React.FC = () => {
     over_end_time: null,
     company_location: '',
     company_coordinates: [35.6762, 139.6503], // Tokyo Default
-    absent_color: '', // Пример
-    present_color: '', // Пример
-    come_time_color: '', // Пример
-    leave_time_color: '', // Пример
-    forget_time_color: '', // Пример
-    new_present_color: '', // Пример
-    new_absent_color: '', // Пример
+    absent_color: '',
+    present_color: '',
+    come_time_color: '',
+    leave_time_color: '',
+    forget_time_color: '',
+    new_present_color: '',
+    new_absent_color: '',
   });
-
-  const isValidFileType = (file: File): boolean => {
-    const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    return acceptedTypes.includes(file.type);
-  };
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files ? e.target.files[0] : null;
-    if (file && isValidFileType(file)) {
-      handleChange('logo', file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // Показать сообщение об ошибке пользователю
-      alert(' ファイル形式はJPG、JPEG、PNGからお選びください。');
-      // Сбросить значение input
-      e.target.value = '';
-    }
-  };
 
   const [editMode, setEditMode] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const { t } = useTranslation('admin');
+  // const logoInputRef = React.useRef<HTMLInputElement>(null);
+
+  // const isValidFileType = (file: File): boolean => {
+  //   const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  //   return acceptedTypes.includes(file.type);
+  // };
+
+  // const handleLogoButtonClick = () => {
+  //   logoInputRef.current?.click();
+  // };
+
+  // const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files ? e.target.files[0] : null;
+  //   if (file && isValidFileType(file)) {
+  //     handleChange('logo', file);
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setLogoPreview(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     alert('ファイル形式はJPG、JPEG、PNGからお選びください。');
+  //     e.target.value = '';
+  //   }
+  // };
+
   const parseTimeToMinutes = (timeString: string): number => {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
@@ -126,9 +129,8 @@ const CompanySettings: React.FC = () => {
   
     loadSettings();
   }, []);
-  
 
-  const handleChange = (field: keyof CompanySettings, value: any) => {
+  const handleChange = (field: keyof ICompanySettings, value: any) => {
     setSettings(prev => ({ ...prev, [field]: value }));
     if (field === 'logo' && value instanceof File) {
       const reader = new FileReader();
@@ -143,18 +145,14 @@ const CompanySettings: React.FC = () => {
     const formData = new FormData();
     Object.entries(settings).forEach(([key, value]) => {
       if (key === 'company_coordinates') {
-        // Send latitude and longitude as numbers
         const [latitude, longitude] = (value as LatLngTuple);
         formData.append('latitude', latitude.toString());
         formData.append('longitude', longitude.toString());
       } else if (key === 'company_location' || key === 'over_start_time') {
-        // Skip company_location and over_start_time
         return;
       } else if (value instanceof Date) {
-        // Format all time fields as HH:mm:ss
         formData.append(key, format(value, 'HH:mm:ss'));
       } else if (key === 'late_time') {
-        // Format late_time as HH:mm:ss
         const hours = Math.floor(value / 60);
         const minutes = value % 60;
         formData.append(key, `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
@@ -163,14 +161,16 @@ const CompanySettings: React.FC = () => {
       } else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
-      formData.append('absent_color', settings.absent_color);
-      formData.append('present_color', settings.present_color);
-      formData.append('come_time_color', settings.come_time_color);
-      formData.append('leave_time_color', settings.leave_time_color);
-      formData.append('forget_time_color', settings.forget_time_color);
-      formData.append('new_present_color', settings.new_present_color);
-      formData.append('new_absent_color', settings.new_absent_color);
     });
+
+    // Append color values
+    formData.append('absent_color', settings.absent_color);
+    formData.append('present_color', settings.present_color);
+    formData.append('come_time_color', settings.come_time_color);
+    formData.append('leave_time_color', settings.leave_time_color);
+    formData.append('forget_time_color', settings.forget_time_color);
+    formData.append('new_present_color', settings.new_present_color);
+    formData.append('new_absent_color', settings.new_absent_color);
   
     console.log('Sending data to API:', Object.fromEntries(formData));
   
@@ -178,10 +178,8 @@ const CompanySettings: React.FC = () => {
       const response = await updateCompanySettings(formData);
       console.log('Settings saved successfully:', response);
       setEditMode(false);
-      // You can add a success message for the user here
     } catch (error) {
       console.error('Failed to save settings:', error);
-      // You can add an error message for the user here
     }
   };
 
