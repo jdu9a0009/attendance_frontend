@@ -171,6 +171,7 @@ const adminResources = {
 
       departmentTable: {
         departmentName: 'Departments',
+        departmentNickname: 'Nickname',
         action: 'Action',
         displayNumber: 'Display №',
         editBtn: 'Edit',
@@ -330,6 +331,7 @@ const adminResources = {
 
       departmentTable: {
         departmentName: '部署名',
+        departmentNickname: '表示名',
         action: 'アクション',
         displayNumber: '表示順',
         editBtn: '編集',

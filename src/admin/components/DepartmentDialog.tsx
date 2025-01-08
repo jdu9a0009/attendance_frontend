@@ -17,22 +17,26 @@ interface DepartmentDialogProps {
 function DepartmentDialog({ open, onClose, department, onSave, departments, nextDisplayNumber, onDisplayNumberChange }: DepartmentDialogProps) {
   const [name, setName] = useState(department?.name || '');
   const [displayNumber, setDisplayNumber] = useState<number>(
-    department?.display_number || nextDisplayNumber // Use nextDisplayNumber as default for new departments
+    department?.display_number || nextDisplayNumber
   );
+  const [departmentNickname, setDepartmentNickname] = useState(department?.department_nickname || ''); // Новое поле
   const { t } = useTranslation('admin');
 
   useEffect(() => {
     if (department) {
       setName(department.name);
       setDisplayNumber(department.display_number);
+      setDepartmentNickname(department.department_nickname || ''); // Сброс nickname для редактирования
     } else {
-      // Reset display number to next available when opening dialog for new department
+      // Сброс значений для нового департамента
+      setName('');
       setDisplayNumber(nextDisplayNumber);
+      setDepartmentNickname(''); // Очистка department_nickname
     }
   }, [department, nextDisplayNumber, open]);
 
   const handleSave = async () => {
-    if (name.trim() !== '') {
+    if (name.trim() !== '' && departmentNickname.trim() !== '') {
       let savedDepartment;
 
       if (department) {
@@ -41,22 +45,23 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
         if (conflictingDepartment) {
           const oldDisplayNumber = department.display_number;
 
-          await updateDepartment(conflictingDepartment.id, conflictingDepartment.name, oldDisplayNumber);
-          await updateDepartment(department.id, name, displayNumber);
+          await updateDepartment(conflictingDepartment.id, conflictingDepartment.name, oldDisplayNumber, conflictingDepartment.department_nickname);
+          await updateDepartment(department.id, name, displayNumber, departmentNickname);
 
-          savedDepartment = { id: department.id, name, display_number: displayNumber };
+          savedDepartment = { id: department.id, name, display_number: displayNumber, department_nickname: departmentNickname };
           onSave(savedDepartment);
         } else {
-          await updateDepartment(department.id, name, displayNumber);
-          savedDepartment = { id: department.id, name, display_number: displayNumber };
+          await updateDepartment(department.id, name, displayNumber, departmentNickname);
+          savedDepartment = { id: department.id, name, display_number: displayNumber, department_nickname: departmentNickname };
           onSave(savedDepartment);
         }
       } else {
-        const response = await createDepartment(name, displayNumber);
+        const response = await createDepartment(name, displayNumber, departmentNickname);
         savedDepartment = { 
           id: response.data.id, 
           name: response.data.name, 
-          display_number: displayNumber 
+          display_number: displayNumber, 
+          department_nickname: response.data.department_nickname 
         };
         onSave(savedDepartment);
       }
@@ -80,6 +85,17 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
           variant="standard"
           value={name}
           onChange={(e) => setName(e.target.value)}
+        />
+
+        <TextField
+          margin="dense"
+          id="department-nickname"
+          label={t('departmentTable.departmentNicknameLabel')} // Новый перевод для department_nickname
+          type="text"
+          fullWidth
+          variant="standard"
+          value={departmentNickname}
+          onChange={(e) => setDepartmentNickname(e.target.value)}
         />
 
         <FormControl fullWidth margin="dense">
