@@ -16,7 +16,7 @@ const axiosInstance = () => {
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
     
-    // console.log('Данные запроса:', config.data);
+    console.log('Данные запроса:', config.data);
 
     return config;
   });
