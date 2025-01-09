@@ -39,26 +39,26 @@ export default function PieChartWithCenterLabel() {
   const [data, setData] = useState<{ value: number; label: string; color: string }[]>([]);
   const { t } = useTranslation('admin');
 
-  useEffect(() => {
-    getPieData();
-  }, [t]);
-
-  const getPieData = async () => {
+  const getPieData = React.useCallback(async () => {
     try {
       const response = await axiosInstance().get('/attendance/piechart');
       console.log('API Response:', response.data); // Log the full API response
-
+  
       const pieValue: PieData = response.data.data;
       const colors = response.data.Colors; // Get colors from the response
-
+  
       setData([
-        { value: pieValue.come, label: t('pieChart.come'), color: colors.present_color }, 
-        { value: pieValue.absent, label: t('pieChart.absent'), color: colors.absent_color }, 
+        { value: pieValue.come, label: t('pieChart.come'), color: colors.present_color },
+        { value: pieValue.absent, label: t('pieChart.absent'), color: colors.absent_color },
       ]);
     } catch (err) {
       console.log('Error fetching pie chart data:', err);
     }
-  };
+  }, [t]);
+  
+  useEffect(() => {
+    getPieData();
+  }, [getPieData]);
 
   const PieLabel = styled('text')({
     fill: 'black',

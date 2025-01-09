@@ -60,7 +60,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState<TableData[]>(data);
-  const [setCalendarOpen] = useState(false);
   const [pendingSearch, setPendingSearch] = useState("");
   const { t } = useTranslation('common');
   const [filters, setFilters] = useState<FilterState>({

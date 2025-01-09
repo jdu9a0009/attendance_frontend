@@ -32,7 +32,6 @@ interface MapComponentProps {
 }
 
 const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {
-    const map = useMap();
     const markerRef = useRef<L.Marker>(null);
 
     useEffect(() => {
