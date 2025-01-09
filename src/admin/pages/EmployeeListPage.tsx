@@ -27,11 +27,10 @@ const EmployeeListPage: React.FC = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<TableData | null>(null);
-  const [employeeData, setEmployeeData] = useState<TableData[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
-  const { t } = useTranslation('admin');
   const [userCreated, setUserCreated] = useState(false);
+  const { t } = useTranslation('admin');
 
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeTable.employeeId') },
@@ -65,13 +64,10 @@ const EmployeeListPage: React.FC = () => {
         const response = await fetchDepartments();
   
         if (response) {
-          // Проверяем наличие данных перед их использованием
           const { departments, nextDisplayNumber } = response;
   
-          // Если departments и nextDisplayNumber существуют, устанавливаем их
           if (departments && nextDisplayNumber !== undefined) {
             setDepartments(departments);
-            // Здесь добавь логику для использования nextDisplayNumber
           }
         }
       } catch (error) {
@@ -91,10 +87,8 @@ const EmployeeListPage: React.FC = () => {
     loadDepartments();
     loadPositions();
   }, []);
-  
 
   const handleEditOpen = (employee: TableData) => {
-    // Преобразование данных для EditModal
     const transformedEmployee = {
       id: employee.id,
       employee_id: employee.employee_id,
@@ -141,15 +135,14 @@ const EmployeeListPage: React.FC = () => {
   };
 
   const handleCreateSave = (newEmployee: TableData) => {
-    setEmployeeData(prevData => [...prevData, newEmployee]);
     setCreateModalOpen(false);
     setUserCreated(prev => !prev);
   };
-  
 
   const handleDelete = async (id: number) => {
     try {
       await axiosInstance().delete(`/user/${id}`);
+      setUserCreated(prev => !prev); // Trigger table refresh after deletion
     } catch (error) {
       console.error('Ошибка при удалении сотрудника:', error);
     }
@@ -159,10 +152,6 @@ const EmployeeListPage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-
-      // const response = await uploadExcelFile(formData);
-
-      console.log('Файл успешно загружен:');
       setUploadModalOpen(false);
       setUserCreated(prev => !prev);
     } catch (error) {
@@ -174,28 +163,18 @@ const EmployeeListPage: React.FC = () => {
     try {
       const response = await fetchQRCodeList();
   
-      // Проверяем, является ли ответ валидным Blob
       if (!(response instanceof Blob)) {
         throw new Error('Неверный формат ответа');
       }
   
-      // Создаем новый Blob с правильным MIME-типом
       const pdfBlob = new Blob([response], { type: 'application/pdf' });
-  
-      // Создаем временный URL для Blob
       const url = window.URL.createObjectURL(pdfBlob);
-  
-      // Создаем временный элемент ссылки
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'qrcodes.pdf');
-      
-      // Добавляем в документ, кликаем и удаляем
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-  
-      // Освобождаем URL для очистки памяти
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Ошибка при загрузке QR-кодов:", error);
@@ -206,37 +185,32 @@ const EmployeeListPage: React.FC = () => {
   const handleExportEmployees = async () => {
     try {
       const response = await axiosInstance().get('/user/export_employee', {
-        responseType: 'blob', // Ожидаем, что сервер вернет файл в виде Blob
+        responseType: 'blob',
       });
   
       if (!(response.data instanceof Blob)) {
         throw new Error('Неверный формат ответа');
       }
   
-      // Изменяем MIME-тип на Excel
-      const excelBlob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const excelBlob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
       const url = window.URL.createObjectURL(excelBlob);
-  
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'employees.xlsx'); // Изменили имя файла на .xlsx
-  
+      link.setAttribute('download', 'employees.xlsx');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-  
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Ошибка при экспорте сотрудников:", error);
       alert("従業員のエクスポートに失敗しました。再試行してください。");
     }
   };
-  
-  
 
   return (
     <>
-      {/* Убрали лишний Box */}
       <Paper
         elevation={0}
         sx={{
@@ -249,7 +223,6 @@ const EmployeeListPage: React.FC = () => {
           boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         }}
       >
-        {/* Левая группа кнопок */}
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
@@ -269,7 +242,6 @@ const EmployeeListPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Правая группа кнопок */}
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <Button
             variant="contained"
@@ -289,7 +261,6 @@ const EmployeeListPage: React.FC = () => {
         </Box>
       </Paper>
 
-      {/* Таблица сотрудников */}
       <EmployeeTable
         departments={departments}
         positions={positions}
@@ -301,7 +272,6 @@ const EmployeeListPage: React.FC = () => {
         userCreated={userCreated}
       />
 
-      {/* Модальные окна */}
       <EditModal
         departments={departments}
         positions={positions}

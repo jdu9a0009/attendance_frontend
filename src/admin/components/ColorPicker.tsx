@@ -102,7 +102,7 @@ const ColorPickerButton: React.FC<{
   useEffect(() => {
     setLocalColor(color);
     setHsv(hexToHsv(color));
-  }, [color, hexToHsv]);
+  }, [color, hexToHsv, setLocalColor, setHsv]);
 
   const updateHue = useCallback((event: MouseEvent | React.MouseEvent) => {
     if (!hueRef.current) return;
@@ -152,12 +152,10 @@ const ColorPickerButton: React.FC<{
     }
   };
 
-
-  
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDraggingHue(false);
     setIsDraggingSV(false);
-  };
+  }, []);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (isDraggingHue) {
@@ -169,7 +167,6 @@ const ColorPickerButton: React.FC<{
   }, [isDraggingHue, isDraggingSV, updateHue, updateSV]);
   
   
-
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
@@ -177,7 +174,7 @@ const ColorPickerButton: React.FC<{
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [handleMouseMove]);
+  }, [handleMouseMove, handleMouseUp]);
 
 
   return (

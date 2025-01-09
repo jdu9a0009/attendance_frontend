@@ -54,10 +54,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     setMode(event.target.value as number);
   };
 
-  const handleSnackbarClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
-  ) => {
+  const handleSnackbarClose = (_event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
     if (reason === "clickaway") {
       return;
     }
@@ -93,15 +90,14 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
       formData.append("mode", mode.toString());
   
       await uploadExcelFile(formData);
-  
+      
       showSnackbar("File uploaded successfully");
       onUpload(selectedFile, mode);
       onClose();
     } catch (error) {
       console.error("Error uploading file:", error);
       if (axios.isAxiosError(error) && error.response) {
-        const errorMessage = error.response.data.message || "Error uploading file";
-        showSnackbar(errorMessage);
+        showSnackbar(error.response.data.message || "Error uploading file");
       } else {
         showSnackbar("Error uploading file");
       }
