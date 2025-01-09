@@ -40,10 +40,6 @@ const statusColors = {
   },
 };
 
-const months = [
-  '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'
-];
-
 const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({ attendanceSummary }) => {
   const [open, setOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);

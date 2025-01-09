@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import {
   Button,
   TextField,
@@ -108,8 +108,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           setError(`Ошибка: ${axiosError.message}`);
         }
       } else {
-        console.error("Неизвестная ошибка:", err);
-        setError("Произошла неизвестная ошибка");
+        console.error("不明なエラーが発生しました:", err);
+        setError("不明なエラーが発生しました");
       }
     } finally {
       setIsLoading(false);

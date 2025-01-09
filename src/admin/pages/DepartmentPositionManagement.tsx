@@ -13,6 +13,7 @@ export interface Department {
   id: number;
   name: string;
   display_number: number; // Новый параметр
+  department_nickname: string;
 }
 
 
@@ -41,6 +42,7 @@ function DepartmentPositionManagement() {
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
   const [editingPosition, setEditingPosition] = useState<Position | null>(null);
   const [newDepartmentName, setNewDepartmentName] = useState('');
+  const [newDepartmentNickName, setNewDepartmentNickName] = useState('');
   const [newPositionName, setNewPositionName] = useState('');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
   const [selectedDepartment] = useState('');
@@ -110,7 +112,8 @@ function DepartmentPositionManagement() {
       const newDepartment: Department = {
         id: departments.length + 1, // Это значение можно адаптировать в зависимости от логики вашего приложения
         name: newDepartmentName,
-        display_number: nextDisplayNumber, // Используем значение для нового департамента
+        display_number: nextDisplayNumber, 
+        department_nickname: newDepartmentNickName,
       };
   
       setDepartments([...departments, newDepartment]);

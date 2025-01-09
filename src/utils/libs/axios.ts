@@ -16,7 +16,7 @@ const axiosInstance = () => {
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
     
-    // console.log('Данные запроса:', config.data);
+    console.log('Данные запроса:', config.data);
 
     return config;
   });
@@ -207,14 +207,14 @@ export const fetchDepartments = async () => {
   }
 };
 
-export const createDepartment = async (name: string, display_number: number) => {
-  const response = await axiosInstance().post('/department/create', { name, display_number });
+export const createDepartment = async (name: string, display_number: number, department_nickname: string) => {
+  const response = await axiosInstance().post('/department/create', { name, display_number, department_nickname });
   console.log('Create Department Response:', response.data);
   return response.data;
 };
 
-export const updateDepartment = async (id: number, name: string, display_number: number) => {
-  const response = await axiosInstance().patch(`/department/${id}`, { name, display_number });
+export const updateDepartment = async (id: number, name: string, display_number: number, department_nickname: string) => {
+  const response = await axiosInstance().patch(`/department/${id}`, { name, display_number, department_nickname });
   console.log('Update Department Response:', response.data);
   return response.data;
 };

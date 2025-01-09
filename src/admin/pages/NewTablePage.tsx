@@ -4,7 +4,6 @@ import NewDepartmentTable from '../components/Table/NewDepartmentTable';
 const NewTablePage = () => {
   return (
     <div>
-      <h1></h1>
       {/* Просто рендерим компонент без передачи данных */}
       <NewDepartmentTable/>
     </div>
