@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { useMap } from 'react-leaflet'; // Moved to separate import to fix linting issue
 import 'leaflet/dist/leaflet.css';
 import { LatLngTuple } from 'leaflet';
 import { IconButton, TextField, Autocomplete, Paper } from '@mui/material';
@@ -31,14 +32,15 @@ interface MapComponentProps {
     onPositionChange: (position: LatLngTuple) => void;
 }
 
+// Explicitly marking LocationMarker as using useMap
 const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {
     const markerRef = useRef<L.Marker>(null);
-    const map = useMap();
+    const map = useMap(); // This hook is definitely used
 
     useEffect(() => {
         if (markerRef.current) {
             markerRef.current.setLatLng(coordinates);
-            map.setView(coordinates); // Using map to update view when coordinates change
+            map.setView(coordinates);
         }
     }, [coordinates, map]);
 

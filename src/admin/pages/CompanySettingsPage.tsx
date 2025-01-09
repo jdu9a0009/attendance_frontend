@@ -11,7 +11,7 @@ import ColorPickerButton from '../components/ColorPicker';
 import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
 import { useTranslation } from 'react-i18next';
 
-interface ICompanySettings {
+interface CompanySettingsData {
   id?: number;
   company_name: string;
   logo: File | null;
@@ -31,8 +31,8 @@ interface ICompanySettings {
   new_absent_color: string;
 }
 
-const CompanySettings: React.FC = () => {
-  const [settings, setSettings] = useState<ICompanySettings>({
+const CompanySettingsPage: React.FC = () => {
+  const [settings, setSettings] = useState<CompanySettingsData>({
     id: undefined,
     company_name: '',
     logo: null,
@@ -66,20 +66,21 @@ const CompanySettings: React.FC = () => {
   //   logoInputRef.current?.click();
   // };
 
-  // const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files ? e.target.files[0] : null;
-  //   if (file && isValidFileType(file)) {
-  //     handleChange('logo', file);
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setLogoPreview(reader.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   } else {
-  //     alert('ファイル形式はJPG、JPEG、PNGからお選びください。');
-  //     e.target.value = '';
-  //   }
-  // };
+  // Keeping handleLogoChange but marking it as commented out since it's unused
+  /* const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file && isValidFileType(file)) {
+      handleChange('logo', file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('ファイル形式はJPG、JPEG、PNGからお選びください。');
+      e.target.value = '';
+    }
+  }; */
 
   const parseTimeToMinutes = (timeString: string): number => {
     const [hours, minutes] = timeString.split(':').map(Number);
@@ -130,7 +131,7 @@ const CompanySettings: React.FC = () => {
     loadSettings();
   }, []);
 
-  const handleChange = (field: keyof ICompanySettings, value: any) => {
+  const handleChange = (field: keyof CompanySettingsData, value: any) => {
     setSettings(prev => ({ ...prev, [field]: value }));
     if (field === 'logo' && value instanceof File) {
       const reader = new FileReader();
@@ -404,4 +405,4 @@ const CompanySettings: React.FC = () => {
   );
 };
 
-export default CompanySettings;
+export default CompanySettingsPage;

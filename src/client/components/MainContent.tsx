@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { format } from 'date-fns';
 import { ja, enUS } from 'date-fns/locale';
@@ -53,8 +53,8 @@ const MainContent: React.FC<MainContentProps> = ({
   const [message, setMessage] = useState<string | null>(null);
   const [messageColor, setMessageColor] = useState<string>('#000');
   const [currentTime, setCurrentTime] = useState<string>(format(new Date(), 'HH:mm:ss'));
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [positions, setPositions] = useState<Position[]>([]);
+  const departments: Department[] = [];
+  const positions: Position[] = [];
 
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeId') },
@@ -62,22 +62,12 @@ const MainContent: React.FC<MainContentProps> = ({
     { id: 'status', label: t('status'), filterable: true, filterValues: [t('present'), t('absent')] },
   ] as Column[];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(format(new Date(), 'HH:mm:ss'));
-    }, 1000);
-
-    fetchDashboardData();
-
-    return () => clearInterval(interval);
-  }, []);
-
   const formatTime = (time: string): string => {
     return time && time !== '--:--' ? time.slice(0, 5) : time;
   };
 
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const response = await axiosInstance().get<{ data: DashboardData, status: boolean }>('/user/dashboard');
       console.log('DashboardResponse:', response);
@@ -92,7 +82,17 @@ const MainContent: React.FC<MainContentProps> = ({
     } catch (error) {
       console.error('Ошибка при получении данных дашборда:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(format(new Date(), 'HH:mm:ss'));
+    }, 1000);
+
+    fetchDashboardData();
+
+    return () => clearInterval(interval);
+  }, [fetchDashboardData]);
 
   const getCurrentPosition = (): Promise<GeolocationPosition> => {
     return new Promise((resolve, reject) => {

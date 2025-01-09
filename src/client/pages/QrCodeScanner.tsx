@@ -90,33 +90,30 @@ const sendEmployeeIdWithLocation = useCallback(async (employeeId: string) => {
 }, [getCurrentPosition]);
 
 const capture = useCallback(() => {
-    if (isProcessing || !isScanning || !webcamRef.current) return;
+  if (isProcessing || !isScanning || !webcamRef.current) return;
 
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (imageSrc) {
-        const image = new Image();
-        image.src = imageSrc;
-        image.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = image.width;
-            canvas.height = image.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(image, 0, 0, image.width, image.height);
-                const imageData = ctx.getImageData(0, 0, image.width, image.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                if (code) {
-                    console.log('QRコードを検出しました:', code.data);
-                    setIsScanning(false);
-                    sendEmployeeIdWithLocation(code.data);
-                }
-            }
-        };
-    }
+  const imageSrc = webcamRef.current.getScreenshot();
+  if (imageSrc) {
+      const image = new Image();
+      image.src = imageSrc;
+      image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+              ctx.drawImage(image, 0, 0, image.width, image.height);
+              const imageData = ctx.getImageData(0, 0, image.width, image.height);
+              const code = jsQR(imageData.data, imageData.width, imageData.height);
+              if (code) {
+                  console.log('QRコードを検出しました:', code.data);
+                  setIsScanning(false);
+                  sendEmployeeIdWithLocation(code.data);
+              }
+          }
+      };
+  }
 }, [isProcessing, isScanning, webcamRef, sendEmployeeIdWithLocation]);
-
-
-
 
   useEffect(() => {
     if (isScanning) {

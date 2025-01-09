@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
@@ -12,13 +12,12 @@ import {
   MenuItem,
   SelectChangeEvent,
   List,
+  ListItemButton,
+  ListItemText,
 } from "@mui/material";
 import line from "./Line.module.css";
 import axiosInstance from "../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-
 
 interface LineData {
   percentage: number;
@@ -49,9 +48,8 @@ function LineChartComponent() {
 
   const defaultInterval = currentDay <= 10 ? 0 : currentDay <= 20 ? 1 : 2;
 
-  // Generate years dynamically from 2022 to the current year
   const years: string[] = Array.from(
-    { length: parseInt(currentYear) - 2022 + 1 }, // Convert currentYear to number
+    { length: parseInt(currentYear) - 2022 + 1 },
     (_, i) => (2022 + i).toString()
   );
 
@@ -71,15 +69,26 @@ function LineChartComponent() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData(); // Fetch data when component mounts
-  }, [selectedYear, selectedMonth, interval]); // Dependencies to refetch when month or interval changes
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    const monthsOfYear: string[] = [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月",
+    ];
+  
     try {
       const monthIndex = monthsOfYear.indexOf(selectedMonth) + 1;
       const monthString = String(monthIndex).padStart(2, "0");
-
+  
       const response = await axiosInstance().get(
         `/attendance/graph`,
         {
@@ -89,9 +98,9 @@ function LineChartComponent() {
           },
         }
       );
-
+  
       const results: LineData[] = response.data.data.results;
-
+  
       if (results.length === 0) {
         let days: string[] = [];
         switch (interval) {
@@ -108,21 +117,25 @@ function LineChartComponent() {
             days = [];
         }
         setDaysOfWeek(days);
-        setAttendanceData(Array(10).fill(0)); // Default data (e.g., zeros)
+        setAttendanceData(Array(10).fill(0));
       } else {
         const days = results.map((result) => {
           const day = new Date(result.work_day).getDate();
           return `${day}日`;
         });
         const percentages = results.map((result) => result.percentage);
-
+  
         setDaysOfWeek(days);
         setAttendanceData(percentages);
       }
     } catch (error) {
       console.error("Error fetching data", error);
     }
-  };
+  }, [selectedMonth, selectedYear, interval]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleIntervalChange = (event: SelectChangeEvent<number>) => {
     setInterval(event.target.value as number);
@@ -142,7 +155,7 @@ function LineChartComponent() {
 
   const handleMonthDialogClose = () => {
     setOpenMonthDialog(false);
-    fetchData(); // Fetch data when dialog closes
+    fetchData();
   };
 
   return (
@@ -157,7 +170,7 @@ function LineChartComponent() {
             value={interval}
             onChange={handleIntervalChange}
             displayEmpty
-            sx={{ marginRight: 2, minWidth: 80 }} // Added minWidth for better display
+            sx={{ marginRight: 2, minWidth: 80 }}
           >
             <MenuItem value={0}>{t('admin:lineChart.interval.first')}</MenuItem>
             <MenuItem value={1}>{t('admin:lineChart.interval.second')}</MenuItem>
@@ -182,24 +195,18 @@ function LineChartComponent() {
         xAxis={[
           {
             scaleType: "point",
-            data: daysOfWeek, // Data for the X axis
+            data: daysOfWeek,
           },
         ]}
         yAxis={[
           {
-            min: 0, // Set minimum value for Y axis
+            min: 0,
             max: 100,
-            colorMap: {
-              type: "continuous",
-              min: -20,
-              max: 80,
-              color: ["transparent", "rgba(51, 84, 244, 0.6)"],
-            },
           },
         ]}
         series={[
           {
-            data: attendanceData, // Data for the Y axis
+            data: attendanceData,
             area: true,
           },
         ]}
@@ -221,16 +228,16 @@ function LineChartComponent() {
             ))}
           </Select>
           <List>
-  {monthsOfYear.map((month, index) => (
-    <ListItemButton
-      key={index}
-      onClick={() => handleMonthChange(month)}
-      selected={selectedMonth === month}
-    >
-      <ListItemText primary={month} />
-    </ListItemButton>
-  ))}
-</List>
+            {monthsOfYear.map((month, index) => (
+              <ListItemButton
+                key={index}
+                onClick={() => handleMonthChange(month)}
+                selected={selectedMonth === month}
+              >
+                <ListItemText primary={month} />
+              </ListItemButton>
+            ))}
+          </List>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleMonthDialogClose}>{t('ok')}</Button>
