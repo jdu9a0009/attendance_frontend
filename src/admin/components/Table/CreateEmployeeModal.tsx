@@ -40,11 +40,11 @@ export interface Position {
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#105E82',
+      main: "#105E82",
     },
   },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
+    fontFamily: "Roboto, Arial, sans-serif",
   },
 });
 
@@ -52,27 +52,30 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   open,
   onClose,
   onSave,
-  positions,
-  departments,
+  positions = [],
+  departments = [],
 }) => {
   const [newEmployee, setNewEmployee] = useState<Partial<TableData>>({
     position: "",
     department: "",
   });
   const [nickNameError, setNickNameError] = useState<string>("");
-  const { t } = useTranslation('admin');
+  const { t } = useTranslation("admin");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'nick_name') {
+
+    if (name === "nick_name") {
       if (value.length > 7) {
-        setNickNameError(t('createEmployeeModal.nickNameError') || 'Nickname cannot be longer than 7 characters');
+        setNickNameError(
+          t("createEmployeeModal.nickNameError") ||
+            "Nickname cannot be longer than 7 characters"
+        );
         return;
       }
       setNickNameError("");
     }
-    
+
     setNewEmployee({ ...newEmployee, [name]: value });
   };
 
@@ -95,7 +98,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
         positions.find((p) => p.name === newEmployee.position)?.id!,
         newEmployee.phone!,
         newEmployee.email!,
-        newEmployee.nick_name 
+        newEmployee.nick_name
       );
       console.log("checking   ", createdEmployee);
       onSave(createdEmployee);
@@ -122,14 +125,14 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
           }}
         >
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            {t('createEmployeeModal.title')}
+            {t("createEmployeeModal.title")}
           </Typography>
           <form onSubmit={handleSubmit} autoComplete="off">
-          <TextField
+            <TextField
               fullWidth
               margin="normal"
               name="employee_id"
-              label={t('createEmployeeModal.employeeId')}
+              label={t("createEmployeeModal.employeeId")}
               value={newEmployee.employee_id}
               onChange={handleInputChange}
               autoComplete="off"
@@ -139,7 +142,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="last_name"
-              label={t('createEmployeeModal.lastName')}
+              label={t("createEmployeeModal.lastName")}
               value={newEmployee.last_name}
               onChange={handleInputChange}
               autoComplete="off"
@@ -149,7 +152,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="first_name"
-              label={t('createEmployeeModal.firstName')}
+              label={t("createEmployeeModal.firstName")}
               value={newEmployee.first_name}
               onChange={handleInputChange}
               autoComplete="off"
@@ -160,7 +163,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="password"
-              label={t('createEmployeeModal.password')}
+              label={t("createEmployeeModal.password")}
               type="password"
               value={newEmployee.password}
               onChange={handleInputChange}
@@ -170,7 +173,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="nick_name"
-              label={t('createEmployeeModal.nickName') || "Nickname"}
+              label={t("createEmployeeModal.nickName") || "Nickname"}
               value={newEmployee.nick_name || ""}
               onChange={handleInputChange}
               error={Boolean(nickNameError)}
@@ -178,22 +181,8 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               inputProps={{ maxLength: 7 }}
             />
             <FormControl fullWidth margin="normal" required>
-              <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
-              <Select
-                name="role"
-                value={newEmployee.role}
-                onChange={handleSelectChange}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
-                <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth margin="normal" required>
               <InputLabel shrink={Boolean(newEmployee.department)}>
-                {t('createEmployeeModal.department')}
+                {t("createEmployeeModal.department")}
               </InputLabel>
               <Select
                 name="department"
@@ -203,16 +192,17 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {departments.map((department) => (
+                {departments?.map((department) => (
                   <MenuItem key={department.id} value={department.name}>
                     {department.name}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+
             <FormControl fullWidth margin="normal" required>
               <InputLabel shrink={Boolean(newEmployee.position)}>
-                {t('createEmployeeModal.position')}
+                {t("createEmployeeModal.position")}
               </InputLabel>
               <Select
                 name="position"
@@ -222,7 +212,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {positions.map((position) => (
+                {positions?.map((position) => (
                   <MenuItem key={position.id} value={position.name}>
                     {position.name}
                   </MenuItem>
@@ -233,7 +223,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="phone"
-              label={t('createEmployeeModal.phoneNumber')}
+              label={t("createEmployeeModal.phoneNumber")}
               value={newEmployee.phone}
               onChange={handleInputChange}
               required
@@ -242,17 +232,17 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               fullWidth
               margin="normal"
               name="email"
-              label={t('createEmployeeModal.email')}
+              label={t("createEmployeeModal.email")}
               value={newEmployee.email}
               onChange={handleInputChange}
               required
             />
             <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={onClose} sx={{ mr: 1 }}>
-                {t('createEmployeeModal.cancelBtn')}
+                {t("createEmployeeModal.cancelBtn")}
               </Button>
               <Button type="submit" variant="contained">
-                {t('createEmployeeModal.saveBtn')}
+                {t("createEmployeeModal.saveBtn")}
               </Button>
             </Box>
           </form>

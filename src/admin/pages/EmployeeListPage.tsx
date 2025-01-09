@@ -30,6 +30,7 @@ const EmployeeListPage: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [userCreated, setUserCreated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation('admin');
 
   const columns: Column[] = [
@@ -59,33 +60,35 @@ const EmployeeListPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const loadDepartments = async () => {
+    const loadData = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetchDepartments();
-  
-        if (response) {
-          const { departments, nextDisplayNumber } = response;
-  
-          if (departments && nextDisplayNumber !== undefined) {
-            setDepartments(departments);
-          }
+        const [departmentsResponse, positionsResponse] = await Promise.all([
+          fetchDepartments(),
+          fetchPositions()
+        ]);
+
+        if (departmentsResponse?.departments) {
+          setDepartments(departmentsResponse.departments);
+        } else {
+          setDepartments([]);
+        }
+
+        if (positionsResponse) {
+          setPositions(positionsResponse);
+        } else {
+          setPositions([]);
         }
       } catch (error) {
-        console.error("Failed to fetch departments", error);
+        console.error("Failed to fetch data:", error);
+        setDepartments([]);
+        setPositions([]);
+      } finally {
+        setIsLoading(false);
       }
     };
-  
-    const loadPositions = async () => {
-      try {
-        const response = await fetchPositions();
-        setPositions(response); 
-      } catch (error) {
-        console.error("Failed to fetch positions", error);
-      }
-    };
-  
-    loadDepartments();
-    loadPositions();
+
+    loadData();
   }, []);
 
   const handleEditOpen = (employee: TableData) => {
@@ -112,7 +115,7 @@ const EmployeeListPage: React.FC = () => {
 
   const handleEditSave = async (updatedEmployee: TableData) => {
     try {
-      console.log('123: ', updatedEmployee);
+      console.log('Updating employee: ', updatedEmployee);
       
       await updateUser(
         updatedEmployee.id,
@@ -130,7 +133,13 @@ const EmployeeListPage: React.FC = () => {
       setUserCreated(prev => !prev);
       setEditModalOpen(false);
     } catch (error) {
-      console.error('Ошибка при обновлении данных:', error);
+      console.error('Error updating employee:', error);
+    }
+  };
+
+  const handleCreateModalOpen = () => {
+    if (!isLoading) {
+      setCreateModalOpen(true);
     }
   };
 
@@ -142,9 +151,9 @@ const EmployeeListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await axiosInstance().delete(`/user/${id}`);
-      setUserCreated(prev => !prev); // Trigger table refresh after deletion
+      setUserCreated(prev => !prev);
     } catch (error) {
-      console.error('Ошибка при удалении сотрудника:', error);
+      console.error('Error deleting employee:', error);
     }
   };
 
@@ -155,7 +164,7 @@ const EmployeeListPage: React.FC = () => {
       setUploadModalOpen(false);
       setUserCreated(prev => !prev);
     } catch (error) {
-      console.error('Ошибка при загрузке файла:', error);
+      console.error('Error uploading file:', error);
     }
   };
 
@@ -164,7 +173,7 @@ const EmployeeListPage: React.FC = () => {
       const response = await fetchQRCodeList();
   
       if (!(response instanceof Blob)) {
-        throw new Error('Неверный формат ответа');
+        throw new Error('Invalid response format');
       }
   
       const pdfBlob = new Blob([response], { type: 'application/pdf' });
@@ -177,8 +186,8 @@ const EmployeeListPage: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Ошибка при загрузке QR-кодов:", error);
-      alert(" QRコードの読み込みに失敗しました。もう一度お試しください。");
+      console.error("Error downloading QR codes:", error);
+      alert("QRコードの読み込みに失敗しました。もう一度お試しください。");
     }
   };
 
@@ -189,7 +198,7 @@ const EmployeeListPage: React.FC = () => {
       });
   
       if (!(response.data instanceof Blob)) {
-        throw new Error('Неверный формат ответа');
+        throw new Error('Invalid response format');
       }
   
       const excelBlob = new Blob([response.data], { 
@@ -204,7 +213,7 @@ const EmployeeListPage: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Ошибка при экспорте сотрудников:", error);
+      console.error("Error exporting employees:", error);
       alert("従業員のエクスポートに失敗しました。再試行してください。");
     }
   };
@@ -227,7 +236,8 @@ const EmployeeListPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => setCreateModalOpen(true)}
+            onClick={handleCreateModalOpen}
+            disabled={isLoading}
             sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('employeeList.createButton')}
@@ -235,6 +245,7 @@ const EmployeeListPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
+            disabled={isLoading}
             onClick={() => setUploadModalOpen(true)}
             sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
@@ -246,6 +257,7 @@ const EmployeeListPage: React.FC = () => {
           <Button
             variant="contained"
             onClick={handleDownloadQRCodes}
+            disabled={isLoading}
             sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
             {t('employeeList.downloadQRCodesButton')}
@@ -253,6 +265,7 @@ const EmployeeListPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<DownloadIcon />}
+            disabled={isLoading}
             onClick={handleExportEmployees}
             sx={{ ...buttonStyles.base, ...buttonStyles.primary }}
           >
