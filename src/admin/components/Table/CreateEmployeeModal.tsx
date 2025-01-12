@@ -181,6 +181,20 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               inputProps={{ maxLength: 7 }}
             />
             <FormControl fullWidth margin="normal" required>
+              <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
+              <Select
+                name="role"
+                value={newEmployee.role}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
+                <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" required>
               <InputLabel shrink={Boolean(newEmployee.department)}>
                 {t("createEmployeeModal.department")}
               </InputLabel>

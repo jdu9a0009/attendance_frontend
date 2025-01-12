@@ -62,17 +62,21 @@ const NewDepartmentTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<Colors>({
-    new_absent_color: '#e53935',
-    new_present_color: '#fafafa'
+    new_absent_color: '#e53935',  // значение по умолчанию
+    new_present_color: '#fafafa'  // значение по умолчанию
   });
+
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
+    // Если есть никнейм, возвращаем его
     if (employee.nick_name) {
       return employee.nick_name;
     }
+  
+    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
     return employee.last_name ? employee.last_name.substring(0, 7) : "";
   };
 
@@ -82,37 +86,37 @@ const NewDepartmentTable: React.FC = () => {
       colors?: Colors 
     }) => {
       const { department, colors: newColors } = data;
-  
+
       if (department && department.length > 0) {
         setDepartmentData(department);
-        // Move this check inside the effect to use the latest selectedDepartments value
-        setSelectedDepartments(prev => 
-          prev.size === 0 ? new Set(department.map(dept => dept.department_name)) : prev
-        );
+        if (selectedDepartments.size === 0) {
+          setSelectedDepartments(new Set(department.map(dept => dept.department_name)));
+        }
       } else {
         setError("Нет данных для отображения.");
       }
 
+      // Обновляем цвета, если они пришли
       if (newColors) {
-        setColors(prevColors => ({
-          new_absent_color: newColors.new_absent_color || prevColors.new_absent_color,
-          new_present_color: newColors.new_present_color || prevColors.new_present_color
-        }));
+        setColors({
+          new_absent_color: newColors.new_absent_color || colors.new_absent_color,
+          new_present_color: newColors.new_present_color || colors.new_present_color
+        });
       }
 
       setLoading(false);
     };
-  
+
     const handleSSEError = (error: Error) => {
       console.error("Ошибка SSE:", error);
-      setError("データの読み込み中にエラーが発生しました");
+      setError("Ошибка при загрузке данных.");
       setLoading(false);
     };
-  
+
     const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
-  
+
     return () => closeSSE();
-  }, []); // Now the effect has no external dependencies
+  }, []);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -192,26 +196,26 @@ const NewDepartmentTable: React.FC = () => {
     const isLastPage = currentPage === pages.length;
     const totalColumns = isLastPage && currentData.length < maxColumnsPerPage ? maxColumnsPerPage : currentData.length;
     const columnWidth = `${100 / totalColumns}%`;
-  
+
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
           const formattedName = employee ? formatName(employee) : "-";
-          
+          const tooltipTitle = employee ? employee.last_name : "No data"; 
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee && employee.employee_id !== null ? (
                 <EmployeeCell 
                   status={employee.status}
-                  colors={colors}
+                  colors={colors} // Передаем цвета
                 >
                   <span>{formattedName}</span>
                 </EmployeeCell>
               ) : (
                 <EmployeeCell 
                   status={null}
-                  colors={colors}
+                  colors={colors} // Передаем цвета
                 >
                   -
                 </EmployeeCell>
@@ -234,7 +238,7 @@ const NewDepartmentTable: React.FC = () => {
       </TableRow>
     ));
   };
-  
+
 
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;

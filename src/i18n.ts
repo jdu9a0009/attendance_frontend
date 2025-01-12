@@ -494,7 +494,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
-    ns: ['common', 'user', 'admin'], // Удалите 'sideMenu' и оставьте только необходимые пространства имен
+    ns: ['common', 'user', 'admin'], 
     defaultNS: 'common',
   });
 
