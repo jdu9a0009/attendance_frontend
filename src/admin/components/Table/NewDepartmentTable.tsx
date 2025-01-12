@@ -15,7 +15,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { setupDashboardSSE  } from '../../../utils/libs/axios';
+import { setupDashboardSSE  } from '../../../utils/libs/axios.ts';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -24,10 +24,10 @@ import {
   StyledButtonGroup,
   StyledButton,
   StyledCheckbox,
-} from './NewTableStyles';
+} from './NewTableStyles.ts';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Department } from './types';
+import { Department } from './types.ts';
 import { Tooltip } from '@mui/material';
 import '../../../shared/styles/App.css'
 

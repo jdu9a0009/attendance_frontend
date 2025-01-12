@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Paper, IconButton } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import MonthSelectorModal from './MonthSelectorModal';
-import WeeklyTimesheet from './WeeklyTimesheet';
+import MonthSelectorModal from './MonthSelectorModal.tsx';
+import WeeklyTimesheet from './WeeklyTimesheet.tsx';
 import { SelectChangeEvent } from '@mui/material';
-import { getMonthlyAttendanceData } from './attendanceService';
+import { getMonthlyAttendanceData } from './attendanceService.ts';
 import { useTranslation } from 'react-i18next';
 
 interface AttendanceSummaryProps {

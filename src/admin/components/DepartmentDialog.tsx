@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
-import { Department } from '../pages/DepartmentPositionManagement';
-import { createDepartment, updateDepartment } from '../../utils/libs/axios';
+import { Department } from '../pages/DepartmentPositionManagement.tsx';
+import { createDepartment, updateDepartment } from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 
 interface DepartmentDialogProps {

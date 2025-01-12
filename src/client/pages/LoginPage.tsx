@@ -9,9 +9,9 @@ import {
   useTheme,
   CircularProgress,
 } from '@mui/material';
-import axiosInstance from '../../utils/libs/axios';
+import axiosInstance from '../../utils/libs/axios.ts';
 import axios, { AxiosError } from 'axios';
-import { Employee } from '../../employees';
+import { Employee } from '../../employees.tsx';
 
 
 

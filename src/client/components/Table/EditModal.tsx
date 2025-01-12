@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
-import { TableData } from './types';
+import { TableData } from './types.ts';
 
 interface EditModalProps {
   open: boolean;

@@ -16,7 +16,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import line from "./Line.module.css";
-import axiosInstance from "../../utils/libs/axios";
+import axiosInstance from "../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
 
 interface LineData {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import axiosInstance from '../../utils/libs/axios';
+import axiosInstance from '../../utils/libs/axios.ts';
 
 
 // Функция для получения данных для карточек (ежемесячная статистика)

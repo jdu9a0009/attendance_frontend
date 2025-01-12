@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Employee, Department } from '../../admin/components/Table/types';
+import { Employee, Department } from '../../admin/components/Table/types.ts';
 
 const axiosInstance = () => {
   const defaultOptions = {

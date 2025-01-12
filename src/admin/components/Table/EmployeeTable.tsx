@@ -11,11 +11,11 @@ import {
   Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { TableData, Column } from "./types";
-import AttendanceTableHead from "./AttendanceTableHead";
-import AttendanceTableBody from "./AttendanceTableBody";
-import axiosInstance from "../../../utils/libs/axios";
-import {deleteUser} from "../../../utils/libs/axios";
+import { TableData, Column } from "./types.ts";
+import AttendanceTableHead from "./AttendanceTableHead.tsx";
+import AttendanceTableBody from "./AttendanceTableBody.tsx";
+import axiosInstance from "../../../utils/libs/axios.ts";
+import {deleteUser} from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
 
 interface EmployeeTableProps {

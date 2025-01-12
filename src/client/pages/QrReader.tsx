@@ -4,7 +4,7 @@ import jsQR from 'jsqr';
 import { Box, Typography, Paper, Snackbar, CircularProgress } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import { createByQRCode } from '../../utils/libs/axios';
+import { createByQRCode } from '../../utils/libs/axios.ts';
 
 interface ServerResponse {
   data: {

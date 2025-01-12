@@ -13,8 +13,8 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
-import { TableData } from "./types";
-import { updateUser } from "../../../utils/libs/axios";
+import { TableData } from "./types.ts";
+import { updateUser } from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
 
 interface EditModalProps {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart } from "@mui/x-charts";
-import axiosInstance from '../../utils/libs/axios';
+import axiosInstance from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 
 interface BarData {

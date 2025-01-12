@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Tabs, Tab } from '@mui/material';
-import DepartmentTable from '../components/DepartmentTable';
-import PositionTable from '../components/PositionTable';
-import DepartmentDialog from '../components/DepartmentDialog';
-import PositionDialog from '../components/PositionDialog';
+import DepartmentTable from '../components/DepartmentTable.tsx';
+import PositionTable from '../components/PositionTable.tsx';
+import DepartmentDialog from '../components/DepartmentDialog.tsx';
+import PositionDialog from '../components/PositionDialog.tsx';
 import '../../shared/styles/App.css';
-import { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
+import { fetchDepartments, fetchPositions } from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 // import { Department } from '../components/Table/types'
 

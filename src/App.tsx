@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./client/pages/LoginPage";
-import DashboardPage from "./client/pages/DashboardPage";
-import AdminDashboard from "./admin/pages/AdminDashboard";
+import LoginPage from "./client/pages/LoginPage.tsx";
+import DashboardPage from "./client/pages/DashboardPage.tsx";
+import AdminDashboard from "./admin/pages/AdminDashboard.tsx";
 import { Employee } from "./employees";
 import { Box } from "@mui/material";
 import "./shared/styles/App.css";
-import QRCodeScanner from "./client/pages/QrCodeScanner";
-import BigTablePage from "./client/pages/BigTable";
-import './i18n';
+import QRCodeScanner from "./client/pages/QrCodeScanner.tsx";
+import BigTablePage from "./client/pages/BigTable.tsx";
+import './i18n.ts';
 
 const theme = createTheme({
   palette: {

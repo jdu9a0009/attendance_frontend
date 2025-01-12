@@ -6,9 +6,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { format } from 'date-fns';
 import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material';
 import { LatLngTuple } from 'leaflet';
-import MapComponent from '../components/MapComponent'; 
-import ColorPickerButton from '../components/ColorPicker';
-import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios';
+import MapComponent from '../components/MapComponent.tsx'; 
+import ColorPickerButton from '../components/ColorPicker.tsx';
+import { fetchCompanySettings, updateCompanySettings } from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 
 interface CompanySettingsData {

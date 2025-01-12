@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import LineChartComponent from "../components/LineChart";
-import PieChartWithCustomizedLabel from "../components/pie";
-import SimpleBarChart from "../components/Bar";
-import AttendanceTable from "../components/Table/AttendanceTable";
-import { Column } from "../components/Table/types";
-import axiosInstance, { fetchDepartments, fetchPositions } from '../../utils/libs/axios';
+import LineChartComponent from "../components/LineChart.tsx";
+import PieChartWithCustomizedLabel from "../components/pie.tsx";
+import SimpleBarChart from "../components/Bar.tsx";
+import AttendanceTable from "../components/Table/AttendanceTable.tsx";
+import { Column } from "../components/Table/types.ts";
+import axiosInstance, { fetchDepartments, fetchPositions } from '../../utils/libs/axios.ts';
 
 export interface Department {
   id: number;

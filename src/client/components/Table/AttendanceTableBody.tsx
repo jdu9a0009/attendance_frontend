@@ -1,6 +1,6 @@
 import React from "react";
 import { TableBody, TableRow, TableCell, Box, Button } from "@mui/material";
-import { TableData, Column, DateOrString } from "./types";
+import { TableData, Column, DateOrString } from "./types.ts";
 
 interface AttendanceTableBodyProps {
   columns: Column[];

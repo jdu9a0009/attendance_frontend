@@ -3,7 +3,7 @@ import { Typography, Box, IconButton, Menu, MenuItem, Select, SelectChangeEvent 
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import axiosInstance from '../../utils/libs/axios';
+import axiosInstance from '../../utils/libs/axios.ts';
 
 interface HeaderProps {
   onLogout: () => void;

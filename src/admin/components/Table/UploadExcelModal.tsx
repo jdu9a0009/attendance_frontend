@@ -16,7 +16,7 @@ import {
   createTheme,
   SelectChangeEvent,
 } from "@mui/material";
-import { uploadExcelFile, downloadSampleFile } from "../../../utils/libs/axios";
+import { uploadExcelFile, downloadSampleFile } from "../../../utils/libs/axios.ts";
 import { SnackbarCloseReason } from "@mui/material";
 import axios from "axios";
 

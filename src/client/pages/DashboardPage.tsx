@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Box } from '@mui/material';
 import Header from '../components/Header';
-import MainContent from '../components/MainContent';
+import MainContent from '../components/MainContent.tsx';
 import '@fontsource/poppins/500.css';
-import { Employee } from '../../employees';
-import { Column } from '../../admin/components/Table/types';
+import { Employee } from '../../employees.tsx';
+import { Column } from '../../admin/components/Table/types.ts';
 
 interface DashboardPageProps {
   employeeData: Employee | null;

@@ -3,8 +3,8 @@ import { Box, Typography, Grid, Button, ButtonGroup } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
-import { intervals } from './TimesheetData';
-import { getWeeklyTimesheetData } from './attendanceService';
+import { intervals } from './TimesheetData.ts';
+import { getWeeklyTimesheetData } from './attendanceService.ts';
 import { useTranslation } from 'react-i18next';
 
 export interface TimesheetDay {

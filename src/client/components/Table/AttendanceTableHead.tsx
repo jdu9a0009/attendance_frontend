@@ -1,6 +1,6 @@
 import React from "react";
 import { TableHead, TableRow, TableCell, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { Column, FilterState } from "./types";
+import { Column, FilterState } from "./types.ts";
 
 interface AttendanceTableHeadProps {
   columns: Column[];

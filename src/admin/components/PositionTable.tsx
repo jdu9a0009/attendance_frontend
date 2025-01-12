@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import {
   Table, TableBody, TableCell, TableHead, TableRow, Paper, Button, Box, Snackbar, Alert
 } from '@mui/material';
-import { Position, Department } from '../pages/DepartmentPositionManagement'; 
-import { deletePosition } from '../../utils/libs/axios';
+import { Position, Department } from '../pages/DepartmentPositionManagement.tsx'; 
+import { deletePosition } from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 import { AxiosError } from 'axios';
 

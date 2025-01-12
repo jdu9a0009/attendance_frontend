@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../../shared/styles/App.css";
-import DashboardContent from "./AdminDashboardContent";
+import DashboardContent from "./AdminDashboardContent.tsx";
 import { Grid, Box, Button, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import DepartmentPositionManagement from "./DepartmentPositionManagement";
-import EmployeeListPage from "./EmployeeListPage";
-import CompanySettingsPage from "./CompanySettingsPage";
-import NewTablePage from "./NewTablePage";
-import SideMenu from "../components/SideMenu";
+import DepartmentPositionManagement from "./DepartmentPositionManagement.tsx";
+import EmployeeListPage from "./EmployeeListPage.tsx";
+import CompanySettingsPage from "./CompanySettingsPage.tsx";
+import NewTablePage from "./NewTablePage.tsx";
+import SideMenu from "../components/SideMenu.tsx";
 import { useTranslation } from "react-i18next";
-import { fetchCompanySettings } from '../../utils/libs/axios';
+import { fetchCompanySettings } from '../../utils/libs/axios.ts';
 
 interface AdminDashboardProps {
   onLogout: () => void;

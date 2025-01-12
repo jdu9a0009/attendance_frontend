@@ -3,8 +3,8 @@ import {
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button,
   Select, MenuItem, FormControl, InputLabel,
 } from '@mui/material';
-import { Department, Position } from '../pages/DepartmentPositionManagement'; 
-import { createPosition, updatePosition } from '../../utils/libs/axios'; 
+import { Department, Position } from '../pages/DepartmentPositionManagement.tsx'; 
+import { createPosition, updatePosition } from '../../utils/libs/axios.ts'; 
 import { useTranslation } from 'react-i18next';
 
 interface PositionDialogProps {

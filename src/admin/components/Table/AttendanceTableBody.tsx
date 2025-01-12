@@ -1,8 +1,8 @@
 import React from "react";
 import { TableBody, TableRow, TableCell, Box, Button } from "@mui/material";
-import { TableData, Column, DateOrString } from "./types";
+import { TableData, Column, DateOrString } from "./types.ts";
 import { useTranslation } from "react-i18next";
-import { downloadEmployeeQRCode } from "../../../utils/libs/axios";
+import { downloadEmployeeQRCode } from "../../../utils/libs/axios.ts";
 
 export interface Colors {
   absent_color: string;

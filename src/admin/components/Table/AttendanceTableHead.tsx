@@ -13,7 +13,7 @@ import {
   IconButton,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { Column, FilterState } from "./types";
+import { Column, FilterState } from "./types.ts";
 
 interface AttendanceTableHeadProps {
   columns: Column[];

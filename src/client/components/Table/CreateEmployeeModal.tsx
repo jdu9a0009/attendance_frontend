@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
-import { TableData } from './types';
+import { TableData } from './types.ts';
 
 interface CreateEmployeeModalProps {
   open: boolean;

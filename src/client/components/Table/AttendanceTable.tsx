@@ -14,11 +14,11 @@ import {
 } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { TableData, Column, FilterState } from "./types";
-import AttendanceTableHead from "./AttendanceTableHead";
-import AttendanceTableBody from "./AttendanceTableBody";
-import CalendarModal from "./CalendarModal";
-import axiosInstance from "../../../utils/libs/axios";
+import { TableData, Column, FilterState } from "./types.ts";
+import AttendanceTableHead from "./AttendanceTableHead.tsx";
+import AttendanceTableBody from "./AttendanceTableBody.tsx";
+import CalendarModal from "./CalendarModal.tsx";
+import axiosInstance from "../../../utils/libs/axios.ts";
 
 interface AttendanceTableProps {
   columns: Column[];

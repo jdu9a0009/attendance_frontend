@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
-import axiosInstance from '../../utils/libs/axios';
+import axiosInstance from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 
 interface PieData {

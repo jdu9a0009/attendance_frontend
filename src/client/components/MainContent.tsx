@@ -3,12 +3,12 @@ import { Box, Typography, Button, Divider } from '@mui/material';
 import { format } from 'date-fns';
 import { ja, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
-import AttendanceSummary from './AttendanceSummary';
-import TabsComponent from './TabsComponent';
-import { Column } from '../../admin/components/Table/types';
-import axiosInstance from '../../utils/libs/axios';
+import AttendanceSummary from './AttendanceSummary.tsx';
+import TabsComponent from './TabsComponent.tsx';
+import { Column } from '../../admin/components/Table/types.ts';
+import axiosInstance from '../../utils/libs/axios.ts';
 import axios from 'axios';
-import AttendanceTable from '../../admin/components/Table/AttendanceTable';
+import AttendanceTable from '../../admin/components/Table/AttendanceTable.tsx';
 
 interface MainContentProps {
   tabIndex: number;

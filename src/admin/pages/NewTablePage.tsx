@@ -1,5 +1,5 @@
 import React from 'react';
-import NewDepartmentTable from '../components/Table/NewDepartmentTable';
+import NewDepartmentTable from '../components/Table/NewDepartmentTable.tsx';
 
 const NewTablePage = () => {
   return (
