@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Box,
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { TableData } from "./types";
 import { createUser } from "../../../utils/libs/axios"; // Импортируем функцию createUser
+import axiosInstance from "../../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
 
 interface CreateEmployeeModalProps {

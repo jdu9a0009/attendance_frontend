@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Employee, Department } from '../../admin/components/Table/types';
 
 
 const axiosInstance = () => {
@@ -17,7 +16,7 @@ const axiosInstance = () => {
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
 
     // console.log('Токен:', token);
-    // console.log('Данные запроса:', config.data);
+    console.log('Данные запроса:', config.data);
 
     return config;
   });
@@ -162,7 +161,7 @@ export const fetchCompanySettings = async () => {
   try {
     const response = await axiosInstance().get('/company_info/list');
     if (response.data.status) {
-      // console.log(response.data);
+      console.log(response.data);
       return response.data.data;
     }
     throw new Error('Failed to fetch company settings');
@@ -195,37 +194,42 @@ export const downloadEmployeeQRCode = async (employee_id: string) => {
   try {
     console.log(`Отправляем запрос для скачивания QR-кода сотрудника с employee_id: ${employee_id}`);
     
-    const response = await axiosInstance().get(`/user/qrcode`, {
+    console.log('Перед выполнением запроса');
+    const response = await axiosInstance().get(`/user/qrcode/`, {
       params: { employee_id },
       responseType: 'blob',
     });
+    console.log('После выполнения запроса', response);
     
-    console.log('Ответ получен:', response);
-    
-    if (response && response.status === 200 && response.data) {
-      const blob = new Blob([response.data], { type: 'image/png' });
-      const url = window.URL.createObjectURL(blob);
+    // Проверяем, что ответ пришел и его статус успешный
+    if (response && response.status === 200) {
+      console.log('Ответ на запрос:', response);
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `employee_${employee_id}_qrcode.png`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
+
       return response.data;
     } else {
       throw new Error('Не удалось скачать QR-код, сервер вернул некорректный ответ.');
     }
   } catch (error) {
-    console.error('Ошибка при скачивании QR-кода сотрудника:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      console.error('Статус ответа:', error.response.status);
-      console.error('Данные ответа:', error.response.data);
+    // Улучшенная обработка ошибок
+    if (axios.isAxiosError(error)) {
+      // Если ошибка Axios, можно получить информацию о ответе
+      console.error('Ошибка Axios:', error.response ? error.response.data : error.message);
+    } else {
+      // Общая ошибка
+      console.error('Ошибка при скачивании QR-кода сотрудника:', error);
     }
-    throw error;
+    throw error; // Перебрасываем ошибку для дальнейшей обработки
   }
 };
+
 
 
 export const fetchQRCodeList = async (): Promise<Blob> => {
@@ -237,28 +241,11 @@ export const fetchQRCodeList = async (): Promise<Blob> => {
   return response.data; // Return the response.data, which will be of type Blob
 };
 
-// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
-export const fetchDashboardList = async (page: number): Promise<{ employee_list: Employee[], total_employee_count: number, department: Department[] }> => {
-  try {
-    console.log(`Отправляем запрос на страницу ${page}`);
-    const response = await axiosInstance().get(`/user/dashboardlist`, {
-      params: { page }
-    });
-    console.log('Ответ получен:', response.data);
 
-    if (response.data.status) {
-      const employee_list = response.data.data.employee_list;
-      const total_employee_count = response.data.data.total_employee_count || 0;
-      const department = response.data.data.department || [];
-      return { employee_list, total_employee_count, department };
-    } else {
-      throw new Error('Не удалось получить список сотрудников');
-    }
-  } catch (error) {
-    console.error('Ошибка при запросе списка сотрудников:', error);
-    throw error;
-  }
-};
+
+
+
+
 
 
 

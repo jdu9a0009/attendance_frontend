@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
@@ -12,12 +12,11 @@ import {
   MenuItem,
   SelectChangeEvent,
   List,
+  ListItem,
 } from "@mui/material";
 import line from "./Line.module.css";
 import axiosInstance from "../../utils/libs/axios";
 import { useTranslation } from "react-i18next";
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 
 
 interface LineData {
@@ -81,7 +80,7 @@ function LineChartComponent() {
       const monthString = String(monthIndex).padStart(2, "0");
 
       const response = await axiosInstance().get(
-        `https://api.eduflow.uz/api/v1/attendance/graph`,
+        `https://attendance-backend-24xu.onrender.com/api/v1/attendance/graph`,
         {
           params: {
             month: `${selectedYear}-${monthString}-01`,
@@ -221,16 +220,17 @@ function LineChartComponent() {
             ))}
           </Select>
           <List>
-  {monthsOfYear.map((month, index) => (
-    <ListItemButton
-      key={index}
-      onClick={() => handleMonthChange(month)}
-      selected={selectedMonth === month}
-    >
-      <ListItemText primary={month} />
-    </ListItemButton>
-  ))}
-</List>
+            {monthsOfYear.map((month, index) => (
+              <ListItem
+                button
+                key={index}
+                onClick={() => handleMonthChange(month)}
+                selected={selectedMonth === month}
+              >
+                {month}
+              </ListItem>
+            ))}
+          </List>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleMonthDialogClose}>{t('ok')}</Button>

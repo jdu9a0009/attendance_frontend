@@ -193,7 +193,7 @@ const EmployeeListPage: React.FC = () => {
           onClick={handleDownloadQRCodes}
           sx={{ bgcolor: '#00D891', '&:hover': { bgcolor: '#00AB73' } }}
         >
-          {t('employeeList.downloadQRCodesButton')}
+          {t('employeeList.downloadAllQRCodesButton')}
         </Button>
       </Box>
       <EmployeeTable

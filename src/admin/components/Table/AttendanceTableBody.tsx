@@ -11,6 +11,9 @@ interface AttendanceTableBodyProps {
   onDelete?: (id: number) => void;
 }
 
+
+
+
 const formatValue = (value: DateOrString | boolean, key?: string): string => {
   if (value === undefined || value === null) {
     // Special condition for checkOut to return "--:--"
@@ -52,8 +55,18 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
   const { t } = useTranslation('admin');
 
   const handleStatusChange = (rowId: number, newStatus: string) => {
-    // onStatusChange(rowId, newStatus);
+    // Реализация обработки изменения статуса
     setEditingRowId(null);
+  };
+
+  const handleDownloadQRCode = async (employeeId: string) => {
+    try {
+      await downloadEmployeeQRCode(employeeId);
+      console.log(`QR-код для сотрудника ${employeeId} успешно скачан`);
+    } catch (error) {
+      console.error(`Ошибка при скачивании QR-кода для сотрудника ${employeeId}:`, error);
+      // Здесь вы можете добавить отображение ошибки для пользователя, например, через snackbar или alert
+    }
   };
 
   return (
@@ -80,20 +93,20 @@ const AttendanceTableBody: React.FC<AttendanceTableBodyProps> = ({
         {t('employeeTable.deleteBtn')}
       </Button>
     )}
-<Button
-  variant="outlined"
-  size="small"
-  color="primary"
-  onClick={() => {
-    if (row.employee_id) {
-      downloadEmployeeQRCode(row.employee_id); // Только если employee_id существует
-    } else {
-      console.error("Employee ID is missing");
-    }
-  }}
->
-  {t('employeeTable.downloadQRCodeBtn')}
-</Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        if (row.employee_id) {
+                          handleDownloadQRCode(row.employee_id);
+                        } else {
+                          console.error("ID сотрудника отсутствует");
+                        }
+                      }}
+                    >
+                      {t('employeeTable.downloadQRCodeBtn')}
+                    </Button>
 
   </Box>
 </TableCell>

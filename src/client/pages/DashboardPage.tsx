@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import MainContent from '../components/MainContent';
 import '@fontsource/poppins/500.css';
 import { Employee } from '../../employees';
-import { Column } from '../../admin/components/Table/types';
+import { Column } from "../components/Table/types";
 
 interface DashboardPageProps {
   employeeData: Employee | null;

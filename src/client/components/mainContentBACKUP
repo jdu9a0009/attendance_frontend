@@ -46,7 +46,7 @@ const MainContent: React.FC<MainContentProps> = ({
   employeeId,
   tableColumns,
 }) => {
-  const { t, i18n } = useTranslation(['common', 'user']);
+  const { t, i18n } = useTranslation('common');
   const [checkInTime, setCheckInTime] = useState<string>('--:--');
   const [checkOutTime, setCheckOutTime] = useState<string>('--:--');
   const [totalHours, setTotalHours] = useState<string>('--:--');
@@ -90,7 +90,7 @@ const MainContent: React.FC<MainContentProps> = ({
         setTotalHours(total_hours || '--:--');
       }
     } catch (error) {
-      console.error('Ошибка при получении данных дашборда:', error);
+      // console.error('Ошибка при получении данных дашборда:', error);
     }
   };
 
@@ -101,7 +101,7 @@ const MainContent: React.FC<MainContentProps> = ({
       } else {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('Получены координаты:', position.coords.latitude, position.coords.longitude);
+            // console.log('Получены координаты:', position.coords.latitude, position.coords.longitude);
             resolve(position);
           },
           (error) => {
@@ -133,10 +133,10 @@ const MainContent: React.FC<MainContentProps> = ({
         'Content-Type': 'application/json',
       };
 
-      console.log('Отправляемые данные:', data);
-      console.log('URL запроса:', '/attendance/createbyphone');
-      console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
-      console.log('Заголовки запроса:', headers);
+      // console.log('Отправляемые данные:', data);
+      // console.log('URL запроса:', '/attendance/createbyphone');
+      // console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
+      // console.log('Заголовки запроса:', headers);
 
       const response = await axiosInstance().post('/attendance/createbyphone', data);
 
@@ -167,10 +167,10 @@ const MainContent: React.FC<MainContentProps> = ({
         'Content-Type': 'application/json',
       };
 
-      console.log('Отправляемые данные:', data);
-      console.log('URL запроса:', '/attendance/exitbyphone');
-      console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
-      console.log('Заголовки запроса:', headers);
+      // console.log('Отправляемые данные:', data);
+      // console.log('URL запроса:', '/attendance/exitbyphone');
+      // console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
+      // console.log('Заголовки запроса:', headers);
 
       const response = await axiosInstance().patch('/attendance/exitbyphone', data);
 
@@ -266,7 +266,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 {checkInTime}
               </Typography>
               <Typography variant="body2" color="#666666" sx={{ mt: 1 }}>
-                {t('user:checkInTime')}
+                {t('checkInTime')}
               </Typography>
             </Box>
             <Divider orientation="vertical" flexItem sx={{ mx: 1, borderColor: '#d6d6d6' }} />
@@ -275,7 +275,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 {checkOutTime}
               </Typography>
               <Typography variant="body2" color="#666666" sx={{ mt: 1 }}>
-                {t('user:checkOutTime')}
+                {t('checkOutTime')}
               </Typography>
             </Box>
             <Divider orientation="vertical" flexItem sx={{ mx: 1, borderColor: '#d6d6d6' }} />
@@ -284,7 +284,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 {totalHours}
               </Typography>
               <Typography variant="body2" color="#666666" sx={{ mt: 1 }}>
-                {t('user:totalWorkHours')}
+                {t('totalWorkHours')}
               </Typography>
             </Box>
           </Box>
@@ -301,7 +301,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 },
               }}
             >
-              {t('user:checkIn')}
+              {t('checkIn')}
             </Button>
             <Button
               variant="contained"
@@ -315,7 +315,7 @@ const MainContent: React.FC<MainContentProps> = ({
                 },
               }}
             >
-              {t('user:checkOut')}
+              {t('checkOut')}
             </Button>
           </Box>
           {message && (
@@ -330,7 +330,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
       {tabIndex === 2 && (
         <Box sx={{ overflowX: 'auto' }}>
-          <AttendanceTable columns={columns} showCalendar={false} tableTitle={t('common:table.title')} departments={departments}
+          <AttendanceTable columns={columns} showCalendar={false} tableTitle={t('attendanceTable')} departments={departments}
             positions={positions}/>
         </Box>
       )}
