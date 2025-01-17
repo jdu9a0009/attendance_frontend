@@ -50,6 +50,7 @@ const axiosInstance = () => {
 export default axiosInstance;
 
 
+// setupDashboardSSE.ts
 export const setupDashboardSSE = (
   onDataUpdate: (data: {
     colors?: { new_absent_color: string; new_present_color: string };
@@ -59,9 +60,8 @@ export const setupDashboardSSE = (
   }) => void,
   onError?: (error: Error) => void
 ) => {
-  const sseUrl = `${process.env.REACT_APP_BASE_URL}/user/dashboardlist`;// SSE эндпоинт.
+  const sseUrl = `${process.env.REACT_APP_BASE_URL}/user/dashboardlist`;
   
-  // Логирование информации о запросе
   console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
 
   const eventSource = new EventSource(sseUrl);
@@ -76,27 +76,29 @@ export const setupDashboardSSE = (
         throw new Error("Неверная структура данных SSE. Проверьте сервер.");
       }
 
-      // Преобразование списка сотрудников
+      // Обновленное преобразование списка сотрудников
       const employee_list: Employee[] = rawData.data.results.flatMap((dept: any) =>
         dept.result.map((emp: any) => ({
           id: emp.id,
           employee_id: emp.employee_id,
           department_id: emp.department_id,
           department_name: emp.department_name,
+          department_nickname: emp.department_nickname, 
           display_number: emp.display_number,
           last_name: emp.last_name,
+          nick_name: emp.nick_name,
           status: emp.status,
         }))
       );
 
-      // Преобразование списка департаментов
+      // Обновленное преобразование списка департаментов
       const department: Department[] = rawData.data.results.map((dept: any) => ({
         department_name: dept.department_name,
+        department_nickname: dept.department_nickname, 
         display_number: dept.display_number,
         result: dept.result,
       }));
 
-      // Итоговые данные
       const transformedData = {
         colors: rawData.Colors,
         employee_list,
@@ -119,7 +121,7 @@ export const setupDashboardSSE = (
     eventSource.close();
   };
 
-  return () => eventSource.close(); // Закрытие соединения.
+  return () => eventSource.close();
 };
 
 

@@ -14,8 +14,9 @@ import {
   Modal,
   Stack,
   Divider,
+  Tooltip
 } from '@mui/material';
-import { setupDashboardSSE  } from '../../../utils/libs/axios.ts';
+import { setupDashboardSSE } from '../../../utils/libs/axios.ts';
 import {
   StyledTableCell,
   EmployeeCell,
@@ -28,12 +29,11 @@ import {
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Department } from './types.ts';
-import { Tooltip } from '@mui/material';
 import '../../../shared/styles/App.css'
-
 
 interface DepartmentData {
   department_name: string;
+  department_nickname?: string;
   display_number: number;
   result: EmployeeData[];
 }
@@ -43,6 +43,7 @@ interface EmployeeData {
   employee_id: string;
   department_id: number;
   department_name: string;
+  department_nickname?: string;
   display_number: number;
   last_name: string;
   nick_name?: string;
@@ -62,22 +63,22 @@ const NewDepartmentTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [colors, setColors] = useState<Colors>({
-    new_absent_color: '#e53935',  // значение по умолчанию
-    new_present_color: '#fafafa'  // значение по умолчанию
+    new_absent_color: '#e53935',
+    new_present_color: '#fafafa'
   });
-
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
-    // Если есть никнейм, возвращаем его
     if (employee.nick_name) {
       return employee.nick_name;
     }
-  
-    // Если никнейма нет, обрезаем фамилию до 7 символов или возвращаем пустую строку
     return employee.last_name ? employee.last_name.substring(0, 7) : "";
+  };
+
+  const formatDepartmentName = (department: DepartmentData): string => {
+    return department.department_nickname || department.department_name;
   };
 
   useEffect(() => {
@@ -86,7 +87,7 @@ const NewDepartmentTable: React.FC = () => {
       colors?: Colors 
     }) => {
       const { department, colors: newColors } = data;
-
+  
       if (department && department.length > 0) {
         setDepartmentData(department);
         if (selectedDepartments.size === 0) {
@@ -95,28 +96,27 @@ const NewDepartmentTable: React.FC = () => {
       } else {
         setError("Нет данных для отображения.");
       }
-
-      // Обновляем цвета, если они пришли
+  
       if (newColors) {
         setColors({
           new_absent_color: newColors.new_absent_color || colors.new_absent_color,
           new_present_color: newColors.new_present_color || colors.new_present_color
         });
       }
-
+  
       setLoading(false);
     };
-
+  
     const handleSSEError = (error: Error) => {
       console.error("Ошибка SSE:", error);
       setError("Ошибка при загрузке данных.");
       setLoading(false);
     };
-
+  
     const closeSSE = setupDashboardSSE(handleSSEMessage, handleSSEError);
-
+  
     return () => closeSSE();
-  }, []);
+  }, [colors.new_absent_color, colors.new_present_color, selectedDepartments.size]);
 
   const isAllSelected = useMemo(() => {
     return departmentData.length > 0 && selectedDepartments.size === departmentData.length;
@@ -161,7 +161,6 @@ const NewDepartmentTable: React.FC = () => {
     filteredDepartmentData.forEach((dept) => {
       const columnsNeeded = Math.ceil(dept.result.length / maxEmployeesPerColumn);
 
-
       if (currentCol + columnsNeeded > maxColumnsPerPage) {
         if (currentPageDepts.length > 0) {
           result.push(currentPageDepts);
@@ -201,21 +200,19 @@ const NewDepartmentTable: React.FC = () => {
       <TableRow key={rowIndex}>
         {currentData.map((dept, colIndex) => {
           const employee = dept.result[rowIndex];
-          const formattedName = employee ? formatName(employee) : "-";
-          const tooltipTitle = employee ? employee.last_name : "No data"; 
           return (
             <StyledTableCell key={`${colIndex}-${rowIndex}`} sx={{ width: columnWidth }}>
               {employee && employee.employee_id !== null ? (
                 <EmployeeCell 
                   status={employee.status}
-                  colors={colors} // Передаем цвета
+                  colors={colors}
                 >
-                  <span>{formattedName}</span>
+                  <span>{formatName(employee)}</span>
                 </EmployeeCell>
               ) : (
                 <EmployeeCell 
                   status={null}
-                  colors={colors} // Передаем цвета
+                  colors={colors}
                 >
                   -
                 </EmployeeCell>
@@ -228,7 +225,7 @@ const NewDepartmentTable: React.FC = () => {
             <StyledTableCell key={`empty-${emptyIndex}`} sx={{ width: columnWidth }}>
               <EmployeeCell 
                 status={null}
-                colors={colors} // Передаем цвета
+                colors={colors}
               >
                 -
               </EmployeeCell>
@@ -239,10 +236,8 @@ const NewDepartmentTable: React.FC = () => {
     ));
   };
 
-
   if (loading) return <div>...</div>;
   if (error) return <div>{error}</div>;
-
 
   return (
     <div>
@@ -260,19 +255,17 @@ const NewDepartmentTable: React.FC = () => {
         部門を選択
       </Button>
       <Modal open={modalOpen} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}>
           <Typography variant="h6" component="h2" gutterBottom>
             部門の選択
           </Typography>
@@ -297,7 +290,7 @@ const NewDepartmentTable: React.FC = () => {
                     onChange={() => handleDepartmentToggle(dept.department_name)}
                   />
                 }
-                label={`${dept.department_name} (${dept.display_number})`}
+                label={`${formatDepartmentName(dept)} (${dept.display_number})`}
               />
             ))}
           </FormGroup>
@@ -326,30 +319,35 @@ const NewDepartmentTable: React.FC = () => {
         </Box>
       </Modal>
       <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-  <Table>
-  <TableHead>
-  <TableRow>
-    {pages[currentPage - 1]?.map((dept, index) => (
-      <Tooltip key={index} title={dept.department_name} arrow className="custom-tooltip">
-  <StyledTableCell>
-    <strong>{dept.department_name}</strong>
-  </StyledTableCell>
-</Tooltip>
-
-    ))}
-    {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
-      Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
-        <StyledTableCell key={`empty-header-${emptyIndex}`}>
-          <strong>-</strong>
-        </StyledTableCell>
-      ))
-    }
-  </TableRow>
-</TableHead>
-    <TableBody>{renderTableContent()}</TableBody>
-  </Table>
-</TableContainer>
-
+        <Table>
+          <TableHead>
+            <TableRow>
+              {pages[currentPage - 1]?.map((dept, index) => (
+                <Tooltip 
+                  key={index} 
+                  title={dept.department_name}
+                  arrow 
+                  className="custom-tooltip"
+                >
+                  <StyledTableCell>
+                    <strong>{formatDepartmentName(dept)}</strong>
+                  </StyledTableCell>
+                </Tooltip>
+              ))}
+              {currentPage === pages.length && pages[currentPage - 1]?.length < maxColumnsPerPage && 
+                Array.from({ length: maxColumnsPerPage - (pages[currentPage - 1]?.length || 0) }).map((_, emptyIndex) => (
+                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
+                    <strong>-</strong>
+                  </StyledTableCell>
+                ))
+              }
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {renderTableContent()}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <PaginationContainer>
         <StyledButtonGroup variant="outlined" size="large">
           <Button

@@ -42,6 +42,7 @@ function DepartmentPositionManagement() {
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
   const [editingPosition, setEditingPosition] = useState<Position | null>(null);
   const [newDepartmentName, setNewDepartmentName] = useState('');
+  // TODO: Будет использоваться в будущем для обновления никнеймов отделов
   const [newDepartmentNickName, setNewDepartmentNickName] = useState('');
   const [newPositionName, setNewPositionName] = useState('');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
@@ -90,6 +91,7 @@ function DepartmentPositionManagement() {
     fetchData();
     setOpenDepartmentDialog(false);
     setNewDepartmentName('');
+    setNewDepartmentNickName('');
     setEditingDepartment(null);
     
   };
@@ -110,10 +112,10 @@ function DepartmentPositionManagement() {
   const handleAddDepartment = () => {
     if (newDepartmentName.trim() !== '') {
       const newDepartment: Department = {
-        id: departments.length + 1, // Это значение можно адаптировать в зависимости от логики вашего приложения
+        id: departments.length + 1,
         name: newDepartmentName,
-        display_number: nextDisplayNumber, 
-        department_nickname: newDepartmentNickName,
+        display_number: nextDisplayNumber,
+        department_nickname: newDepartmentNickName
       };
   
       setDepartments([...departments, newDepartment]);
@@ -126,27 +128,32 @@ function DepartmentPositionManagement() {
   const handleUpdateDepartment = () => {
     if (editingDepartment && newDepartmentName.trim() !== '') {
       const updatedDepartments = [...departments];
-      const currentDisplayNumber = editingDepartment.display_number;
+      const departmentIndex = updatedDepartments.findIndex(d => d.id === editingDepartment.id);
       
-      // Если пользователь выбрал новый display_number
-      if (selectedDisplayNumber !== currentDisplayNumber) {
-        // Находим департамент с которым нужно поменяться
-        const departmentToSwap = updatedDepartments.find(
-          dep => dep.display_number === selectedDisplayNumber
-        );
+      if (departmentIndex !== -1) {
+        const currentDisplayNumber = editingDepartment.display_number;
         
-        if (departmentToSwap) {
-          // Меняем display_number местами
-          departmentToSwap.display_number = currentDisplayNumber;
-          editingDepartment.display_number = selectedDisplayNumber;
+        if (selectedDisplayNumber !== currentDisplayNumber) {
+          const departmentToSwap = updatedDepartments.find(
+            dep => dep.display_number === selectedDisplayNumber
+          );
+          
+          if (departmentToSwap) {
+            departmentToSwap.display_number = currentDisplayNumber;
+            editingDepartment.display_number = selectedDisplayNumber;
+          }
         }
+
+        // Обновляем имя и никнейм департамента
+        updatedDepartments[departmentIndex] = {
+          ...editingDepartment,
+          name: newDepartmentName,
+          department_nickname: newDepartmentNickName
+        };
+        
+        setDepartments(updatedDepartments);
+        handleCloseDepartmentDialog();
       }
-  
-      // Обновляем имя департамента
-      editingDepartment.name = newDepartmentName;
-      
-      setDepartments(updatedDepartments);
-      handleCloseDepartmentDialog();
     }
   };
   
@@ -200,6 +207,7 @@ function DepartmentPositionManagement() {
   const handleEditDepartment = (department: Department) => {
     setEditingDepartment(department);
     setNewDepartmentName(department.name);
+    setNewDepartmentNickName(department.department_nickname || '');
     setOpenDepartmentDialog(true);
     
   };

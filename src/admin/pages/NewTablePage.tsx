@@ -4,8 +4,7 @@ import NewDepartmentTable from '../components/Table/NewDepartmentTable.tsx';
 const NewTablePage = () => {
   return (
     <div className="container">
-      <h1>Department Table</h1> {/* Add a descriptive heading */}
-      <NewDepartmentTable />
+      <NewDepartmentTable/>
     </div>
   );
 };
