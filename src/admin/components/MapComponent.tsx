@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { useMap } from 'react-leaflet'; // Moved to separate import to fix linting issue
+import { useMap } from 'react-leaflet'; 
 import 'leaflet/dist/leaflet.css';
 import { LatLngTuple } from 'leaflet';
 import { IconButton, TextField, Autocomplete, Paper } from '@mui/material';

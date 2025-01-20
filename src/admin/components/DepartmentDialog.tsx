@@ -19,19 +19,18 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
   const [displayNumber, setDisplayNumber] = useState<number>(
     department?.display_number || nextDisplayNumber
   );
-  const [departmentNickname, setDepartmentNickname] = useState(department?.department_nickname || ''); // Новое поле
+  const [departmentNickname, setDepartmentNickname] = useState(department?.department_nickname || ''); 
   const { t } = useTranslation('admin');
 
   useEffect(() => {
     if (department) {
       setName(department.name);
       setDisplayNumber(department.display_number);
-      setDepartmentNickname(department.department_nickname || ''); // Сброс nickname для редактирования
+      setDepartmentNickname(department.department_nickname || ''); 
     } else {
-      // Сброс значений для нового департамента
       setName('');
       setDisplayNumber(nextDisplayNumber);
-      setDepartmentNickname(''); // Очистка department_nickname
+      setDepartmentNickname(''); 
     }
   }, [department, nextDisplayNumber, open]);
 
@@ -90,7 +89,7 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
         <TextField
           margin="dense"
           id="department-nickname"
-          label={t('departmentTable.departmentNickname')} // Новый перевод для department_nickname
+          label={t('departmentTable.departmentNickname')} 
           type="text"
           fullWidth
           variant="standard"

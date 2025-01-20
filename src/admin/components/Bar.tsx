@@ -21,13 +21,8 @@ export default function SimpleBarChart() {
     try {
       const response = await axiosInstance().get('/attendance/barchart');
       const barData: BarData[] = response.data.data;
-      
-      
-
-      // Маппинг данных для графика
       const percentages = barData.map(item => item.percentage);
       const labels = barData.map(item => item.department);
-
       setData(percentages);
       setXLabels(labels);
     } catch (err) {

@@ -62,8 +62,8 @@ function PositionTable({ positions, onEdit, onDelete, departments }: PositionTab
         width: '100%',
         minWidth: '300px',
         boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.2)',
-        padding: '16px', // Увеличиваем отступы
-        fontSize: '1.2rem', // Увеличиваем размер шрифта
+        padding: '16px',
+        fontSize: '1.2rem',
       }}
     >
       {error}

@@ -215,7 +215,7 @@ const CompanySettingsPage: React.FC = () => {
 
   return (
     <Paper elevation={3} sx={{ p: 4, borderRadius: 3, mt: 3, position: 'relative' }}>
-      {/* Заголовок и кнопка редактирования */}
+      {/* Header and edit button */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
           {t('settings.mainTitle')}
@@ -225,7 +225,7 @@ const CompanySettingsPage: React.FC = () => {
         </IconButton>
       </Box>
   
-      {/* Блок с названием компании и логотипом */}
+      {/* Block with company name and logo */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           {t('settings.chapter1Title')}
@@ -245,7 +245,7 @@ const CompanySettingsPage: React.FC = () => {
         )}
       </Box>
   
-      {/* Локация компании */}
+      {/* Company location */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           {t('settings.chapter2Title')}
@@ -263,7 +263,7 @@ const CompanySettingsPage: React.FC = () => {
         </Box>
       </Box>
   
-      {/* Правила посещаемости */}
+      {/* Attendance rules */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           {t('settings.chapter3Title')}
@@ -313,7 +313,7 @@ const CompanySettingsPage: React.FC = () => {
         </Box>
       </Box>
   
-      {/* Новый блок для настройки цветов */}
+      {/* New block for color customization */}
       <Box sx={{ mb: 4, p: 2, bgcolor: '#f5f5f5', borderRadius: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           {t('settings.colorSettingsTitle')}
@@ -386,7 +386,7 @@ const CompanySettingsPage: React.FC = () => {
         </Box>
       </Box>
   
-      {/* Кнопка сохранения */}
+      {/* Save button */}
       {editMode && (
         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
           <Button

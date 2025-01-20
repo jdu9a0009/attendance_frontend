@@ -70,18 +70,18 @@ function DepartmentTable({ departments, onEdit, onDelete }: DepartmentTableProps
           <TableHead>
             <TableRow>
               <TableCell>{t('departmentTable.departmentName')}</TableCell>
-              <TableCell>{t('departmentTable.departmentNickname')}</TableCell> {/* Новый заголовок для department_nickname */}
+              <TableCell>{t('departmentTable.departmentNickname')}</TableCell> 
               <TableCell>{t('departmentTable.displayNumber')}</TableCell>
               <TableCell>{t('departmentTable.action')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {departments
-              .sort((a, b) => a.display_number - b.display_number) // Сортировка по display_number
+              .sort((a, b) => a.display_number - b.display_number) 
               .map((department) => (
                 <TableRow key={department.id}>
                   <TableCell>{department.name}</TableCell>
-                  <TableCell>{department.department_nickname}</TableCell> {/* Отображение department_nickname */}
+                  <TableCell>{department.department_nickname}</TableCell> 
                   <TableCell>{department.display_number}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>

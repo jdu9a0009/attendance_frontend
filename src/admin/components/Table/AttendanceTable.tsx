@@ -87,11 +87,8 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
         const response = await axiosInstance().get(
           `/attendance/list?date=${formattedDate}`
         );
-  
-  
-        // Проверяем наличие цветов в ответе
-        if (response.data.Colors) {  // Здесь изменил colors на Colors
-          setColors(response.data.Colors); // Устанавливаем цвета напрямую
+        if (response.data.Colors) {  
+          setColors(response.data.Colors); 
         } else {
           setColors(DEFAULT_COLORS);
         }
@@ -227,7 +224,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
     setCalendarOpen(false);
     if (date) {
       setSelectedDate(date);
-      // Здесь вы можете добавить логику для фильтрации данных по выбранной дате
+      // Here you can add logic to filter data by the selected date.
     }
   };
   

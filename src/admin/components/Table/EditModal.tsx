@@ -52,13 +52,11 @@ const EditModal: React.FC<EditModalProps> = ({
   const [nickNameError, setNickNameError] = useState<string>("");
   const { t } = useTranslation('admin');
 
-  // Update formData when the data prop changes or modal opens
   useEffect(() => {
     if (open && data) {
-      // Deep copy to avoid direct mutation of the original data
       setFormData({
         ...data,
-        password: '', // Clear password field when opening
+        password: '', 
       });
     }
   }, [open, data]);
@@ -127,7 +125,6 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   };
 
-  // If modal is not open or no data, return null
   if (!open || !formData) return null;
 
   const theme = createTheme({

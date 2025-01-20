@@ -15,10 +15,10 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   height: '60px',
   border: '1px solid rgba(224, 224, 224, 1)',
   fontSize: '28px',
-  maxWidth: '100px', // Ограничиваем ширину ячейки
-  overflow: 'hidden', // Скрываем лишний текст
-  textOverflow: 'ellipsis', // Добавляем многоточие
-  whiteSpace: 'nowrap', // Запрещаем перенос текста
+  maxWidth: '100px',
+  overflow: 'hidden', 
+  textOverflow: 'ellipsis', 
+  whiteSpace: 'nowrap', 
 }));
 
 export const EmployeeCell = styled('div')<{ 
@@ -42,15 +42,14 @@ export const EmployeeCell = styled('div')<{
   justifyContent: 'center',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
-  fontSize: '28px', // Базовый размер шрифта
-  // Уменьшение шрифта при переполнении
+  fontSize: '28px', 
   '& span': {
     display: 'block',
     maxWidth: '100%',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    fontSize: 'clamp(18px, 2.5vw, 28px)', // Минимальный шрифт 18px, максимальный 28px
+    fontSize: 'clamp(18px, 2.5vw, 28px)', 
   },
 }));
 
@@ -85,11 +84,9 @@ export const StyledButtonGroup = styled(ButtonGroup)({
       color: 'rgba(16, 94, 130, 0.3)',
     },
   },
-  // Убираем двойную рамку между кнопками
   '& .MuiButton-outlined:not(:last-child)': {
     borderRightColor: '#105E82',
   },
-  // Убираем лишнюю рамку у средней кнопки с номером страницы
   '& .MuiButton-outlined:not(:first-child):not(:last-child)': {
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',

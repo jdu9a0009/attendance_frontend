@@ -37,10 +37,10 @@ function UnstyledTabsVertical({ onTabChange }: TabsProps) {
         <Tab value={1}>Two</Tab>
       </TabsList>
       <TabPanel value={0}>
-        {/* Содержимое первой вкладки */}
+        {/* Contents of the first tab */}
       </TabPanel>
       <TabPanel value={1}>
-        {/* Содержимое второй вкладки */}
+        {/* Contents of the second tab */}
       </TabPanel>
     </Tabs>
   );

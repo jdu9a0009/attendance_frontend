@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 export interface Department {
   id: number;
   name: string;
-  display_number: number; // Новый параметр
+  display_number: number; 
   department_nickname: string;
 }
 
@@ -65,9 +65,9 @@ function DepartmentPositionManagement() {
         const { departments, nextDisplayNumber } = data;
         const positionsData = await fetchPositions();
   
-        setDepartments(departments || []); // Если departments не определены, используем пустой массив
+        setDepartments(departments || []); 
         setPositions(positionsData || []);
-        setNextDisplayNumber(nextDisplayNumber || 1); // Если nextDisplayNumber не определен, используем 1 как значение по умолчанию
+        setNextDisplayNumber(nextDisplayNumber || 1); 
       } else {
         console.error("No data received from fetchDepartments");
       }
@@ -144,7 +144,6 @@ function DepartmentPositionManagement() {
           }
         }
 
-        // Обновляем имя и никнейм департамента
         updatedDepartments[departmentIndex] = {
           ...editingDepartment,
           name: newDepartmentName,
@@ -239,7 +238,7 @@ function DepartmentPositionManagement() {
   department={editingDepartment}
   onSave={editingDepartment ? handleUpdateDepartment : handleAddDepartment}
   departments={departments}
-  nextDisplayNumber={nextDisplayNumber} // Передаем nextDisplayNumber
+  nextDisplayNumber={nextDisplayNumber} 
   onDisplayNumberChange={(number) => setSelectedDisplayNumber(number)}
 />
         </>

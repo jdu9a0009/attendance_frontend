@@ -87,7 +87,7 @@ const AttendanceTableHead: React.FC<AttendanceTableHeadProps> = ({
         return [
           { label: "Present", value: "true" }, 
           { label: "Absent", value: "false" }
-        ]; // Убедитесь, что возвращаете массив объектов
+        ]; 
       case "department":
         return departments.map((dept) => ({ label: dept.name, value: dept.name }));
       case "position":

@@ -67,13 +67,9 @@ function AdminDashboardContent() {
         const response = await fetchDepartments();
   
         if (response) {
-          // Проверяем наличие данных перед их использованием
           const { departments, nextDisplayNumber } = response;
-  
-          // Если departments и nextDisplayNumber существуют, устанавливаем их
           if (departments && nextDisplayNumber !== undefined) {
             setDepartments(departments);
-            // Здесь добавь логику для использования nextDisplayNumber
           }
         }
       } catch (error) {
