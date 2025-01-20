@@ -6,13 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 const BigTablePage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate(); // Хук для навигации
+  const navigate = useNavigate(); 
 
   const handleLogout = () => {
 
 
-    // Перенаправляем пользователя на страницу логина
-    navigate('/login'); // Замените '/login' на ваш маршрут логина
+ 
+    navigate('/login'); 
   };
 
   return (
@@ -27,11 +27,11 @@ const BigTablePage = () => {
           color="primary" 
           onClick={handleLogout}
           sx={{
-            bgcolor: '#ff3b30', // Цвет фона кнопки
+            bgcolor: '#ff3b30', 
             '&:hover': {
-              bgcolor: '#e63946', // Цвет при наведении
+              bgcolor: '#e63946', 
             },
-            textTransform: 'none', // Убираем преобразование текста в верхний регистр
+            textTransform: 'none', 
           }}
         >
           <Typography sx={{ color: 'white' }}>{t('logout')}</Typography>

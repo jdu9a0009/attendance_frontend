@@ -15,9 +15,9 @@ export const getMonthlyAttendanceData = async (year: number, month: number) => {
 
     return response.data;
   } catch (error) {
-    console.error('Ошибка при отправке данных (Monthly):', error);
+    console.error('データ送信中にエラーが発生しました。(Monthly):', error);
     if (axios.isAxiosError(error)) {
-      console.error('Детали ошибки Axios (Monthly):', {
+      console.error('Axiosエラーの詳細 (Monthly):', {
         message: error.message,
         code: error.code,
         response: error.response?.data,
@@ -47,9 +47,9 @@ export const getWeeklyTimesheetData = async (year: number, month: number, interv
 
     return response.data;
   } catch (error) {
-    console.error('Ошибка при отправке данных (Weekly):', error);
+    console.error('データ送信中にエラーが発生しました。 (Weekly):', error);
     if (axios.isAxiosError(error)) {
-      console.error('Детали ошибки Axios (Weekly):', {
+      console.error('Axiosエラーの詳細 (Weekly):', {
         message: error.message,
         code: error.code,
         response: error.response?.data,

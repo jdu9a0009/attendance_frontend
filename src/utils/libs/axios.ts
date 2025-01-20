@@ -64,7 +64,7 @@ export const setupDashboardSSE = (
       const rawData = JSON.parse(event.data);
 
       if (!rawData?.data?.results) {
-        throw new Error("Неверная структура данных SSE. Проверьте сервер.");
+        throw new Error('SSEデータの構造が無効です。サーバーを確認してください。');
       }
 
       // Обновленное преобразование списка сотрудников
@@ -98,14 +98,14 @@ export const setupDashboardSSE = (
       };
       onDataUpdate(transformedData);
     } catch (error) {
-      console.error("Ошибка при обработке данных SSE:", error);
+      console.error('SSEデータ処理エラー', error);
       onError && onError(error as Error);
     }
   };
 
   eventSource.onerror = (error) => {
-    console.error("Ошибка SSE:", error);
-    onError && onError(new Error("Ошибка подключения SSE"));
+    console.error('SSEエラー', error);
+    onError && onError(new Error('SSE接続エラー'));
     eventSource.close();
   };
 
@@ -199,8 +199,7 @@ export const uploadExcelFile = async (excell: FormData) => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      // Логируем детали ошибки
-      console.error('Детали ошибки:', {
+      console.error('エラーの詳細：', {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
@@ -208,7 +207,7 @@ export const uploadExcelFile = async (excell: FormData) => {
         config: error.config
       });
     } else {
-      console.error('Неизвестная ошибка:', error);
+      console.error('不明なエラー', error);
     }
     throw error;
   }
@@ -231,7 +230,7 @@ export const downloadSampleFile = async () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'sample.xlsx'); // или используйте имя из response headers если оно там есть
+      link.setAttribute('download', 'sample.xlsx'); 
       
       // Запускаем скачивание
       document.body.appendChild(link);
@@ -247,9 +246,9 @@ export const downloadSampleFile = async () => {
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Ошибка при скачивании sample файла:', error.response?.data || error.message);
+      console.error('サンプルファイルのダウンロード中にエラーが発生しました。', error.response?.data || error.message);
     } else {
-      console.error('Неизвестная ошибка:', error);
+      console.error('不明なエラー', error);
     }
     throw error;
   }
@@ -321,13 +320,13 @@ export const downloadEmployeeQRCode = async (employee_id: string) => {
       
       return response.data;
     } else {
-      throw new Error('Не удалось скачать QR-код, сервер вернул некорректный ответ.');
+      throw new Error('QRコードのダウンロードに失敗しました。サーバーが無効な応答を返しました。');
     }
   } catch (error) {
-    console.error('Ошибка при скачивании QR-кода сотрудника:', error);
+    console.error('従業員のQRコードのダウンロード中にエラーが発生しました。', error);
     if (axios.isAxiosError(error) && error.response) {
-      console.error('Статус ответа:', error.response.status);
-      console.error('Данные ответа:', error.response.data);
+      console.error('応答ステータス：', error.response.status);
+      console.error('応答データ：', error.response.data);
     }
     throw error;
   }

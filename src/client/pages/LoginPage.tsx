@@ -83,25 +83,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           navigate("/employee");
         }
       } else {
-        console.error('Токены отсутствуют в ответе');
-        setError('Неверный ответ от сервера');
+        console.error('レスポンスにトークンが含まれていません。');
+        setError('サーバーからの応答が無効です。');
       }
     } catch (err) {
-      console.error('Ошибка при входе:', err);
+      console.error('ログイン中にエラーが発生しました。', err);
       
       if (axios.isAxiosError(err)) {
         const axiosError = err as AxiosError;
-        console.error("Детали ошибки:", axiosError);
-        console.error("Статус ответа:", axiosError.response?.status);
-        console.error("Данные ответа:", axiosError.response?.data);
+        console.error('エラーの詳細', axiosError);
+        console.error('応答ステータス', axiosError.response?.status);
+        console.error('応答データ', axiosError.response?.data);
         
         if (axiosError.response) {
           const errorMessage = typeof axiosError.response.data;
-          setError(`Ошибка ${axiosError.response.status}: ${errorMessage}`);
+          setError(`エラー ${axiosError.response.status}: ${errorMessage}`);
         } else if (axiosError.request) {
           setError(' サーバーからの応答がない。インターネット接続を確認してください。');
         } else {
-          setError(`Ошибка: ${axiosError.message}`);
+          setError(`エラー ${axiosError.message}`);
         }
       } else {
         console.error("不明なエラーが発生しました:", err);

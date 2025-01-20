@@ -21,11 +21,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ employeeData, onLogout })
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   if (!employeeData) {
-    return <div>Загрузка данных сотрудника...</div>;
+    return <div>従業員データの読み込み...</div>;
   }
 
   if (!employeeData.id) {
-    return <div>Данные сотрудника не найдены.</div>;
+    return <div>従業員データが見つかりませんでした。</div>;
   }
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -66,7 +66,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ employeeData, onLogout })
           handleTabChange={handleTabChange}
           attendanceSummary={employeeData.attendanceSummary}
           employeeId={employeeData.id}
-          username={employeeData.username} // Этот пропс можно удалить из MainContent, если он не используется
+          username={employeeData.username} 
           tableColumns={columns}
         />
       </Box>

@@ -27,7 +27,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   '& .MuiSvgIcon-root': {
     fontSize: 28,
     color: '#105e82',
-    opacity: 0.5, // Полупрозрачные неактивные иконки
+    opacity: 0.5, 
   },
   transition: 'background-color 0.3s ease, transform 0.3s ease',
   '&:hover': {

@@ -68,7 +68,7 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({ attendanceSummary
         );
         setMonthlyData(processedData);
       } catch (error) {
-        console.error('Ошибка при загрузке месячных данных:', error);
+        console.error('月次データの読み込み中にエラーが発生しました。', error);
       }
     };
 
@@ -80,7 +80,7 @@ const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({ attendanceSummary
     <Box id='attendanceSummary' sx={{ p: '12px', borderRadius: 4, backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
       <Box sx={{ display: 'flex', marginTop: -3.5, flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
         <Typography variant="h6" sx={{ mt: 1, color: '#111111', alignSelf: 'flex-start', fontSize: '15px' }}>
-          {/* Заголовок */}
+          {/* TITLE */}
         </Typography>
         <Box id='test2' sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', mb: 0 }}>
         <Typography variant="h6" sx={{ p: 1, color: '#111111', fontSize: '22px', fontWeight: 'medium' }}>

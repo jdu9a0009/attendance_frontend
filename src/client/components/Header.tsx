@@ -44,14 +44,13 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
     try {
       const response = await axiosInstance().get('/user/dashboard');
 
-      // Проверка на наличие данных в ответе
       if (response.data && response.data.status && response.data.employee) {
         setEmployeeName(response.data.employee.full_name);
       } else {
-        console.error('Не удалось получить имя сотрудника. Ответ API не содержит нужных данных.', response.data);
+        console.error('従業員名を取得できませんでした。APIの応答に必要なデータが含まれていません。', response.data);
       }
     } catch (error) {
-      console.error('Ошибка при получении имени сотрудника:', error);
+      console.error('従業員名の取得中にエラーが発生しました。', error);
     } finally {
       setLoading(false);
     }

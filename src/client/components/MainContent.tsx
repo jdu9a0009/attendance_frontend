@@ -79,7 +79,7 @@ const MainContent: React.FC<MainContentProps> = ({
         setTotalHours(total_hours || '--:--');
       }
     } catch (error) {
-      console.error('Ошибка при получении данных дашборда:', error);
+      console.error('ダッシュボードデータの取得中にエラーが発生しました。', error);
     }
   }, []);
 
@@ -96,15 +96,15 @@ const MainContent: React.FC<MainContentProps> = ({
   const getCurrentPosition = (): Promise<GeolocationPosition> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Геолокация не поддерживается вашим браузером'));
+        reject(new Error('あなたのブラウザは位置情報をサポートしていません。'));
       } else {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             resolve(position);
           },
           (error) => {
-            console.error('Ошибка получения геолокации:', error);
-            reject(new Error('Ошибка получения геолокации. Убедитесь, что разрешения установлены и попробуйте снова.'));
+            console.error('位置情報の取得中にエラーが発生しました。', error);
+            reject(new Error('位置情報の取得エラー。許可設定が正しいことを確認し、もう一度試してください。'));
           },
           {
             enableHighAccuracy: true,
@@ -130,9 +130,9 @@ const MainContent: React.FC<MainContentProps> = ({
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Ошибка при отправке данных checkIn:`, error.response?.data || error.message);
+        console.error(`データのチェックイン送信中にエラーが発生しました。`, error.response?.data || error.message);
       } else {
-        console.error(`Неизвестная ошибка при отправке данных checkIn:`, error);
+        console.error(`データのチェックイン送信中に不明なエラーが発生しました。`, error);
       }
       throw error;
     }
@@ -152,9 +152,9 @@ const MainContent: React.FC<MainContentProps> = ({
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`Ошибка при отправке данных checkOut:`, error.response?.data || error.message);
+        console.error(`データのチェックアウト送信中にエラーが発生しました。`, error.response?.data || error.message);
       } else {
-        console.error(`Неизвестная ошибка при отправке данных checkOut:`, error);
+        console.error(`データのチェックアウト送信中に不明なエラーが発生しました。`, error);
       }
       throw error;
     }
@@ -173,7 +173,7 @@ const MainContent: React.FC<MainContentProps> = ({
         setMessageColor('#ff0000');
       }
     } catch (error) {
-      console.error('Ошибка при отправке запроса на отметку прихода:', error);
+      console.error('出勤記録のリクエスト送信中にエラーが発生しました。', error);
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.error || '');
       } else {
@@ -192,15 +192,13 @@ const MainContent: React.FC<MainContentProps> = ({
           setTotalHours(result.data.total_hours);
           setMessage(`退勤した時間 ${formatTime(result.data.leave_time)}`);
           setMessageColor('#000');
-          
-          // Повторный запрос на получение данных с дашборда для обновления totalHours
           await fetchDashboardData();
         } else {
           setMessage(result.error || '退勤記録にエラーが発生しました。');
           setMessageColor('#ff0000');
         }
       } catch (error) {
-        console.error('Ошибка при отправке запроса на отметку выхода:', error);
+        console.error('チェックアウトをマークするリクエスト送信中にエラーが発生しました。', error);
         if (axios.isAxiosError(error) && error.response) {
           setMessage(error.response.data.error || '');
         } else {

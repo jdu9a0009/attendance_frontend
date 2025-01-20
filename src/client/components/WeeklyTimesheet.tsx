@@ -34,7 +34,7 @@ const TimeDisplay: React.FC<TimeDisplayProps> = ({ time, color }) => (
       fontSize: '16px', 
       fontFamily: 'Roboto Mono', 
       fontWeight: '500',
-      width: '4ch',  // Ширина, равная 5 символам
+      width: '4ch',  // Width equal to 5 characters
       display: 'inline-block',
       textAlign: 'center'
     }}
@@ -68,9 +68,9 @@ const getTimeColor = (time: string | null): string => {
   const [hours, minutes] = time.split(':').map(Number);
   
   if (hours < 10 || (hours === 10 && minutes <= 30)) {
-    return '#00af6c';  // Зеленый для раннего прихода
+    return '#00af6c';  
   } else {
-    return '#ff9500';  // Оранжевый для позднего прихода/ухода
+    return '#ff9500';  
   }
 };
 
@@ -142,10 +142,10 @@ const WeeklyTimesheet: React.FC<WeeklyTimesheetProps> = ({ year, month }) => {
         if (response && response.data && Array.isArray(response.data.results)) {
           setTimesheetData(response.data.results);
         } else {
-          console.error('Неверный формат данных:', response);
+          console.error('データ形式が無効です。', response);
         }
       } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
+        console.error('データの読み込み中にエラーが発生しました。', error);
       }
     };
 
@@ -167,7 +167,7 @@ const WeeklyTimesheet: React.FC<WeeklyTimesheetProps> = ({ year, month }) => {
 
   return (
     <Box id='WEEKLY' sx={{ mb: 3, mt: 3, backgroundColor: '#ffffff', borderRadius: 2, overflow: 'hidden', boxShadow: 1, p: 1 }}>
-      {/* Интервал кнопок */}
+      {/* Button interval / spacing */}
       <ButtonGroup size='large' variant="outlined" aria-label="выбор интервала" sx={{
         borderColor: 'transparent',
         boxShadow: '0 0 5px rgba(0,0,0,0.2)',
@@ -232,14 +232,14 @@ const WeeklyTimesheet: React.FC<WeeklyTimesheetProps> = ({ year, month }) => {
                 flexDirection: 'row',
                 textAlign: 'center',
               }}>
-                {/* Дата и день недели */}
+                {/* Date and day of the week */}
                 <Box sx={{ width: '17%', p: 0.5 }}>
                   <Typography variant="body2" sx={{ fontSize: '16px', fontFamily:'Roboto mono', lineHeight: '1.5' }}>
                     {formatDay(day.work_day)} {weekday}
                   </Typography>
                 </Box>
 
-                {/* Вход, выход, тотал */}
+                {/* Entry, exit, total */}
                 <Box id='come,leave,total' sx={{
                   display: 'flex',
                   flexDirection: 'row',
@@ -248,19 +248,19 @@ const WeeklyTimesheet: React.FC<WeeklyTimesheetProps> = ({ year, month }) => {
                   flexGrow: 1,
                   width: '80%',
                 }}>
-                  {/* Вход */}
+                  {/* Entry */}
                   <Box id='come' sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
                     <AccessTimeIcon sx={{ fontSize: 20, color: getIconColor(day, 'come'), mr: 0.5 }} />
                     <TimeDisplay time={formatTime(day.come_time)} color={getTimeColor(day.come_time)} />
                   </Box>
 
-                  {/* Выход */}
+                  {/* Exit */}
                   <Box id='leave' sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
                     <ExitToAppIcon sx={{ fontSize: 20, color: getIconColor(day, 'leave'), mr: 0.5 }} />
                     <TimeDisplay time={formatTime(day.leave_time)} color={getTimeColor(day.leave_time)} />
                   </Box>
 
-                  {/* Тотал */}
+                  {/* Total */}
                   <Box id='total' sx={{ display: 'flex', alignItems: 'center', p: 1 }}>
                     <TimelapseIcon sx={{ fontSize: 20, color: getIconColor(day, 'total'), mr: 0.5 }} />
                     <TimeDisplay time={formatTime(day.total_hours)} color={getTotalHoursColor(day.total_hours)} />

@@ -12,12 +12,11 @@ interface MonthSelectorModalProps {
   onYearChange: (event: SelectChangeEvent<number>) => void;
 }
 
-const years = [2024, 2023, 2022, 2021]; // Добавьте нужные годы
+const years = [2026, 2025, 2024, 2023,]; // Add years to select
 
 const MonthSelectorModal: React.FC<MonthSelectorModalProps> = ({ open, onClose, selectedMonth, onMonthChange, selectedYear, onYearChange }) => {
   const { t } = useTranslation(['user']);
 
-  // Используем переводы для названий месяцев
   const months = t('weeklyTimesheet.months', { returnObjects: true }) as string[];
 
   return (
