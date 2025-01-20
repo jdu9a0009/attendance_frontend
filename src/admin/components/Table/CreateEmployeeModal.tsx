@@ -100,7 +100,6 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
         newEmployee.email!,
         newEmployee.nick_name
       );
-      console.log("checking   ", createdEmployee);
       onSave(createdEmployee);
       onClose();
     } catch (error) {

@@ -13,7 +13,6 @@ export const getMonthlyAttendanceData = async (year: number, month: number) => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log('Ответ сервера (Monthly):', response.data);
     return response.data;
   } catch (error) {
     console.error('Ошибка при отправке данных (Monthly):', error);
@@ -46,7 +45,6 @@ export const getWeeklyTimesheetData = async (year: number, month: number, interv
       },
     });
 
-    console.log('Ответ сервера (Weekly):', response.data);
     return response.data;
   } catch (error) {
     console.error('Ошибка при отправке данных (Weekly):', error);

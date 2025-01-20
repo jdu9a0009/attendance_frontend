@@ -15,10 +15,6 @@ const axiosInstance = () => {
   instance.interceptors.request.use(function (config) {
     const token = localStorage.getItem('access_token');
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
-
-    
-    // console.log('Данные запроса:', config.data);
-
     return config;
   });
 
@@ -61,15 +57,10 @@ export const setupDashboardSSE = (
   onError?: (error: Error) => void
 ) => {
   const sseUrl = `${process.env.REACT_APP_BASE_URL}/user/dashboardlist`;
-  
-  console.log(`Инициализация SSE соединения. URL: ${sseUrl}`);
-
   const eventSource = new EventSource(sseUrl);
 
   eventSource.onmessage = (event) => {
     try {
-      console.log("Сырой ответ от сервера (SSE):", event.data);
-
       const rawData = JSON.parse(event.data);
 
       if (!rawData?.data?.results) {
@@ -105,9 +96,6 @@ export const setupDashboardSSE = (
         total_employee_count: rawData.data.count,
         department,
       };
-
-      console.log("Преобразованные данные:", transformedData);
-
       onDataUpdate(transformedData);
     } catch (error) {
       console.error("Ошибка при обработке данных SSE:", error);
@@ -127,68 +115,12 @@ export const setupDashboardSSE = (
 
 
 
-// Функция для получения списка пользователей с эндпоинта `/user/dashboardlist`
-// export const fetchDashboardList = async (page: number): Promise<{
-//   employee_list: Employee[];
-//   total_employee_count: number;
-//   department: Department[];
-// }> => {
-//   try {
-//     const response = await axiosInstance().get<ApiResponse>('/user/dashboardlist', {
-//       params: { page }
-//     });
-
-//     console.log("Ответ API:", response.data);
-
-//     // Проверка структуры данных
-//     if (!response.data?.data?.results) {
-//       throw new Error("Не удалось получить данные. Пожалуйста, проверьте API.");
-//     }
-
-//     // Преобразование списка сотрудников
-//     const employee_list: Employee[] = response.data.data.results.flatMap(dept => 
-//       dept.result.map(emp => ({
-//         id: emp.id,
-//         employee_id: emp.employee_id,
-//         department_id: emp.department_id,
-//         department_name: emp.department_name,
-//         display_number: emp.display_number,
-//         last_name: emp.last_name,
-//         status: emp.status
-//       }))
-//     );
-
-//     // Преобразование списка департаментов
-//     const department: Department[] = response.data.data.results.map(dept => ({
-//       department_name: dept.department_name,
-//       display_number: dept.display_number,
-//       result: dept.result
-//     }));
-
-//     return {
-//       employee_list,
-//       total_employee_count: response.data.data.count,
-//       department,
-//     };
-//   } catch (error) {
-//     console.error('Error fetching dashboard list:', error);
-//     throw error;
-//   }
-// };
-
 export const fetchDepartments = async () => {
   try {
     const response = await axiosInstance().get('/department/list');
-
-    // console.log('Server response:', response.data); 
-
     if (response.data.status) {
       const departments = response.data.data.results;
       const nextDisplayNumber = response.data.data.displayNumber; 
-
-      // console.log('Departments:', departments); // Логируем список департаментов
-      // console.log('Next Display Number:', nextDisplayNumber); // Логируем следующее значение для display_number
-
       return { departments, nextDisplayNumber }; 
     }
   } catch (error) {
@@ -202,7 +134,6 @@ export const fetchDepartments = async () => {
     const response = await axiosInstance().get('/position/list');
     if (response.data.status) {
       const positions = response.data.data.results;
-      // console.log('Fetched Positions:', positions);
       return positions;
     }
   } catch (error) {
@@ -212,13 +143,11 @@ export const fetchDepartments = async () => {
 
 export const createDepartment = async (name: string, display_number: number, department_nickname: string) => {
   const response = await axiosInstance().post('/department/create', { name, display_number, department_nickname });
-  console.log('Create Department Response:', response.data);
   return response.data;
 };
 
 export const updateDepartment = async (id: number, name: string, display_number: number, department_nickname: string) => {
   const response = await axiosInstance().patch(`/department/${id}`, { name, display_number, department_nickname });
-  console.log('Update Department Response:', response.data);
   return response.data;
 };
 
@@ -259,33 +188,14 @@ export const deleteUser = async (id: number) => {
 
 export const uploadExcelFile = async (excell: FormData) => {
   try {
-    // Проверка значения mode
-    const mode = excell.get('mode');
-
-    // Логируем полученный mode
-    console.log('Received mode:', mode);
-
-    // Определяем endpoint
     const endpoint = 'user/create_excell';
 
-    // Логируем все данные в FormData
-    console.log('FormData contents:');
-    excell.forEach((value, key) => {
-      console.log(`${key}:`, value instanceof File ? {
-        fileName: value.name,
-        fileType: value.type,
-        fileSize: value.size
-      } : value);
-    });
-
-    // Отправка POST запроса
     const response = await axiosInstance().post(endpoint, excell, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    console.log("Ответ сервера:", response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -363,7 +273,6 @@ export const fetchCompanySettings = async () => {
   try {
     const response = await axiosInstance().get('/company_info/list');
     if (response.data.status) {
-      // console.log(response.data);
       return response.data.data;
     }
     throw new Error('Failed to fetch company settings');
@@ -394,15 +303,11 @@ export const updateCompanySettings = async (settings: FormData) => {
 
 export const downloadEmployeeQRCode = async (employee_id: string) => {
   try {
-    console.log(`Отправляем запрос для скачивания QR-кода сотрудника с employee_id: ${employee_id}`);
-    
     const response = await axiosInstance().get(`/user/qrcode`, {
       params: { employee_id },
       responseType: 'blob',
     });
-    
-    console.log('Ответ получен:', response);
-    
+  
     if (response && response.status === 200 && response.data) {
       const blob = new Blob([response.data], { type: 'image/png' });
       const url = window.URL.createObjectURL(blob);
@@ -430,10 +335,6 @@ export const downloadEmployeeQRCode = async (employee_id: string) => {
 
 export const fetchQRCodeList = async (): Promise<Blob> => {
   const response = await axiosInstance().get('/user/qrcodelist', { responseType: 'blob' });
-
-  // Log the size of the received PDF
-  console.log("Размер полученного PDF:", response.data.size, "байт");
-
   return response.data; // Return the response.data, which will be of type Blob
 };
 

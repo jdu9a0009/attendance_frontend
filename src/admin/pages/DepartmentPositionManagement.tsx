@@ -170,9 +170,7 @@ function DepartmentPositionManagement() {
       setPositions([...positions, newPosition]);
       fetchData();
       handleClosePositionDialog();
-    } else {
-      alert('役職名を入力し、 部署を選択してください。');
-    }
+    } 
   };
 
   
@@ -184,8 +182,6 @@ function DepartmentPositionManagement() {
       ));
       fetchData();
       handleClosePositionDialog();
-    } else {
-      alert(' 有効な 役職名を入力し、 部署を選択してください。');
     }
   };
 

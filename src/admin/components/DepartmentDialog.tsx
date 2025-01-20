@@ -36,7 +36,7 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
   }, [department, nextDisplayNumber, open]);
 
   const handleSave = async () => {
-    if (name.trim() !== '' && departmentNickname.trim() !== '') {
+    if (name.trim() !== '') {
       let savedDepartment;
 
       if (department) {
@@ -90,7 +90,7 @@ function DepartmentDialog({ open, onClose, department, onSave, departments, next
         <TextField
           margin="dense"
           id="department-nickname"
-          label={t('departmentTable.departmentNicknameLabel')} // Новый перевод для department_nickname
+          label={t('departmentTable.departmentNickname')} // Новый перевод для department_nickname
           type="text"
           fullWidth
           variant="standard"

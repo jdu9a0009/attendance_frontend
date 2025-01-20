@@ -83,20 +83,16 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           ? selectedDate.toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0];
   
-        console.log("Отправляем запрос с датой:", formattedDate);
   
         const response = await axiosInstance().get(
           `/attendance/list?date=${formattedDate}`
         );
   
-        console.log("Ответ с сервера:", response);
   
         // Проверяем наличие цветов в ответе
         if (response.data.Colors) {  // Здесь изменил colors на Colors
-          console.log("Получены цвета:", response.data.Colors);
           setColors(response.data.Colors); // Устанавливаем цвета напрямую
         } else {
-          console.log("Цвета не получены, используются дефолтные");
           setColors(DEFAULT_COLORS);
         }
 
@@ -115,7 +111,6 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
           forget_leave: item.forget_leave,
         }));
 
-        console.log("Отформатированные данные:", formattedData);
 
         setData(formattedData);
       } catch (error) {
@@ -233,7 +228,6 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
     if (date) {
       setSelectedDate(date);
       // Здесь вы можете добавить логику для фильтрации данных по выбранной дате
-      console.log("Selected date:", date);
     }
   };
   
@@ -242,7 +236,6 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
     page * rowsPerPage,
     (page + 1) * rowsPerPage
   );
-  console.log("paginated",paginatedData);
   
 
   return (

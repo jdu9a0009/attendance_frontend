@@ -108,14 +108,12 @@ const EmployeeListPage: React.FC = () => {
       forget_leave: false,
     };
   
-    console.log("Transformed employee data: ", transformedEmployee);
     setSelectedEmployee(transformedEmployee);
     setEditModalOpen(true);
   };
 
   const handleEditSave = async (updatedEmployee: TableData) => {
     try {
-      console.log('Updating employee: ', updatedEmployee);
       
       await updateUser(
         updatedEmployee.id,

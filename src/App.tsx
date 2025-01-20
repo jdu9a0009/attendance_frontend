@@ -36,16 +36,9 @@ function App() {
       const accessToken = localStorage.getItem("access_token");
       const storedEmployeeData = localStorage.getItem("employeeData");
 
-      // console.log("Проверка аутентификации:");
-      // console.log("Access Token:", accessToken);
-      console.log("Stored Employee Data:", storedEmployeeData);
-
       if (accessToken && storedEmployeeData) {
         setIsLoggedIn(true);
         setEmployeeData(JSON.parse(storedEmployeeData));
-        console.log("Пользователь аутентифицирован");
-      } else {
-        console.log("Пользователь не аутентифицирован");
       }
       setIsLoading(false);
     };
@@ -54,7 +47,6 @@ function App() {
   }, []);
 
   const handleLoginSuccess = (employee: Employee) => {
-    // console.log("Login successful:", employee);
     setIsLoggedIn(true);
     setEmployeeData(employee);
     localStorage.setItem("employeeData", JSON.stringify(employee));

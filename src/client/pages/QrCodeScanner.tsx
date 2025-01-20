@@ -48,14 +48,7 @@ const sendEmployeeIdWithLocation = useCallback(async (employeeId: string) => {
     setIsProcessing(true);
     try {
         const position = await getCurrentPosition();
-        console.log('サーバーにリクエストを送信中:', {
-            employeeId,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-        });
-
         const response: ServerResponse = await createByQRCode(employeeId, position.coords.latitude, position.coords.longitude);
-        console.log('サーバーからのレスポンス:', response);
 
         if (response.status) {
             setServerMessage(response.message);
@@ -106,7 +99,6 @@ const capture = useCallback(() => {
               const imageData = ctx.getImageData(0, 0, image.width, image.height);
               const code = jsQR(imageData.data, imageData.width, imageData.height);
               if (code) {
-                  console.log('QRコードを検出しました:', code.data);
                   setIsScanning(false);
                   sendEmployeeIdWithLocation(code.data);
               }

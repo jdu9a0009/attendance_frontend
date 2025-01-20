@@ -83,7 +83,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           email: item.email,
           nick_name: item.nick_name,
         }));
-        console.log("123455: ", formattedData)
         setData(formattedData);
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);

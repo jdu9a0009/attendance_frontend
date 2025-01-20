@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button,
   Select, MenuItem, FormControl, InputLabel,
 } from '@mui/material';
-import { Department, Position } from '../pages/DepartmentPositionManagement.tsx'; 
-import { createPosition, updatePosition } from '../../utils/libs/axios.ts'; 
+import { Department, Position } from '../pages/DepartmentPositionManagement.tsx';
+import { createPosition, updatePosition } from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
 
 interface PositionDialogProps {
@@ -20,32 +20,59 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
   const [departmentId, setDepartmentId] = useState<number | string>(position?.department_id || '');
   const { t } = useTranslation('admin');
 
-  const handleSave = async () => {
-    if(name === position?.name && departmentId === position?.department_id) {
-      alert('You choosing same thing');
+  useEffect(() => {
+    if (position) {
+      setName(position.name);
+      setDepartmentId(position.department_id);
+    } else {
+      setName('');
+      setDepartmentId('');
     }
-     else if (name.trim() !== '' && departmentId) {
+  }, [position, open]);
+
+  const handleSave = async () => {
+    if (position && name === position.name && departmentId === position.department_id) {
+      alert('You choosing same thing');
+      return;
+    }
+
+    if (name.trim() !== '' && departmentId) {
       let savedPosition;
       const department = departments.find((dept) => dept.id === Number(departmentId))?.name || 'Unknown';
 
-      if (position) {
-        await updatePosition(position.id, name, Number(departmentId));
-        savedPosition = { id: position.id, name, department_id: Number(departmentId), department };
-      } else {
-        const response = await createPosition(name, Number(departmentId));
-        savedPosition = { id: response.data.id, name: response.data.name, department_id: response.data.department_id, department };
-      }
+      try {
+        if (position) {
+          await updatePosition(position.id, name, Number(departmentId));
+          savedPosition = {
+            id: position.id,
+            name,
+            department_id: Number(departmentId),
+            department
+          };
+        } else {
+          const response = await createPosition(name, Number(departmentId));
+          savedPosition = {
+            id: response.data.id,
+            name: response.data.name,
+            department_id: response.data.department_id,
+            department
+          };
+        }
 
-      onSave(savedPosition);
-      onClose();
+        onSave(savedPosition);
+        onClose();
+      } catch (error) {
+        alert('Error saving position. Please try again.');
+      }
     } else {
-      alert('Please enter a position name and select a department.');
+      alert('役職名を入力し、 部署を選択してください。');
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{position ? t('positionTable.dialogTitleEdit'):t('positionTable.dialogTitleAdd')}</DialogTitle> 
+      <DialogTitle>{position ? t('positionTable.dialogTitleEdit') : t('positionTable.dialogTitleAdd')}</DialogTitle>
+
       <DialogContent>
         <TextField
           autoFocus

@@ -92,7 +92,6 @@ const CompanySettingsPage: React.FC = () => {
       try {
         const data = await fetchCompanySettings();
         const results = data?.results;
-        console.log('Received data from API:', data);
   
         if (results) {
           setSettings(prevSettings => ({
@@ -173,7 +172,6 @@ const CompanySettingsPage: React.FC = () => {
     formData.append('new_present_color', settings.new_present_color);
     formData.append('new_absent_color', settings.new_absent_color);
   
-    console.log('Sending data to API:', Object.fromEntries(formData));
   
     try {
       const response = await updateCompanySettings(formData);

@@ -42,7 +42,6 @@ export default function PieChartWithCenterLabel() {
   const getPieData = React.useCallback(async () => {
     try {
       const response = await axiosInstance().get('/attendance/piechart');
-      console.log('API Response:', response.data); // Log the full API response
   
       const pieValue: PieData = response.data.data;
       const colors = response.data.Colors; // Get colors from the response

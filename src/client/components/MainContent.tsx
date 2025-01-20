@@ -70,7 +70,6 @@ const MainContent: React.FC<MainContentProps> = ({
   const fetchDashboardData = useCallback(async () => {
     try {
       const response = await axiosInstance().get<{ data: DashboardData, status: boolean }>('/user/dashboard');
-      console.log('DashboardResponse:', response);
   
       if (response.data.status) {
         const { come_time, leave_time, total_hours } = response.data.data;
@@ -101,7 +100,6 @@ const MainContent: React.FC<MainContentProps> = ({
       } else {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('Получены координаты:', position.coords.latitude, position.coords.longitude);
             resolve(position);
           },
           (error) => {
@@ -127,21 +125,9 @@ const MainContent: React.FC<MainContentProps> = ({
         longitude: position.coords.longitude,
       };
 
-      const token = localStorage.getItem('access_token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
-
-      console.log('Отправляемые данные:', data);
-      console.log('URL запроса:', '/attendance/createbyphone');
-      console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
-      console.log('Заголовки запроса:', headers);
-
       const response = await axiosInstance().post('/attendance/createbyphone', data);
-
-      console.log(`Ответ сервера (checkIn):`, response.data);
       return response.data;
+
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(`Ошибка при отправке данных checkIn:`, error.response?.data || error.message);
@@ -161,21 +147,9 @@ const MainContent: React.FC<MainContentProps> = ({
         longitude: position.coords.longitude,
       };
 
-      const token = localStorage.getItem('access_token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
-
-      console.log('Отправляемые данные:', data);
-      console.log('URL запроса:', '/attendance/exitbyphone');
-      console.log('Токен авторизации:', token ? 'Присутствует' : 'Отсутствует');
-      console.log('Заголовки запроса:', headers);
-
       const response = await axiosInstance().patch('/attendance/exitbyphone', data);
-
-      console.log(`Ответ сервера (checkOut):`, response.data);
       return response.data;
+
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(`Ошибка при отправке данных checkOut:`, error.response?.data || error.message);
