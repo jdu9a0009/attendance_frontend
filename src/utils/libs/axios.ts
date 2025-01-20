@@ -45,7 +45,6 @@ const axiosInstance = () => {
 
 export default axiosInstance;
 
-
 // setupDashboardSSE.ts
 export const setupDashboardSSE = (
   onDataUpdate: (data: {
@@ -110,9 +109,6 @@ export const setupDashboardSSE = (
   return () => eventSource.close();
 };
 
-
-
-
 export const fetchDepartments = async () => {
   try {
     const response = await axiosInstance().get('/department/list');
@@ -127,7 +123,7 @@ export const fetchDepartments = async () => {
   }
 };
 
- export const fetchPositions = async () => {
+export const fetchPositions = async () => {
   try {
     const response = await axiosInstance().get('/position/list');
     if (response.data.status) {
