@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Общие ресурсы
+// Shared Resources
 const commonResources = {
   en: {
     common: {
@@ -69,7 +69,7 @@ const commonResources = {
   },
 };
 
-// Ресурсы пользовательской части
+// User Part Resources
 const userResources = {
   en: {
     user: {
@@ -147,11 +147,10 @@ const userResources = {
   },
 };
 
-// Ресурсы административной части
+// Administrative resources
 const adminResources = {
   en: {
     admin: {
-      // Существующие переводы...
       totalEmployee: 'Total Employees',
       onTime: 'On Time',
       absent: 'Absent',
@@ -310,7 +309,6 @@ const adminResources = {
 
   ja: {
     admin: {
-      // Существующие переводы...
       totalEmployee: '総従業員',
       onTime: '時間通り',
       absent: '欠席',
@@ -452,10 +450,6 @@ const adminResources = {
         saveBtn: 'すべて保存',
         selectedFile: '選択されたファイル',
       },
-      
-      
-
-      // Добавьте переводы для компонента графика
       lineChart: {
         title: '出勤状況グラフ',
         selectMonth: '月と年を選択',
@@ -489,7 +483,7 @@ i18n
         ...adminResources.ja, 
       },
     },
-    lng: 'ja', // Язык по умолчанию
+    lng: 'ja', // Default language
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
