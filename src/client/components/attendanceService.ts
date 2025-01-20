@@ -2,7 +2,6 @@ import axios from 'axios';
 import axiosInstance from '../../utils/libs/axios.ts';
 
 
-// Функция для получения данных для карточек (ежемесячная статистика)
 export const getMonthlyAttendanceData = async (year: number, month: number) => {
   try {
     const monthFormatted = `${year}-${String(month).padStart(2, '0')}-01`;
@@ -29,7 +28,6 @@ export const getMonthlyAttendanceData = async (year: number, month: number) => {
 };
   
 
-// Функция для получения данных для недельной статистики
 export const getWeeklyTimesheetData = async (year: number, month: number, interval: number = 0) => {
   try {
     const monthFormatted = `${year}-${String(month).padStart(2, '0')}-01`;

@@ -19,8 +19,6 @@ const BigTablePage = () => {
     <div>
       
       <NewDepartmentTable />
-
-      {/* Кнопка логаута */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
         <Button 
           variant="contained" 

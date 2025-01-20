@@ -67,7 +67,6 @@ export const setupDashboardSSE = (
         throw new Error('SSEデータの構造が無効です。サーバーを確認してください。');
       }
 
-      // Обновленное преобразование списка сотрудников
       const employee_list: Employee[] = rawData.data.results.flatMap((dept: any) =>
         dept.result.map((emp: any) => ({
           id: emp.id,
@@ -82,7 +81,6 @@ export const setupDashboardSSE = (
         }))
       );
 
-      // Обновленное преобразование списка департаментов
       const department: Department[] = rawData.data.results.map((dept: any) => ({
         department_name: dept.department_name,
         department_nickname: dept.department_nickname, 
@@ -218,25 +216,18 @@ export const downloadSampleFile = async () => {
     const response = await axiosInstance().get('user/export_template', {
       responseType: 'blob',
     });
-
-    // Проверяем, что получили данные
     if (response.data) {
-      // Создаем blob из полученных данных
       const blob = new Blob([response.data], { 
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
       });
-
-      // Создаем ссылку для скачивания
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'sample.xlsx'); 
       
-      // Запускаем скачивание
       document.body.appendChild(link);
       link.click();
       
-      // Очищаем
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
