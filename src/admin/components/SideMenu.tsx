@@ -8,6 +8,7 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { WidthFull } from '@mui/icons-material';
 
 const primaryColor = '#105E82';
 
@@ -17,7 +18,6 @@ interface SideMenuProps {
 
 const CustomList = styled(List)({
   width: '100%',
-  maxWidth: 240,
   backgroundColor: '#F5F8FA',
   padding: 0,
   overflow: 'hidden',
@@ -66,7 +66,7 @@ function SideMenu({ companyName }: SideMenuProps) {
   ];
 
   return (
-    <CustomList>
+    <CustomList sx={{width:"100%"}}>
       <MenuTitle variant="h6">{companyName || "Digital Knowledgee"}</MenuTitle>
       {menuItems.map((item, index) => (
         <React.Fragment key={item.path}>

@@ -159,7 +159,7 @@ function LineChartComponent() {
   };
 
   return (
-    <Box sx={{ backgroundColor: "#fff", padding: 2 }}>
+    <Box sx={{ backgroundColor: "#fff", padding: 2, width: "100%"}}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h6" align="left" sx={{ marginBottom: 2 }}>
           {t('admin:lineChart.title')}
@@ -213,7 +213,7 @@ function LineChartComponent() {
         sx={{
           backgroundColor: "#fff",
         }}
-        width={chartWidth}
+        // width={chartWidth}
         height={235}
       />
 

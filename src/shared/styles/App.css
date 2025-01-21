@@ -18,7 +18,6 @@
     display: flex;
     justify-content: space-between;
     margin: auto;
-    width: 92%;
     height: 83px;
     background-color: rgba(255, 255, 255, 1);
     border-radius: 15px;
@@ -92,7 +91,7 @@
     border-radius: 15px;
     box-shadow: 0 0.2em 0.8em rgba(135, 135, 135, 0.3);
     flex: 1 1 calc(33.33% - 10px); /* Три карточки в ряд */
-    min-width: 200px;
+    min-width: 120px;
     transition: transform 0.3s ease;
   }
   
@@ -102,15 +101,15 @@
     }
   
     .Card {
-      flex: 1 1 calc(50% - 10px); /* Две карточки в ряд на средних экранах */
+      flex: 1 1 calc(50% - 10px); 
     }
   }
   
   @media (max-width: 768px) {
     .Card {
-      flex: 1 1 100%; /* Одна карточка в ряд на узких экранах */
+      flex: 1 1 100%; 
     }
-  }
+  } 
 
   .data {
     display: flex;

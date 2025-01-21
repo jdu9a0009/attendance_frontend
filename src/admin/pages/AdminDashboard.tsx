@@ -46,11 +46,11 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", backgroundColor: "#F5F8FA" }}>
-      <Box sx={{ width: "240px", boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)" }}>
+  <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", minWidth: "1240px", backgroundColor: "#F5F8FA" }}>
+      <Box sx={{ minWidth: "240px",width: "15%", boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)" }}>
       <SideMenu companyName={companyName} />
       </Box>
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "85%"}}>
   <Box
     sx={{
       display: "flex",
