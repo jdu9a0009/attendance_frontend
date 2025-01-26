@@ -68,3 +68,11 @@ export interface ApiResponse {
     data: ApiResponseData;
     status: boolean;
 }
+
+export interface AxiosError extends Error {
+  response?: {
+    data: {
+      error: string;
+    };
+  };
+}

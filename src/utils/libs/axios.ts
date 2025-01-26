@@ -166,12 +166,20 @@ export const deletePosition = async (id: number) => {
 };
 
 export const createUser = async (password: string, employee_id: string, role: string, first_name: string, last_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
-  const response = await axiosInstance().post(`/user/create`, {password, employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name});
+  const response = await axiosInstance().post(`/user/create`, {password, employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name}, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data; 
 };
 
 export const updateUser = async (id: number, employee_id: string, password: string, role: string, first_name: string, last_name: string, department_id: number, position_id: number, phone: string, email: string, nick_name?: string) => {
-  const response = await axiosInstance().patch(`/user/${id}`, {password,employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name});
+  const response = await axiosInstance().patch(`/user/${id}`, {password,employee_id, role, first_name, last_name, department_id, position_id, phone, email, nick_name}, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

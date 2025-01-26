@@ -113,26 +113,8 @@ const EmployeeListPage: React.FC = () => {
   };
 
   const handleEditSave = async (updatedEmployee: TableData) => {
-    try {
-      
-      await updateUser(
-        updatedEmployee.id,
-        updatedEmployee.employee_id,
-        updatedEmployee.password!,
-        updatedEmployee.role!,
-        updatedEmployee.first_name!,
-        updatedEmployee.last_name!,
-        updatedEmployee.department_id!,
-        updatedEmployee.position_id!,
-        updatedEmployee.phone!,
-        updatedEmployee.email!,
-        updatedEmployee.nick_name!,
-      );
       setUserCreated(prev => !prev);
-      setEditModalOpen(false);
-    } catch (error) {
-      console.error('Error updating employee:', error);
-    }
+      setEditModalOpen(false);   
   };
 
   const handleCreateModalOpen = () => {

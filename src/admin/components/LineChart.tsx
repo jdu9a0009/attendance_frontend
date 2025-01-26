@@ -61,7 +61,7 @@ function LineChartComponent() {
   const [openMonthDialog, setOpenMonthDialog] = useState(false);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const [chartWidth, setChartWidth] = useState<number>(700);
+  const [, setChartWidth] = useState<number>(700);
 
   useLayoutEffect(() => {
     if (chartRef.current) {

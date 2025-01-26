@@ -13,7 +13,7 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
-import { TableData } from "./types.ts";
+import { AxiosError, TableData } from "./types.ts";
 import { createUser } from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
 
@@ -58,8 +58,10 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   const [newEmployee, setNewEmployee] = useState<Partial<TableData>>({
     position: "",
     department: "",
+    role: "",
   });
   const [nickNameError, setNickNameError] = useState<string>("");
+  const [error, setError] = useState("");
   const { t } = useTranslation("admin");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +88,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     try {
       const createdEmployee = await createUser(
@@ -103,7 +106,12 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
       onSave(createdEmployee);
       onClose();
     } catch (error) {
-      console.error("Error creating employee:", error);
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        setError(axiosError.response.data.error);
+      } else {
+        setError("予期せぬエラーが発生しました");
+      }
     }
   };
 
@@ -180,17 +188,20 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               inputProps={{ maxLength: 7 }}
             />
             <FormControl fullWidth margin="normal" required>
-              <InputLabel shrink={Boolean(newEmployee.role)}>{t('createEmployeeModal.role')}</InputLabel>
+              <InputLabel shrink={Boolean(newEmployee.role)}>
+                {t("createEmployeeModal.role")}
+              </InputLabel>
               <Select
                 name="role"
                 value={newEmployee.role}
                 onChange={handleSelectChange}
               >
-                <MenuItem value="">
-                  <em>None</em>
+                <MenuItem value="Admin">
+                  {t("createEmployeeModal.roleAdmin")}
                 </MenuItem>
-                <MenuItem value="Admin">{t('createEmployeeModal.roleAdmin')}</MenuItem>
-                <MenuItem value="Employee">{t('createEmployeeModal.roleEmployee')}</MenuItem>
+                <MenuItem value="Employee">
+                  {t("createEmployeeModal.roleEmployee")}
+                </MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth margin="normal" required>
@@ -239,7 +250,6 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               label={t("createEmployeeModal.phoneNumber")}
               value={newEmployee.phone}
               onChange={handleInputChange}
-              required
             />
             <TextField
               fullWidth
@@ -250,6 +260,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               onChange={handleInputChange}
               required
             />
+            <Typography variant="body2" color="error">
+              {error}
+            </Typography>
             <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={onClose} sx={{ mr: 1 }}>
                 {t("createEmployeeModal.cancelBtn")}

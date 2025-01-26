@@ -10,8 +10,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import axiosInstance from '../../utils/libs/axios.ts';
-import axios, { AxiosError } from 'axios';
 import { Employee } from '../../employees.tsx';
+import { AxiosError } from '../../admin/components/Table/types.ts';
 
 
 
@@ -82,30 +82,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         } else {
           navigate("/employee");
         }
+      } 
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        setError(axiosError.response.data.error);
       } else {
-        console.error('レスポンスにトークンが含まれていません。');
-        setError('サーバーからの応答が無効です。');
-      }
-    } catch (err) {
-      console.error('ログイン中にエラーが発生しました。', err);
-      
-      if (axios.isAxiosError(err)) {
-        const axiosError = err as AxiosError;
-        console.error('エラーの詳細', axiosError);
-        console.error('応答ステータス', axiosError.response?.status);
-        console.error('応答データ', axiosError.response?.data);
-        
-        if (axiosError.response) {
-          const errorMessage = typeof axiosError.response.data;
-          setError(`エラー ${axiosError.response.status}: ${errorMessage}`);
-        } else if (axiosError.request) {
-          setError(' サーバーからの応答がない。インターネット接続を確認してください。');
-        } else {
-          setError(`エラー ${axiosError.message}`);
-        }
-      } else {
-        console.error("不明なエラーが発生しました:", err);
-        setError("不明なエラーが発生しました");
+        setError('予期せぬエラーが発生しました');
       }
     } finally {
       setIsLoading(false);
@@ -163,11 +146,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && (
+          
             <Typography variant="body2" color="error">
               {error}
             </Typography>
-          )}
+          
           <Button
             type="submit"
             fullWidth

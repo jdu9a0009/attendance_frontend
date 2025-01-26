@@ -8,7 +8,6 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import WorkIcon from '@mui/icons-material/Work';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { WidthFull } from '@mui/icons-material';
 
 const primaryColor = '#105E82';
 
