@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button,
-  Select, MenuItem, FormControl, InputLabel,
-} from '@mui/material';
-import { Department, Position } from '../pages/DepartmentPositionManagement.tsx';
-import { createPosition, updatePosition } from '../../utils/libs/axios.ts';
-import { useTranslation } from 'react-i18next';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+} from "@mui/material";
+import {
+  Department,
+  Position,
+} from "../pages/DepartmentPositionManagement.tsx";
+import { createPosition, updatePosition } from "../../utils/libs/axios.ts";
+import { useTranslation } from "react-i18next";
+import { AxiosError } from "./Table/types.ts";
 
 interface PositionDialogProps {
   open: boolean;
@@ -15,30 +28,48 @@ interface PositionDialogProps {
   onSave: (position: Position) => void;
 }
 
-function PositionDialog({ open, onClose, position, departments, onSave }: PositionDialogProps) {
-  const [name, setName] = useState(position?.name || '');
-  const [departmentId, setDepartmentId] = useState<number | string>(position?.department_id || '');
-  const { t } = useTranslation('admin');
+function PositionDialog({
+  open,
+  onClose,
+  position,
+  departments,
+  onSave,
+}: PositionDialogProps) {
+  const [name, setName] = useState(position?.name || "");
+  const [departmentId, setDepartmentId] = useState<number | string>(
+    position?.department_id || ""
+  );
+  const [error, setError] = useState("");
+  const { t } = useTranslation("admin");
 
   useEffect(() => {
     if (position) {
+      setError("");
       setName(position.name);
       setDepartmentId(position.department_id);
     } else {
-      setName('');
-      setDepartmentId('');
+      setError("");
+      setName("");
+      setDepartmentId("");
     }
   }, [position, open]);
 
   const handleSave = async () => {
-    if (position && name === position.name && departmentId === position.department_id) {
-      alert('You choosing same thing');
+    setError("");
+    if (
+      position &&
+      name === position.name &&
+      departmentId === position.department_id
+    ) {
+      setError("You choosing same thing");
       return;
     }
 
-    if (name.trim() !== '' && departmentId) {
+    if (name.trim() !== "" && departmentId) {
       let savedPosition;
-      const department = departments.find((dept) => dept.id === Number(departmentId))?.name || 'Unknown';
+      const department =
+        departments.find((dept) => dept.id === Number(departmentId))?.name ||
+        "Unknown";
 
       try {
         if (position) {
@@ -47,7 +78,7 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
             id: position.id,
             name,
             department_id: Number(departmentId),
-            department
+            department,
           };
         } else {
           const response = await createPosition(name, Number(departmentId));
@@ -55,30 +86,37 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
             id: response.data.id,
             name: response.data.name,
             department_id: response.data.department_id,
-            department
+            department,
           };
         }
 
         onSave(savedPosition);
         onClose();
       } catch (error) {
-        alert('Error saving position. Please try again.');
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+          setError(axiosError.response.data.error);
+        } else {
+          setError("予期せぬエラーが発生しました");
+        }
       }
-    } else {
-      alert('役職名を入力し、 部署を選択してください。');
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{position ? t('positionTable.dialogTitleEdit') : t('positionTable.dialogTitleAdd')}</DialogTitle>
+      <DialogTitle>
+        {position
+          ? t("positionTable.dialogTitleEdit")
+          : t("positionTable.dialogTitleAdd")}
+      </DialogTitle>
 
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
           id="name"
-          label={t('positionTable.label')}
+          label={t("positionTable.label")}
           type="text"
           fullWidth
           variant="standard"
@@ -86,7 +124,9 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
           onChange={(e) => setName(e.target.value)}
         />
         <FormControl fullWidth variant="standard" sx={{ marginTop: 2 }}>
-          <InputLabel id="department-select-label">{t('positionTable.changeDep')}</InputLabel>
+          <InputLabel id="department-select-label">
+            {t("positionTable.changeDep")}
+          </InputLabel>
           <Select
             labelId="department-select-label"
             id="department-select"
@@ -100,6 +140,9 @@ function PositionDialog({ open, onClose, position, departments, onSave }: Positi
             ))}
           </Select>
         </FormControl>
+        <Typography variant="body2" color="error">
+          {error}
+        </Typography>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

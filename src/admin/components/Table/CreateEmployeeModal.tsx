@@ -66,6 +66,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (open) {
+      setError(""); 
+    }
 
     if (name === "nick_name") {
       if (value.length > 7) {

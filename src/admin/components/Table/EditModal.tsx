@@ -54,14 +54,16 @@ const EditModal: React.FC<EditModalProps> = ({
 
   useEffect(() => {
     if (open && data) {
+      setError("");
       setFormData({
         ...data,
-        password: "",
+        password: "",    
       });
     }
   }, [open, data]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
     if (formData) {
       const { name, value } = e.target;
 

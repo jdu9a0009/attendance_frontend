@@ -130,7 +130,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`データのチェックイン送信中にエラーが発生しました。`, error.response?.data || error.message);
+        console.error(`データのチェックイン送信中にエラーが発生しました。`, error.response?.data);
       } else {
         console.error(`データのチェックイン送信中に不明なエラーが発生しました。`, error);
       }
@@ -152,7 +152,7 @@ const MainContent: React.FC<MainContentProps> = ({
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(`データのチェックアウト送信中にエラーが発生しました。`, error.response?.data || error.message);
+        console.error(`データのチェックアウト送信中にエラーが発生しました。`, error.response?.data);
       } else {
         console.error(`データのチェックアウト送信中に不明なエラーが発生しました。`, error);
       }
@@ -169,15 +169,15 @@ const MainContent: React.FC<MainContentProps> = ({
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
       } else {
-        setMessage(result.error || '出勤記録にエラーが発生しました。');
+        setMessage(result.error || '出勤記録にエラーが発生しました');
         setMessageColor('#ff0000');
       }
     } catch (error) {
-      console.error('出勤記録のリクエスト送信中にエラーが発生しました。', error);
+      console.error('出勤記録のリクエスト送信中にエラーが発生しました', error);
       if (axios.isAxiosError(error) && error.response) {
-        setMessage(error.response.data.error || '');
+        setMessage(error.response.data.error);
       } else {
-        setMessage('サーバーエラーが発生しました。');
+        setMessage('予期せぬエラーが発生しました');
       }
       setMessageColor('#ff0000');
     }
@@ -200,16 +200,13 @@ const MainContent: React.FC<MainContentProps> = ({
       } catch (error) {
         console.error('チェックアウトをマークするリクエスト送信中にエラーが発生しました。', error);
         if (axios.isAxiosError(error) && error.response) {
-          setMessage(error.response.data.error || '');
+          setMessage(error.response.data.error);
         } else {
-          setMessage('');
+          setMessage('予期せぬエラーが発生しました');
         }
         setMessageColor('#ff0000');
       }
-    } else {
-      setMessage('まず、出勤してください。');
-      setMessageColor('#ff0000');
-    }
+    } 
   };
   
 
