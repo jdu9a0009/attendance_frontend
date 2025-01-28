@@ -257,11 +257,16 @@ export const createByQRCode = async (employee_id: string, latitude: number, long
       longitude
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating record by QR code:', error);
-    throw error;
+    if (error.response && error.response.data) {
+      // Если сервер вернул ответ с ошибкой
+      return error.response.data; // Возвращаем данные из ответа
+    }
+    throw new Error('Network or unexpected error');
   }
 };
+
 
 export const fetchCompanySettings = async () => {
   try {

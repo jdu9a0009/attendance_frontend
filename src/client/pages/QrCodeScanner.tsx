@@ -7,6 +7,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import { createByQRCode } from '../../utils/libs/axios.ts';
 
 interface ServerResponse {
+  error: string | null;
   data: {
     id: number;
     employee_id: string;
@@ -16,7 +17,6 @@ interface ServerResponse {
   } | null;
   message: string;
   status: boolean;
-  error?: string;
 }
 
 const QRCodeScanner: React.FC = () => {
@@ -55,7 +55,7 @@ const QRCodeScanner: React.FC = () => {
 
   const processQRCode = useCallback(async (code: string) => {
     setScanState(prev => ({ ...prev, isScanning: false, isProcessing: true }));
-    
+  
     try {
       const position = await getCurrentPosition();
       const response: ServerResponse = await createByQRCode(
@@ -63,41 +63,58 @@ const QRCodeScanner: React.FC = () => {
         position.coords.latitude,
         position.coords.longitude
       );
-
+  
       let messageType: 'check-in' | 'check-out' | 'error' | null = null;
+  
       if (response.status) {
-        const message = response.message.toLowerCase();
-        if (message.includes('welcome')) messageType = 'check-in';
-        else if (message.includes('get home safely') || message.includes('goodbye')) messageType = 'check-out';
-        
+        // Успешный случай
+        messageType = response.data?.come_time ? 'check-in' : 'check-out';
+  
         setScanState(prev => ({
           ...prev,
           result: response.data?.employee_id || '',
-          serverMessage: response.message,
+          serverMessage: response.message || '', // Теперь выводим serverMessage
           employeeName: response.data?.full_name || '',
           messageType
         }));
-        setSnackbar({ open: true, message: '記録が正常に作成されました' });
+        setSnackbar({ 
+          open: true, 
+          message: `${response.message || ''}` // Выводим сообщение сервера
+        });
       } else {
+        // Случай ошибки
         setScanState(prev => ({
           ...prev,
-          serverMessage: '位置情報エラー：許可されたスキャンエリアから離れすぎています。',
-          messageType: 'error'
+          serverMessage: response.error || '不明なエラー',
+          messageType: 'error',
+          result: null,
+          employeeName: ''
         }));
-        setSnackbar({ open: true, message: '記録の作成エラー：位置情報が無効です' });
+        setSnackbar({ 
+          open: true, 
+          message: response.error || '不明なエラー' // Сообщение об ошибке
+        });
       }
     } catch (error) {
+      // Обработка ошибок сети
       console.error('データ送信エラー:', error);
       setScanState(prev => ({
         ...prev,
-        serverMessage: 'リクエストの処理中にエラーが発生しました。もう一度お試しください。',
-        messageType: 'error'
+        serverMessage: 'ネットワークエラー。後でもう一度試してください。',
+        messageType: 'error',
+        result: null,
+        employeeName: ''
       }));
-      setSnackbar({ open: true, message: '記録の作成エラー' });
+      setSnackbar({ 
+        open: true, 
+        message: 'ネットワークエラー。後でもう一度試してください。'
+      });
     } finally {
       setScanState(prev => ({ ...prev, isProcessing: false }));
     }
   }, [getCurrentPosition]);
+  
+  
 
   const videoConstraints = useMemo(() => ({
     facingMode: 'environment', 
@@ -416,11 +433,6 @@ const ResultContent: React.FC<{
     ) : (
       <CheckCircleIcon sx={{ fontSize: 180, color: 'green', marginBottom: 3 }} />
     )}
-    <Typography variant="h3" gutterBottom sx={{ color: messageColor }}>
-      {scanState.messageType === 'check-in' ? 'チェックイン成功' : 
-       scanState.messageType === 'check-out' ? 'チェックアウト成功' : 
-       ''}
-    </Typography>
     {scanState.serverMessage && (
       <Typography variant="h5" sx={{ marginTop: 2, color: messageColor }}>
         {scanState.serverMessage}
@@ -428,7 +440,6 @@ const ResultContent: React.FC<{
     )}
     {scanState.employeeName && scanState.messageType !== 'error' && (
       <Typography variant="h3" sx={{ marginTop: 2, color: 'green' }}>
-        {scanState.messageType === 'check-in' ? 'ようこそ' : 'お気をつけて'}, 
         {scanState.employeeName}さん！
       </Typography>
     )}
