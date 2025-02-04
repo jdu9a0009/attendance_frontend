@@ -87,6 +87,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
         setError(axiosError.response.data.error);
+        if(axiosError.response.data.error == null){
+          setError('予期せぬエラーが発生しました');
+        }
       } else {
         setError('予期せぬエラーが発生しました');
       }
@@ -94,6 +97,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <Container
