@@ -169,44 +169,46 @@ const MainContent: React.FC<MainContentProps> = ({
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
       } else {
-        setMessage(result.error || '出勤記録にエラーが発生しました');
+        // Показываем ошибку с сервера
+        setMessage(result.error || t('user:unexpectedError'));
         setMessageColor('#ff0000');
       }
     } catch (error) {
       console.error('出勤記録のリクエスト送信中にエラーが発生しました', error);
-      if (axios.isAxiosError(error) && error.response) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        // Показываем ошибку, полученную с сервера
         setMessage(error.response.data.error);
       } else {
-        setMessage('予期せぬエラーが発生しました');
+        setMessage(t('user:unexpectedError'));
       }
       setMessageColor('#ff0000');
     }
   };
   
   const handleLeaveClick = async () => {
-    if (checkInTime !== '--:--') {
-      try {
-        const result = await sendLeaveData();
-        if (result && result.status) {
-          setCheckOutTime(formatTime(result.data.leave_time));
-          setTotalHours(result.data.total_hours);
-          setMessage(`退勤した時間 ${formatTime(result.data.leave_time)}`);
-          setMessageColor('#000');
-          await fetchDashboardData();
-        } else {
-          setMessage(result.error || '退勤記録にエラーが発生しました。');
-          setMessageColor('#ff0000');
-        }
-      } catch (error) {
-        console.error('チェックアウトをマークするリクエスト送信中にエラーが発生しました。', error);
-        if (axios.isAxiosError(error) && error.response) {
-          setMessage(error.response.data.error);
-        } else {
-          setMessage('予期せぬエラーが発生しました');
-        }
+    try {
+      const result = await sendLeaveData();
+      if (result && result.status) {
+        setCheckOutTime(formatTime(result.data.leave_time));
+        setTotalHours(result.data.total_hours);
+        setMessage(`退勤した時間 ${formatTime(result.data.leave_time)}`);
+        setMessageColor('#000');
+        await fetchDashboardData();
+      } else {
+        // Показываем ошибку с сервера
+        setMessage(result.error || t('user:unexpectedError'));
         setMessageColor('#ff0000');
       }
-    } 
+    } catch (error) {
+      console.error('チェックアウトをマークするリクエスト送信中にエラーが発生しました。', error);
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        // Показываем ошибку, полученную с сервера
+        setMessage(error.response.data.error);
+      } else {
+        setMessage(t('user:unexpectedError'));
+      }
+      setMessageColor('#ff0000');
+    }
   };
   
 

@@ -117,12 +117,12 @@ const QRCodeScanner: React.FC = () => {
   
 
   const videoConstraints = useMemo(() => ({
-    facingMode: 'environment', 
+    facingMode: 'user', //(user = frontcamera / environment = main camera) 
     width: { ideal: 1280 }, 
     height: { ideal: 720 }, 
     aspectRatio: 1, 
   }), []);
-
+  
   const capture = useCallback(() => {
     if (scanState.isProcessing || !scanState.isScanning || !webcamRef.current) return;
 
