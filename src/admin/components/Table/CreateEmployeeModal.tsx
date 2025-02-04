@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -37,6 +37,19 @@ export interface Position {
   department: string;
 }
 
+const initialEmployeeState = {
+  position: "",
+  department: "",
+  role: "",
+  employee_id: "",
+  first_name: "",
+  last_name: "",
+  password: "",
+  nick_name: "",
+  phone: "",
+  email: "",
+};
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -63,6 +76,14 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   const [nickNameError, setNickNameError] = useState<string>("");
   const [error, setError] = useState("");
   const { t } = useTranslation("admin");
+
+  useEffect(() => {
+    if (!open) {
+      setNewEmployee(initialEmployeeState);
+      setError("");
+      setNickNameError("");
+    }
+  }, [open]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -108,6 +129,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
       );
       onSave(createdEmployee);
       onClose();
+      setNewEmployee(initialEmployeeState);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
