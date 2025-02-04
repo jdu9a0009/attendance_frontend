@@ -53,6 +53,8 @@ const MainContent: React.FC<MainContentProps> = ({
   const [message, setMessage] = useState<string | null>(null);
   const [messageColor, setMessageColor] = useState<string>('#000');
   const [currentTime, setCurrentTime] = useState<string>(format(new Date(), 'HH:mm:ss'));
+  const [loadingCome, setLoadingCome] = useState(false);
+  const [loadingLeave, setLoadingLeave] = useState(false);
   const departments: Department[] = [];
   const positions: Position[] = [];
 
@@ -159,8 +161,9 @@ const MainContent: React.FC<MainContentProps> = ({
       throw error;
     }
   };
-
+  
   const handleComeClick = async () => {
+    setLoadingCome(true); // Начинаем загрузку
     try {
       const result = await sendComeData();
       if (result && result.status) {
@@ -169,48 +172,56 @@ const MainContent: React.FC<MainContentProps> = ({
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
       } else {
-        // Показываем ошибку с сервера
-        setMessage(result.error || t('user:unexpectedError'));
+        setMessage(result.error || 'しばらくしてからもう一度お試しください。');
         setMessageColor('#ff0000');
       }
     } catch (error) {
       console.error('出勤記録のリクエスト送信中にエラーが発生しました', error);
       if (axios.isAxiosError(error) && error.response?.data?.error) {
-        // Показываем ошибку, полученную с сервера
         setMessage(error.response.data.error);
       } else {
-        setMessage(t('user:unexpectedError'));
+        setMessage('しばらくしてからもう一度お試しください。');
       }
       setMessageColor('#ff0000');
+    } finally {
+      setLoadingCome(false); // Завершаем загрузку в любом случае
     }
   };
   
+  
+  
   const handleLeaveClick = async () => {
+    setLoadingLeave(true);
     try {
       const result = await sendLeaveData();
-      if (result && result.status) {
+      if (result?.status) {
         setCheckOutTime(formatTime(result.data.leave_time));
         setTotalHours(result.data.total_hours);
         setMessage(`退勤した時間 ${formatTime(result.data.leave_time)}`);
         setMessageColor('#000');
         await fetchDashboardData();
       } else {
-        // Показываем ошибку с сервера
-        setMessage(result.error || t('user:unexpectedError'));
+        setMessage(result.error || 'しばらくしてからもう一度お試しください。');
         setMessageColor('#ff0000');
       }
     } catch (error) {
-      console.error('チェックアウトをマークするリクエスト送信中にエラーが発生しました。', error);
+      console.error('退勤リクエスト中にエラーが発生しました', error);
       if (axios.isAxiosError(error) && error.response?.data?.error) {
-        // Показываем ошибку, полученную с сервера
         setMessage(error.response.data.error);
       } else {
-        setMessage(t('user:unexpectedError'));
+        setMessage('しばらくしてからもう一度お試しください。');
       }
       setMessageColor('#ff0000');
+    } finally {
+      setLoadingLeave(false);
     }
   };
   
+  
+  useEffect(() => {
+    setLoadingCome(false);
+    setLoadingLeave(false);
+  }, []);
 
   return (
     <Box
@@ -265,34 +276,38 @@ const MainContent: React.FC<MainContentProps> = ({
             </Box>
           </Box>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              onClick={handleComeClick}
-              sx={{
-                borderRadius: 28,
-                mb: '12px',
-                backgroundColor: '#1cbeca',
-                '&:hover': {
-                  backgroundColor: '#1a9bde',
-                },
-              }}
-            >
-              {t('user:checkIn')}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleLeaveClick}
-              sx={{
-                borderRadius: 28,
-                mb: '12px',
-                backgroundColor: '#ff9500',
-                '&:hover': {
-                  backgroundColor: '#e88e00',
-                },
-              }}
-            >
-              {t('user:checkOut')}
-            </Button>
+          <Button
+  variant="contained"
+  onClick={handleComeClick}
+  disabled={loadingCome}
+  sx={{
+    borderRadius: 28,
+    mb: '12px',
+    backgroundColor: loadingCome ? '#ccc' : '#1cbeca',
+    '&:hover': {
+      backgroundColor: loadingCome ? '#ccc' : '#1a9bde',
+    },
+  }}
+>
+  {loadingCome ? '読み込み中' : t('user:checkIn')}
+</Button>
+
+<Button
+  variant="contained"
+  onClick={handleLeaveClick}
+  disabled={loadingLeave}
+  sx={{
+    borderRadius: 28,
+    mb: '12px',
+    backgroundColor: loadingLeave ? '#ccc' : '#ff9500',
+    '&:hover': {
+      backgroundColor: loadingLeave ? '#ccc' : '#e88e00',
+    },
+  }}
+>
+  {loadingLeave ? '読み込み中' : t('user:checkOut')}
+</Button>
+
           </Box>
           {message && (
             <Typography variant="body1" align="center" sx={{ mt: 2, color: messageColor }}>
