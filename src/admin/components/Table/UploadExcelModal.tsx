@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Modal,
   Box,
@@ -43,6 +43,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   const [mode, setMode] = useState<number>(1);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -71,6 +72,13 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
     }
   };
 
+  const resetFileInput = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
@@ -94,6 +102,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
       showSnackbar("File uploaded successfully");
       onUpload(selectedFile, mode);
       onClose();
+      resetFileInput();
     } catch (error) {
       console.error("Error uploading file:", error);
       if (axios.isAxiosError(error) && error.response) {
