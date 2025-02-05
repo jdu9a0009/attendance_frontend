@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
       const response = await axiosInstance().get('/user/dashboard');
 
       if (response.data && response.data.status && response.data.employee) {
-        setEmployeeName(response.data.employee.full_name);
+        setEmployeeName(response.data.employee);
       } else {
         console.error('従業員名を取得できませんでした。APIの応答に必要なデータが含まれていません。', response.data);
       }

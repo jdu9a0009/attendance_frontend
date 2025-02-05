@@ -55,6 +55,7 @@ const MainContent: React.FC<MainContentProps> = ({
   const [currentTime, setCurrentTime] = useState<string>(format(new Date(), 'HH:mm:ss'));
   const [loadingCome, setLoadingCome] = useState(false);
   const [loadingLeave, setLoadingLeave] = useState(false);
+  const [dashboardEmployeeId, setDashboardEmployeeId] = useState<string | null>(null);
   const departments: Department[] = [];
   const positions: Position[] = [];
 
@@ -71,14 +72,16 @@ const MainContent: React.FC<MainContentProps> = ({
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const response = await axiosInstance().get<{ data: DashboardData, status: boolean }>('/user/dashboard');
+      const response = await axiosInstance().get<{ data: DashboardData, employee_id: string, status: boolean }>('/user/dashboard');
   
       if (response.data.status) {
         const { come_time, leave_time, total_hours } = response.data.data;
+        console.log(response.data);
   
         setCheckInTime(formatTime(come_time) || '--:--');
         setCheckOutTime(leave_time === null ? '--:--' : formatTime(leave_time) || '--:--');
         setTotalHours(total_hours || '--:--');
+        setDashboardEmployeeId(response.data.employee_id); // Обновляем ID сотрудника
       }
     } catch (error) {
       console.error('ダッシュボードデータの取得中にエラーが発生しました。', error);
@@ -119,17 +122,21 @@ const MainContent: React.FC<MainContentProps> = ({
   };
 
   const sendComeData = async () => {
+    if (!dashboardEmployeeId) {
+      console.error('Не удалось получить employee_id');
+      return;
+    }
+  
     try {
       const position = await getCurrentPosition();
       const data = {
-        employee_id: employeeId,
+        employee_id: dashboardEmployeeId, // Используем ID из fetchDashboardData
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-
+  
       const response = await axiosInstance().post('/attendance/createbyphone', data);
       return response.data;
-
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(`データのチェックイン送信中にエラーが発生しました。`, error.response?.data);
@@ -139,19 +146,23 @@ const MainContent: React.FC<MainContentProps> = ({
       throw error;
     }
   };
-
+  
   const sendLeaveData = async () => {
+    if (!dashboardEmployeeId) {
+      console.error('Не удалось получить employee_id');
+      return;
+    }
+  
     try {
       const position = await getCurrentPosition();
       const data = {
-        employee_id: employeeId,
+        employee_id: dashboardEmployeeId, // Используем ID из fetchDashboardData
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-
+  
       const response = await axiosInstance().patch('/attendance/exitbyphone', data);
       return response.data;
-
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(`データのチェックアウト送信中にエラーが発生しました。`, error.response?.data);
