@@ -71,14 +71,13 @@ const NewDepartmentTable: React.FC = () => {
   const maxEmployeesPerColumn = 20;
 
   const formatName = (employee: EmployeeData): string => {
-    if (employee.nick_name) {
-      return employee.nick_name;
-    }
-    return employee.last_name ? employee.last_name.substring(0, 7) : "";
+    const name = employee.nick_name || employee.last_name || "";
+    return name.length > 7 ? `${name.substring(0, 7)}...` : name;
   };
-
+  
   const formatDepartmentName = (department: DepartmentData): string => {
-    return department.department_nickname || department.department_name;
+    const name = department.department_nickname || department.department_name || "";
+    return name.length > 7 ? `${name.substring(0, 7)}...` : name;
   };
 
   useEffect(() => {
