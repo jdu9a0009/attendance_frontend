@@ -75,6 +75,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   });
   const [nickNameError, setNickNameError] = useState<string>("");
   const [error, setError] = useState("");
+  const [filteredPositions, setFilteredPositions] = useState<Position[]>([]);
   const { t } = useTranslation("admin");
 
   useEffect(() => {
@@ -82,8 +83,31 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
       setNewEmployee(initialEmployeeState);
       setError("");
       setNickNameError("");
+      setFilteredPositions([]);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (newEmployee.department) {
+      const selectedDepartment = departments.find(
+        (dept) => dept.name === newEmployee.department
+      );
+      
+      if (selectedDepartment) {
+        const positionsForDepartment = positions.filter(
+          (position) => position.department_id === selectedDepartment.id
+        );
+        setFilteredPositions(positionsForDepartment);
+        
+        if (!positionsForDepartment.some(p => p.name === newEmployee.position)) {
+          setNewEmployee(prev => ({ ...prev, position: "" }));
+        }
+      }
+    } else {
+      setFilteredPositions([]);
+      setNewEmployee(prev => ({ ...prev, position: "" }));
+    }
+  }, [newEmployee.department, newEmployee.position, departments, positions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -107,7 +131,16 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
 
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     const { name, value } = e.target;
-    setNewEmployee({ ...newEmployee, [name as string]: value });
+    
+    if (name === "department") {
+      setNewEmployee({ 
+        ...newEmployee, 
+        [name]: value,
+        position: "" 
+      });
+    } else {
+      setNewEmployee({ ...newEmployee, [name]: value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -257,11 +290,12 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
                 name="position"
                 value={newEmployee.position}
                 onChange={handleSelectChange}
+                disabled={!newEmployee.department} 
               >
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {positions?.map((position) => (
+                {filteredPositions.map((position) => (
                   <MenuItem key={position.id} value={position.name}>
                     {position.name}
                   </MenuItem>

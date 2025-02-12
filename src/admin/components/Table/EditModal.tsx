@@ -50,6 +50,7 @@ const EditModal: React.FC<EditModalProps> = ({
   const [formData, setFormData] = useState<TableData | null>(null);
   const [nickNameError, setNickNameError] = useState<string>("");
   const [error, setError] = useState("");
+  const [filteredPositions, setFilteredPositions] = useState<Position[]>([]);
   const { t } = useTranslation("admin");
 
   useEffect(() => {
@@ -62,8 +63,31 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   }, [open, data]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (formData?.department) {
+      const selectedDepartment = departments.find(
+        (dept) => dept.name === formData.department
+      );
+      
+      if (selectedDepartment) {
+        const positionsForDepartment = positions.filter(
+          (position) => position.department_id === selectedDepartment.id
+        );
+        setFilteredPositions(positionsForDepartment);
+        
+        if (!positionsForDepartment.some(p => p.name === formData.position)) {
+          setFormData(prev => prev ? { ...prev, position: "" } : null);
+        }
+      }
+    } else {
+      setFilteredPositions([]);
+      if (formData) {
+        setFormData(prev => prev ? { ...prev, position: "" } : null);
+      }
+    }
+  }, [formData, departments, positions]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
       const { name, value } = e.target;
 
@@ -85,10 +109,19 @@ const EditModal: React.FC<EditModalProps> = ({
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     if (formData) {
       const { name, value } = e.target;
-      setFormData({
-        ...formData,
-        [name as string]: value,
-      });
+      
+      if (name === "department") {
+        setFormData({
+          ...formData,
+          [name]: value,
+          position: "" 
+        });
+      } else {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+      }
     }
   };
 
@@ -116,8 +149,8 @@ const EditModal: React.FC<EditModalProps> = ({
           formData.role!,
           formData.first_name!,
           formData.last_name!,
-          departments.find((d) => d.name === formData.department)?.id!,
-          positions.find((p) => p.name === formData.position)?.id!,
+          departmentId,
+          positionId,
           formData.phone!,
           formData.email!,
           formData.nick_name || ""
@@ -135,6 +168,7 @@ const EditModal: React.FC<EditModalProps> = ({
       }
     }
   }
+
   if (!open || !formData) return null;
 
   const theme = createTheme({
@@ -241,8 +275,9 @@ const EditModal: React.FC<EditModalProps> = ({
               name="position"
               value={formData.position}
               onChange={handleSelectChange}
+              disabled={!formData.department}
             >
-              {positions.map((position) => (
+              {filteredPositions.map((position) => (
                 <MenuItem key={position.id} value={position.name}>
                   {position.name}
                 </MenuItem>
