@@ -104,7 +104,7 @@ export const EmployeeCell = styled('div')<{
     
     // 1920px - 2559px
     [`@media (min-width: ${customBreakpoints.values.xl}px) and (max-width: ${customBreakpoints.values.xxl - 1}px)`]: {
-      fontSize: '24px',
+      fontSize: '20px',
     },
     
     // 1440px - 1919px
@@ -113,12 +113,12 @@ export const EmployeeCell = styled('div')<{
     },
     
     // 1024px - 1439px
-    [`@media (min-width: ${customBreakpoints.values.md}px) and (max-width: ${customBreakpoints.values.lg - 1}px)`]: {
+    [`@media (min-width: ${customBreakpoints.values.md}px) and (max-width: ${customBreakpoints.values.lg + 1}px)`]: {
       fontSize: '14px',
     },
     
     // Меньше 1024px
-    [`@media (max-width: ${customBreakpoints.values.md - 1}px)`]: {
+    [`@media (max-width: ${customBreakpoints.values.md + 1}px)`]: {
       fontSize: '12px',
     }
   }
