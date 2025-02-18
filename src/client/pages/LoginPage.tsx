@@ -51,6 +51,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
+        console.log("response: ", response);
 
         const tempEmployeeData: Employee = {
           id: employee_id,

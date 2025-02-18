@@ -12,33 +12,75 @@ const axiosInstance = () => {
 
   let instance = axios.create(defaultOptions);
 
+  // Перехватчик запросов: добавляем access_token к заголовку Authorization
   instance.interceptors.request.use(function (config) {
     const token = localStorage.getItem('access_token');
-    config.headers.Authorization =  token ? `Bearer ${token}` : '';
+    config.headers.Authorization = token ? `Bearer ${token}` : '';
     return config;
   });
 
+  // Перехватчик ответов: обрабатываем ошибки авторизации и обновляем токен
   instance.interceptors.response.use(
     (response) => {
       return response;
     },
     async function (error) {
       const originalRequest = error.config;
-      if (error.response.status === 403 && !originalRequest._retry) {
+      
+      // Проверяем, была ли ошибка 401 (Unauthorized) или 403 (Forbidden)
+      // и убеждаемся, что это первая попытка повторить запрос
+      if ((error.response.status === 401 || error.response.status === 403) && !originalRequest._retry) {
         originalRequest._retry = true;
-        const refresh_token = localStorage.getItem('refresh_token');
-        const access_token = refresh_token;
-  
-       
-        instance.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${access_token}`;
-        return instance(originalRequest);
+        
+        try {
+          // Получаем refresh_token из localStorage
+          const refresh_token = localStorage.getItem('refresh_token');
+          
+          if (!refresh_token) {
+            // Если refresh_token отсутствует, перенаправляем на страницу логина
+            window.location.href = '/login';
+            return Promise.reject(error);
+          }
+          
+          // Делаем запрос на обновление токена
+          const response = await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/refresh-token`,
+            { refresh_token }, // Передаем refresh_token в формате, который ожидает сервер
+            { withCredentials: true }
+          );
+          
+          // Получаем новые токены из ответа с правильными названиями полей
+          const { access_token, refresh_token: new_refresh_token } = response.data;
+          
+          // Сохраняем новые токены
+          localStorage.setItem('access_token', access_token);
+          
+          // Обновляем refresh_token только если он пришел в ответе
+          if (new_refresh_token) {
+            localStorage.setItem('refresh_token', new_refresh_token);
+          }
+          
+          // Устанавливаем новый заголовок Authorization и повторяем оригинальный запрос
+          instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+          return instance(originalRequest);
+          
+        } catch (refreshError) {
+          // В случае ошибки при обновлении токена (например, истек refresh_token)
+          console.error('Не удалось обновить токен:', refreshError);
+          
+          // Очищаем хранилище от старых токенов
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          
+          // Перенаправляем на страницу логина
+          window.location.href = '/login';
+          
+          return Promise.reject(refreshError);
+        }
       }
       return Promise.reject(error);
     }
   );
-
   
   return instance;
 };
