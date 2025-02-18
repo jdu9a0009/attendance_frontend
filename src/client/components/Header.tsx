@@ -4,6 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../../utils/libs/axios.ts';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -34,9 +35,17 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
   const { t, i18n } = useTranslation();
   const [employeeName, setEmployeeName] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   const changeLanguage = (event: SelectChangeEvent) => {
     i18n.changeLanguage(event.target.value);
+    handleMenuClose();
+  };
+
+  const goToBigTable = () => {
+    // Здесь используем относительный путь от текущего местоположения
+    // или абсолютный путь в зависимости от структуры приложения
+    navigate('/bigTable'); // Можно изменить на абсолютный путь, если нужно
     handleMenuClose();
   };
 
@@ -98,6 +107,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
             horizontal: 'right',
           }}
         >
+          <MenuItem onClick={goToBigTable}>{t('goBigTable') || 'Dashboard View'}</MenuItem>
           <MenuItem>
             <Select
               value={i18n.language}
