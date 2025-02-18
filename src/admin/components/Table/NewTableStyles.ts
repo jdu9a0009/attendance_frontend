@@ -17,6 +17,10 @@ const customBreakpoints = {
     lg: 1440,
     xl: 1920,
     xxl: 2560,
+    xxxl: 3840,
+    cf: 2048, // these are curve fixes, for big jumps in resolution, so we can lower these big changes in jumps
+    cf2: 3200,
+    cf3: 3440,
   },
 };
 
@@ -27,8 +31,32 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   
-  // 2560px и выше (огромные мониторы)
-  [`@media (min-width: ${customBreakpoints.values.xxl}px)`]: {
+  // 3840px и выше
+  [`@media (min-width: ${customBreakpoints.values.xxxl}px)`]: {
+    fontSize: '40px',
+    padding: '10px',
+    height: '100px',
+    maxWidth: '140px',
+  },
+
+  // 3440px - 3839px
+  [`@media (min-width: ${customBreakpoints.values.cf3}px) and (max-width: ${customBreakpoints.values.xxxl - 1}px)`]: {
+    fontSize: '36px',
+    padding: '9px',
+    height: '90px',
+    maxWidth: '130px',
+  },
+
+  // 3200px - 3439px
+  [`@media (min-width: ${customBreakpoints.values.cf2}px) and (max-width: ${customBreakpoints.values.cf3 - 1}px)`]: {
+    fontSize: '32px',
+    padding: '9px',
+    height: '80px',
+    maxWidth: '130px',
+  },
+
+  // 2560px - 3199px
+  [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.cf2 - 1}px)`]: {
     fontSize: '28px',
     padding: '8px',
     height: '60px',
@@ -97,8 +125,12 @@ export const EmployeeCell = styled('div')<{
     textOverflow: 'ellipsis',
     transition: 'font-size 0.2s ease',
 
-    // 2560px и выше
-    [`@media (min-width: ${customBreakpoints.values.xxl}px)`]: {
+    // 3840px and so on
+    [`@media (min-width: ${customBreakpoints.values.xxxl}px)`]: {
+      fontSize: '34px'
+    },
+    // 2560px - 3840px
+    [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.xxxl - 1}px)`]: {
       fontSize: '28px',
     },
     
