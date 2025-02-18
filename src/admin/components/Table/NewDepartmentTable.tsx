@@ -72,12 +72,12 @@ const NewDepartmentTable: React.FC = () => {
 
   const formatName = (employee: EmployeeData): string => {
     const name = employee.nick_name || employee.last_name || "";
-    return name.length > 7 ? `${name.substring(0, 7)}...` : name;
+    return name.length > 7 ? `${name.substring(0, 7)}..` : name;
   };
   
   const formatDepartmentName = (department: DepartmentData): string => {
     const name = department.department_nickname || department.department_name || "";
-    return name.length > 7 ? `${name.substring(0, 7)}...` : name;
+    return name.length > 7 ? `${name.substring(0, 7)}..` : name;
   };
 
   useEffect(() => {

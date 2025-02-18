@@ -57,7 +57,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
   // 2560px - 3199px
   [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.cf2 - 1}px)`]: {
-    fontSize: '28px',
+    fontSize: '26px',
     padding: '8px',
     height: '60px',
     maxWidth: '120px',
@@ -65,7 +65,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   
   // 1920px - 2559px (большие мониторы)
   [`@media (min-width: ${customBreakpoints.values.xl}px) and (max-width: ${customBreakpoints.values.xxl - 1}px)`]: {
-    fontSize: '24px',
+    fontSize: '18px',
     padding: '7px',
     height: '55px',
     maxWidth: '110px',
@@ -73,7 +73,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   
   // 1440px - 1919px (средние мониторы)
   [`@media (min-width: ${customBreakpoints.values.lg}px) and (max-width: ${customBreakpoints.values.xl - 1}px)`]: {
-    fontSize: '16px',
+    fontSize: '13px',
     padding: '6px',
     height: '50px',
     maxWidth: '100px',
@@ -81,7 +81,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   
   // 1024px - 1439px (маленькие мониторы/большие ноутбуки)
   [`@media (min-width: ${customBreakpoints.values.md}px) and (max-width: ${customBreakpoints.values.lg - 1}px)`]: {
-    fontSize: '14px',
+    fontSize: '11px',
     padding: '5px',
     height: '45px',
     maxWidth: '90px',
@@ -131,27 +131,27 @@ export const EmployeeCell = styled('div')<{
     },
     // 2560px - 3840px
     [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.xxxl - 1}px)`]: {
-      fontSize: '28px',
+      fontSize: '26px',
     },
     
     // 1920px - 2559px
     [`@media (min-width: ${customBreakpoints.values.xl}px) and (max-width: ${customBreakpoints.values.xxl - 1}px)`]: {
-      fontSize: '20px',
+      fontSize: '18px',
     },
     
     // 1440px - 1919px
     [`@media (min-width: ${customBreakpoints.values.lg}px) and (max-width: ${customBreakpoints.values.xl - 1}px)`]: {
-      fontSize: '16px',
+      fontSize: '13px',
     },
     
     // 1024px - 1439px
     [`@media (min-width: ${customBreakpoints.values.md}px) and (max-width: ${customBreakpoints.values.lg + 1}px)`]: {
-      fontSize: '14px',
+      fontSize: '11px',
     },
     
     // Меньше 1024px
     [`@media (max-width: ${customBreakpoints.values.md + 1}px)`]: {
-      fontSize: '12px',
+      fontSize: '9px',
     }
   }
 }));
