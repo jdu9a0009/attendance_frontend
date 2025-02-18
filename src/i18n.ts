@@ -13,6 +13,7 @@ const commonResources = {
       employeeId: 'ID',
       fullName: 'Full Name',
       status: 'Status',
+      goBigTable: 'Big Table',
       present: 'Present',
       absent: 'Absent',
       table: {
@@ -45,6 +46,7 @@ const commonResources = {
       english: 'English',
       employeeId: 'ID',
       fullName: 'フルネーム',
+      goBigTable: '出社表',
       status: '状態',
       present: '出席',
       absent: '欠席',
