@@ -2,7 +2,7 @@ import { Employee, Department } from '../../admin/components/Table/types.ts';
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Создаем отдельную функцию с другим именем
-function createAxiosClient(): AxiosInstance {
+const axiosInstance = () => {
   const defaultOptions = {
     baseURL: process.env.REACT_APP_BASE_URL,
     headers: {
@@ -11,85 +11,36 @@ function createAxiosClient(): AxiosInstance {
     withCredentials: true
   };
 
-  // Создаем экземпляр axios с базовыми настройками
-  const instance: AxiosInstance = axios.create(defaultOptions);
+  let instance = axios.create(defaultOptions);
 
-  // Используем правильный тип InternalAxiosRequestConfig для перехватчика запросов
-  instance.interceptors.request.use(function (config: InternalAxiosRequestConfig) {
+  instance.interceptors.request.use(function (config) {
     const token = localStorage.getItem('access_token');
-    config.headers = config.headers || {};
-    config.headers.Authorization = token ? `Bearer ${token}` : '';
+    config.headers.Authorization =  token ? `Bearer ${token}` : '';
     return config;
   });
 
-  // Перехватчик ответов с обработкой ошибок и обновлением токена
   instance.interceptors.response.use(
-    (response: AxiosResponse) => {
+    (response) => {
       return response;
     },
-    async function (error: any) {
-      // Убеждаемся, что error.config существует
-      if (!error.config) {
-        return Promise.reject(error);
-      }
-
+    async function (error) {
       const originalRequest = error.config;
-      
-      // Проверяем статус ответа и флаг повторной попытки
-      if (error.response && 
-          (error.response.status === 401 || error.response.status === 403) && 
-          !originalRequest._retry) {
+      if (error.response.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
-        
-        try {
-          const refresh_token = localStorage.getItem('refresh_token');
-          
-          if (!refresh_token) {
-            window.location.href = '/login';
-            return Promise.reject(error);
-          }
-          
-          // Запрос на обновление токена
-          const response = await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/refresh-token`,
-            { refresh_token },
-            { withCredentials: true }
-          );
-          
-          const { access_token, refresh_token: new_refresh_token } = response.data;
-          
-          localStorage.setItem('access_token', access_token);
-          
-          if (new_refresh_token) {
-            localStorage.setItem('refresh_token', new_refresh_token);
-          }
-          
-          // Обновляем заголовок и повторяем запрос
-          instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-          return instance(originalRequest);
-          
-        } catch (refreshError) {
-          console.error('Не удалось обновить токен:', refreshError);
-          
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          
-          window.location.href = '/login';
-          
-          return Promise.reject(refreshError);
-        }
+        const refresh_token = localStorage.getItem('refresh_token');
+        const access_token = refresh_token;
+  
+       
+        instance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${access_token}`;
+        return instance(originalRequest);
       }
-      
       return Promise.reject(error);
     }
   );
-  
-  return instance;
-}
 
-// Для экспорта сохраняем имя axiosInstance
-const axiosInstance = (): AxiosInstance => {
-  return createAxiosClient();
+  return instance;
 };
 
 export default axiosInstance;
