@@ -190,7 +190,7 @@ export const StyledButtonGroup = styled(ButtonGroup)({
   '& .MuiButton-outlined:not(:last-child)': {
     borderRightColor: '#105E82',
   },
-  '& .MuiButton-outlined:not(:first-child):not(:last-child)': {
+  '& .MuiButton-outlined:not(:first-of-type):not(:last-child)': {
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     '&:hover': {

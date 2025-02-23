@@ -1,7 +1,6 @@
 import { Employee, Department } from '../../admin/components/Table/types.ts';
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
 
-// Создаем отдельную функцию с другим именем
 const axiosInstance = () => {
   const defaultOptions = {
     baseURL: process.env.REACT_APP_BASE_URL,
@@ -25,19 +24,28 @@ const axiosInstance = () => {
     },
     async function (error) {
       const originalRequest = error.config;
-      if (error.response.status === 403 && !originalRequest._retry) {
+      if (error.response.status === 401) {
         originalRequest._retry = true;
+        try {
         const refresh_token = localStorage.getItem('refresh_token');
-        const access_token = refresh_token;
-  
-       
-        instance.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${access_token}`;
-        return instance(originalRequest);
+        const access_token = localStorage.getItem('access_token');
+        
+        const response = await axiosInstance().post('/refresh-token', {
+          access_token: access_token,
+          refresh_token: refresh_token
+        })
+        if (response.data && response.data.data && response.data.data.access_token) {
+          const accessToken = response.data.data.access_token;
+          const refreshToken = response.data.data.refresh_token;
+          
+          localStorage.setItem("access_token", accessToken);
+          localStorage.setItem("refresh_token", refreshToken);
+          console.log("response: ", response);
+        }} catch (error) {
+          console.log(error);
+        }
       }
-      return Promise.reject(error);
-    }
+    }    
   );
 
   return instance;
