@@ -24,7 +24,7 @@ const axiosInstance = () => {
     },
     async function (error) {
       const originalRequest = error.config;
-      if (error.response.status === 401) {
+      if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
         const refresh_token = localStorage.getItem('refresh_token');
@@ -40,11 +40,12 @@ const axiosInstance = () => {
           
           localStorage.setItem("access_token", accessToken);
           localStorage.setItem("refresh_token", refreshToken);
-          console.log("response: ", response);
+
         }} catch (error) {
           console.log(error);
         }
       }
+      return Promise.reject(error);
     }    
   );
 
