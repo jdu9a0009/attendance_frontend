@@ -186,7 +186,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             width: 400,
             bgcolor: "background.paper",
             boxShadow: 24,
-            p: 4,
+            p: 3,
           }}
         >
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
@@ -205,7 +205,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal"
+              margin="dense"
               name="last_name"
               label={t("createEmployeeModal.lastName")}
               value={newEmployee.last_name}
@@ -215,7 +215,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal"
+              margin="normal" 
               name="first_name"
               label={t("createEmployeeModal.firstName")}
               value={newEmployee.first_name}
@@ -226,7 +226,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <TextField
               required
               fullWidth
-              margin="normal"
+              margin="dense" 
               name="password"
               label={t("createEmployeeModal.password")}
               type="password"
@@ -236,7 +236,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal"
+              margin="normal" 
               name="nick_name"
               label={t("createEmployeeModal.nickName") || "Nickname"}
               value={newEmployee.nick_name || ""}
@@ -245,7 +245,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               helperText={nickNameError}
               inputProps={{ maxLength: 7 }}
             />
-            <FormControl fullWidth margin="normal" required>
+            <FormControl fullWidth margin="dense" required>
               <InputLabel shrink={Boolean(newEmployee.role)}>
                 {t("createEmployeeModal.role")}
               </InputLabel>
@@ -282,7 +282,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               </Select>
             </FormControl>
 
-            <FormControl fullWidth margin="normal" required>
+            <FormControl fullWidth margin="dense" required>
               <InputLabel shrink={Boolean(newEmployee.position)}>
                 {t("createEmployeeModal.position")}
               </InputLabel>
@@ -304,7 +304,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             </FormControl>
             <TextField
               fullWidth
-              margin="normal"
+              margin="normal" 
               name="phone"
               label={t("createEmployeeModal.phoneNumber")}
               value={newEmployee.phone}
@@ -312,7 +312,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal"
+              margin="dense" 
               name="email"
               label={t("createEmployeeModal.email")}
               value={newEmployee.email}

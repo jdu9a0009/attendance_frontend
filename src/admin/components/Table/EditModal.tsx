@@ -201,7 +201,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.last_name}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             required
           />
           <TextField
@@ -220,7 +220,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.password}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             autoComplete="off"
           />
           <TextField
@@ -234,7 +234,7 @@ const EditModal: React.FC<EditModalProps> = ({
             helperText={nickNameError}
             inputProps={{ maxLength: 7 }}
           />
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="dense">
             <InputLabel shrink={Boolean(formData.role)}>
               {t("createEmployeeModal.role")}
             </InputLabel>
@@ -267,7 +267,7 @@ const EditModal: React.FC<EditModalProps> = ({
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="normal" required>
+          <FormControl fullWidth margin="dense" required>
             <InputLabel shrink={Boolean(formData.position)}>
               {t("createEmployeeModal.position")}
             </InputLabel>
@@ -298,7 +298,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.email}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             required
           />
           <Typography variant="body2" color="error">
@@ -328,7 +328,7 @@ const modalStyle = {
   width: 400,
   bgcolor: "background.paper",
   boxShadow: 24,
-  p: 4,
+  p: 3,
 };
 
 export default EditModal;
