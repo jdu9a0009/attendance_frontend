@@ -192,7 +192,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.employee_id}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             required
           />
           <TextField
@@ -210,7 +210,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.first_name}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             required
           />
           <TextField
@@ -229,7 +229,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.nick_name}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
             error={Boolean(nickNameError)}
             helperText={nickNameError}
             inputProps={{ maxLength: 7 }}
@@ -251,7 +251,7 @@ const EditModal: React.FC<EditModalProps> = ({
               </MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="normal" required>
+          <FormControl fullWidth margin="dense" required>
             <InputLabel shrink={Boolean(formData.department)}>
               {t("createEmployeeModal.department")}
             </InputLabel>
@@ -290,7 +290,7 @@ const EditModal: React.FC<EditModalProps> = ({
             value={formData.phone}
             onChange={handleInputChange}
             fullWidth
-            margin="normal"
+            margin="dense"
           />
           <TextField
             label={t("createEmployeeModal.email")}

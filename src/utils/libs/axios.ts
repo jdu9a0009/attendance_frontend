@@ -19,34 +19,49 @@ const axiosInstance = () => {
   });
 
   instance.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     async function (error) {
       const originalRequest = error.config;
-      if (error.response.status === 401 && !originalRequest._retry) {
+
+      const isAuthEndpoint = originalRequest.url && 
+        (originalRequest.url.includes('/sign-in') || 
+         originalRequest.url.includes('/sign-up'));
+      
+      if (error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
         originalRequest._retry = true;
         try {
-        const refresh_token = localStorage.getItem('refresh_token');
-        const access_token = localStorage.getItem('access_token');
-        
-        const response = await axiosInstance().post('/refresh-token', {
-          access_token: access_token,
-          refresh_token: refresh_token
-        })
-        if (response.data && response.data.data && response.data.data.access_token) {
-          const accessToken = response.data.data.access_token;
-          const refreshToken = response.data.data.refresh_token;
-          
-          localStorage.setItem("access_token", accessToken);
-          localStorage.setItem("refresh_token", refreshToken);
+          const refresh_token = localStorage.getItem('refresh_token');
+          const access_token = localStorage.getItem('access_token');
 
-        }} catch (error) {
-          console.log(error);
+          const response = await axios.post(
+            process.env.REACT_APP_BASE_URL + '/refresh-token', 
+            {
+              access_token: access_token,
+              refresh_token: refresh_token
+            },
+            { 
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true
+            }
+          );
+          
+          if (response.data?.data?.access_token) {
+            localStorage.setItem("access_token", response.data.data.access_token);
+            localStorage.setItem("refresh_token", response.data.data.refresh_token);
+
+            originalRequest.headers.Authorization = `Bearer ${response.data.data.access_token}`;
+
+            return axios(originalRequest);
+          }
+        } catch (refreshError) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          // Optional: redirect to login page
+          window.location.href = '/login';
         }
       }
       return Promise.reject(error);
-    }    
+    }
   );
 
   return instance;

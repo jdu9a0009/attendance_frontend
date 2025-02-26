@@ -195,7 +195,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
           <form onSubmit={handleSubmit} autoComplete="off">
             <TextField
               fullWidth
-              margin="normal"
+              margin="dense"
               name="employee_id"
               label={t("createEmployeeModal.employeeId")}
               value={newEmployee.employee_id}
@@ -215,7 +215,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal" 
+              margin="dense" 
               name="first_name"
               label={t("createEmployeeModal.firstName")}
               value={newEmployee.first_name}
@@ -236,7 +236,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             />
             <TextField
               fullWidth
-              margin="normal" 
+              margin="dense" 
               name="nick_name"
               label={t("createEmployeeModal.nickName") || "Nickname"}
               value={newEmployee.nick_name || ""}
@@ -262,7 +262,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
                 </MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth margin="normal" required>
+            <FormControl fullWidth margin="dense" required>
               <InputLabel shrink={Boolean(newEmployee.department)}>
                 {t("createEmployeeModal.department")}
               </InputLabel>
@@ -304,7 +304,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             </FormControl>
             <TextField
               fullWidth
-              margin="normal" 
+              margin="dense" 
               name="phone"
               label={t("createEmployeeModal.phoneNumber")}
               value={newEmployee.phone}
