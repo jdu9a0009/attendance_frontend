@@ -20,6 +20,7 @@ interface CompanySettingsData {
   late_time: number;
   over_start_time: Date | null;
   over_end_time: Date | null;
+  radius: number;
   company_coordinates: LatLngTuple;
   company_location: string;
   absent_color: string;
@@ -41,6 +42,7 @@ const CompanySettingsPage: React.FC = () => {
     late_time: 15,
     over_start_time: null,
     over_end_time: null,
+    radius: 1000,
     company_location: '',
     company_coordinates: [35.6762, 139.6503], // Tokyo Default
     absent_color: '',
@@ -92,6 +94,7 @@ const CompanySettingsPage: React.FC = () => {
       try {
         const data = await fetchCompanySettings();
         const results = data?.results;
+        
   
         if (results) {
           setSettings(prevSettings => ({
@@ -106,6 +109,7 @@ const CompanySettingsPage: React.FC = () => {
             over_end_time: results.over_end_time ? parseTime(results.over_end_time) : null,
             company_coordinates: [parseFloat(results.latitude), parseFloat(results.longitude)] as LatLngTuple,
             company_location: `${results.latitude}, ${results.longitude}`,
+            radius: results.radius,
             absent_color: results.absent_color,
             present_color: results.present_color,
             come_time_color: results.come_time_color,
@@ -258,8 +262,16 @@ const CompanySettingsPage: React.FC = () => {
           margin="normal"
           disabled={!editMode}
         />
+        <TextField
+          label={t('settings.radiusLabel')}
+          value={settings.radius}
+          onChange={(e) => handleChange('radius', e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={!editMode}
+        />
         <Box sx={{ height: 400, width: '100%', mb: 2 }}>
-          <MapComponent coordinates={settings.company_coordinates} onPositionChange={handlePositionChange} />
+          <MapComponent coordinates={settings.company_coordinates} onPositionChange={handlePositionChange} radius={settings.radius}/>
         </Box>
       </Box>
   

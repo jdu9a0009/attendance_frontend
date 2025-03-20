@@ -57,11 +57,8 @@ const QRCodeScanner: React.FC = () => {
     setScanState(prev => ({ ...prev, isScanning: false, isProcessing: true }));
   
     try {
-      const position = await getCurrentPosition();
       const response: ServerResponse = await createByQRCode(
         code,
-        position.coords.latitude,
-        position.coords.longitude
       );
   
       let messageType: 'check-in' | 'check-out' | 'error' | null = null;

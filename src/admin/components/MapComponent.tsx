@@ -29,12 +29,14 @@ const defaultIcon = L.icon({
 
 interface MapComponentProps {
     coordinates: LatLngTuple;
+    radius: number;
     onPositionChange: (position: LatLngTuple) => void;
 }
 
 // Explicitly marking LocationMarker as using useMap
-const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {
+const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, radius, onPositionChange }) => {
     const markerRef = useRef<L.Marker>(null);
+    const circleRef = useRef<L.Circle | null>(null);
     const map = useMap(); // This hook is definitely used
 
     useEffect(() => {
@@ -42,7 +44,22 @@ const LocationMarker: React.FC<MapComponentProps> = ({ coordinates, onPositionCh
             markerRef.current.setLatLng(coordinates);
             map.setView(coordinates);
         }
-    }, [coordinates, map]);
+
+        if (circleRef.current) {
+            circleRef.current.remove();
+        }
+
+        circleRef.current = L.circle(coordinates, {
+            color: "blue",
+            fillColor: "lightblue",
+            fillOpacity: 0.3,
+            radius: radius, 
+        }).addTo(map);
+
+        return () => {
+            circleRef.current?.remove();
+        };
+    }, [coordinates, radius, map]);
 
     return (
         <Marker
@@ -140,7 +157,7 @@ const SearchBox: React.FC<{
     );
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({ coordinates, onPositionChange }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ coordinates, radius, onPositionChange }) => {
     const mapRef = useRef<L.Map>(null);
 
     const handleMyLocation = () => {
@@ -182,7 +199,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ coordinates, onPositionChan
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
-                <LocationMarker coordinates={coordinates} onPositionChange={onPositionChange} />
+                <LocationMarker coordinates={coordinates} onPositionChange={onPositionChange} radius={radius} />
             </MapContainer>
             <SearchBox onSelectLocation={handleSearchSelect} />
             <IconButton
