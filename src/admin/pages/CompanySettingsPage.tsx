@@ -263,6 +263,7 @@ const CompanySettingsPage: React.FC = () => {
           disabled={!editMode}
         />
         <TextField
+          type="number"
           label={t('settings.radiusLabel')}
           value={settings.radius}
           onChange={(e) => handleChange('radius', e.target.value)}

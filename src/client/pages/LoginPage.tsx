@@ -51,7 +51,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
-        console.log("response: ", response);
 
         const tempEmployeeData: Employee = {
           id: employee_id,
@@ -86,13 +85,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       } 
     } catch (error) {
       const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        setError(axiosError.response.data.error);
-        if(axiosError.response.data.error == null){
-          setError('予期せぬエラーが発生しました');
-        }
+      if (axiosError) {
+        setError(axiosError.error);
       } else {
-        setError('予期せぬエラーが発生しました');
+        setError("予期せぬエラーが発生しました");
       }
     } finally {
       setIsLoading(false);

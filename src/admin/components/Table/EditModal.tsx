@@ -160,8 +160,8 @@ const EditModal: React.FC<EditModalProps> = ({
         onClose();
       } catch (error) {
         const axiosError = error as AxiosError;
-        if (axiosError.response) {
-          setError(axiosError.response.data.error);
+        if (axiosError) {
+          setError(axiosError.error);
         } else {
           setError("予期せぬエラーが発生しました");
         }
