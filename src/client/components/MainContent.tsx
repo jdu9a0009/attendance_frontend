@@ -5,7 +5,7 @@ import { ja, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import AttendanceSummary from './AttendanceSummary.tsx';
 import TabsComponent from './TabsComponent.tsx';
-import { Column } from '../../admin/components/Table/types.ts';
+import { AxiosError, Column } from '../../admin/components/Table/types.ts';
 import axiosInstance from '../../utils/libs/axios.ts';
 import axios from 'axios';
 import AttendanceTable from '../../admin/components/Table/AttendanceTable.tsx';
@@ -188,11 +188,12 @@ const MainContent: React.FC<MainContentProps> = ({
       }
     } catch (error) {
       console.error('出勤記録のリクエスト送信中にエラーが発生しました', error);
-      if (axios.isAxiosError(error) && error.response?.data?.error) {
-        setMessage(error.response.data.error);
-      } else {
-        setMessage('しばらくしてからもう一度お試しください。');
-      }
+      const axiosError = error as AxiosError;
+        if (axiosError) {
+          setMessage(axiosError.error);
+        } else {
+          setMessage("予期せぬエラーが発生しました");
+        }
       setMessageColor('#ff0000');
     } finally {
       setLoadingCome(false); // Завершаем загрузку в любом случае
@@ -217,11 +218,12 @@ const MainContent: React.FC<MainContentProps> = ({
       }
     } catch (error) {
       console.error('退勤リクエスト中にエラーが発生しました', error);
-      if (axios.isAxiosError(error) && error.response?.data?.error) {
-        setMessage(error.response.data.error);
-      } else {
-        setMessage('しばらくしてからもう一度お試しください。');
-      }
+      const axiosError = error as AxiosError;
+        if (axiosError) {
+          setMessage(axiosError.error);
+        } else {
+          setMessage("予期せぬエラーが発生しました");
+        }
       setMessageColor('#ff0000');
     } finally {
       setLoadingLeave(false);
