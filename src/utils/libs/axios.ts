@@ -243,10 +243,12 @@ export const downloadSampleFile = async () => {
   }
 };
 
-export const createByQRCode = async (employee_id: string) => {
+export const createByQRCode = async (employee_id: string, latitude: number, longitude: number) => {
   try {
     const response = await axiosInstance().post('/attendance/createbyqrcode', {
-      employee_id
+      employee_id,
+      latitude,
+      longitude
     });
     return response.data;
   } catch (error: any) {
