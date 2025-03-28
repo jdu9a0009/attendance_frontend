@@ -92,7 +92,7 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
         }}
         onClick={handleLogoutClick}
       >
-        {t('logout')}
+        ログアウト
       </Button>
     </Box>
   </Box>
