@@ -30,26 +30,12 @@ const QRCodeScanner: React.FC = () => {
   const [messageType, setMessageType] = useState<'check-in' | 'check-out' | 'error' | null>(null);
   const webcamRef = useRef<Webcam | null>(null);
 
-  const getCurrentPosition = (): Promise<GeolocationPosition> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('お使いのブラウザは位置情報をサポートしていません'));
-      } else {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        });
-      }
-    });
-  };
 
   const sendEmployeeIdWithLocation = async (employeeId: string) => {
     setIsProcessing(true);
     try {
-      const position = await getCurrentPosition();
       
-      const response: ServerResponse = await createByQRCode(employeeId, position.coords.latitude, position.coords.longitude);
+      const response: ServerResponse = await createByQRCode(employeeId);
       
       if (response.status) {
         setServerMessage(response.message);

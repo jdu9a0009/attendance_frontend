@@ -70,5 +70,9 @@ export interface ApiResponse {
 }
 
 export interface AxiosError extends Error {
-      error: string;   
+  response?: {
+    data: {
+      error: string;
+    };
+  };
 }

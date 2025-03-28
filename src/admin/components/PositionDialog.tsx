@@ -94,8 +94,8 @@ function PositionDialog({
         onClose();
       } catch (error) {
         const axiosError = error as AxiosError;
-        if (axiosError) {
-          setError(axiosError.error);
+        if (axiosError.response) {
+          setError(axiosError.response.data.error);
         } else {
           setError("予期せぬエラーが発生しました");
         }

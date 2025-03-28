@@ -38,31 +38,11 @@ const QRCodeScanner: React.FC = () => {
   const scanningInterval = useRef<NodeJS.Timeout>();
   const resetTimeout = useRef<NodeJS.Timeout>();
 
-  const getCurrentPosition = useCallback((): Promise<GeolocationPosition> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('お使いのブラウザは位置情報をサポートしていません'));
-        return;
-      }
-      
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0,
-      });
-    });
-  }, []);
-
   const processQRCode = useCallback(async (code: string) => {
     setScanState(prev => ({ ...prev, isScanning: false, isProcessing: true }));
   
     try {
-      const position = await getCurrentPosition();
-      const response: ServerResponse = await createByQRCode(
-        code,
-        position.coords.latitude,
-        position.coords.longitude
-      );
+      const response: ServerResponse = await createByQRCode(code);
   
       let messageType: 'check-in' | 'check-out' | 'error' | null = null;
   
@@ -73,13 +53,13 @@ const QRCodeScanner: React.FC = () => {
         setScanState(prev => ({
           ...prev,
           result: response.data?.employee_id || '',
-          serverMessage: response.message || '', // Теперь выводим serverMessage
+          serverMessage: response.message || '', 
           employeeName: response.data?.full_name || '',
           messageType
         }));
         setSnackbar({ 
           open: true, 
-          message: `${response.message || ''}` // Выводим сообщение сервера
+          message: `${response.message || ''}` 
         });
       } else {
         // Случай ошибки
@@ -92,7 +72,7 @@ const QRCodeScanner: React.FC = () => {
         }));
         setSnackbar({ 
           open: true, 
-          message: response.error || '不明なエラー' // Сообщение об ошибке
+          message: response.error || '不明なエラー' 
         });
       }
     } catch (error) {
@@ -112,7 +92,7 @@ const QRCodeScanner: React.FC = () => {
     } finally {
       setScanState(prev => ({ ...prev, isProcessing: false }));
     }
-  }, [getCurrentPosition]);
+  }, []);
   
   
 

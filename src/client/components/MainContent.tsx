@@ -44,7 +44,6 @@ const MainContent: React.FC<MainContentProps> = ({
   handleTabChange,
   attendanceSummary,
   employeeId,
-  // tableColumns,
 }) => {
   const { t, i18n } = useTranslation(['common', 'user']);
   const [checkInTime, setCheckInTime] = useState<string>('--:--');
@@ -69,19 +68,18 @@ const MainContent: React.FC<MainContentProps> = ({
     return time && time !== '--:--' ? time.slice(0, 5) : time;
   };
 
-
   const fetchDashboardData = useCallback(async () => {
     try {
-      const response = await axiosInstance().get<{ data: DashboardData, employee_id: string, status: boolean }>('/user/dashboard');
+      let response = await axiosInstance().get<{ data: DashboardData, employee_id: string, status: boolean }>('/user/dashboard');
+      console.log(response);   
   
       if (response.data.status) {
-        const { come_time, leave_time, total_hours } = response.data.data;
-        console.log(response.data);
+        let { come_time, leave_time, total_hours } = response.data.data;
   
         setCheckInTime(formatTime(come_time) || '--:--');
         setCheckOutTime(leave_time === null ? '--:--' : formatTime(leave_time) || '--:--');
         setTotalHours(total_hours || '--:--');
-        setDashboardEmployeeId(response.data.employee_id); // Обновляем ID сотрудника
+        setDashboardEmployeeId(response.data.employee_id);
       }
     } catch (error) {
       console.error('ダッシュボードデータの取得中にエラーが発生しました。', error);
@@ -154,11 +152,8 @@ const MainContent: React.FC<MainContentProps> = ({
     }
   
     try {
-      const position = await getCurrentPosition();
       const data = {
-        employee_id: dashboardEmployeeId, // Используем ID из fetchDashboardData
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
+        employee_id: dashboardEmployeeId,
       };
   
       const response = await axiosInstance().patch('/attendance/exitbyphone', data);
@@ -182,6 +177,7 @@ const MainContent: React.FC<MainContentProps> = ({
         setCheckOutTime(result.data.leave_time === null ? '--:--' : formatTime(result.data.leave_time));
         setMessage(`仕事へようこそ！出勤した時間 ${formatTime(result.data.come_time)}`);
         setMessageColor('#000');
+        await fetchDashboardData();
       } else {
         setMessage(result.error || 'しばらくしてからもう一度お試しください。');
         setMessageColor('#ff0000');
@@ -189,18 +185,16 @@ const MainContent: React.FC<MainContentProps> = ({
     } catch (error) {
       console.error('出勤記録のリクエスト送信中にエラーが発生しました', error);
       const axiosError = error as AxiosError;
-        if (axiosError) {
-          setMessage(axiosError.error);
-        } else {
-          setMessage("予期せぬエラーが発生しました");
-        }
+      if (axiosError.response) {
+        setMessage(axiosError.response.data.error);
+      } else {
+        setMessage("予期せぬエラーが発生しました");
+      }
       setMessageColor('#ff0000');
     } finally {
-      setLoadingCome(false); // Завершаем загрузку в любом случае
+      setLoadingCome(false);
     }
   };
-  
-  
   
   const handleLeaveClick = async () => {
     setLoadingLeave(true);
@@ -219,18 +213,17 @@ const MainContent: React.FC<MainContentProps> = ({
     } catch (error) {
       console.error('退勤リクエスト中にエラーが発生しました', error);
       const axiosError = error as AxiosError;
-        if (axiosError) {
-          setMessage(axiosError.error);
-        } else {
-          setMessage("予期せぬエラーが発生しました");
-        }
+      if (axiosError.response) {
+        setMessage(axiosError.response.data.error);
+      } else {
+        setMessage("予期せぬエラーが発生しました");
+      }
       setMessageColor('#ff0000');
     } finally {
       setLoadingLeave(false);
     }
   };
-  
-  
+
   useEffect(() => {
     setLoadingCome(false);
     setLoadingLeave(false);
@@ -289,38 +282,37 @@ const MainContent: React.FC<MainContentProps> = ({
             </Box>
           </Box>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-          <Button
-  variant="contained"
-  onClick={handleComeClick}
-  disabled={loadingCome}
-  sx={{
-    borderRadius: 28,
-    mb: '12px',
-    backgroundColor: loadingCome ? '#ccc' : '#1cbeca',
-    '&:hover': {
-      backgroundColor: loadingCome ? '#ccc' : '#1a9bde',
-    },
-  }}
->
-  {loadingCome ? '読み込み中' : t('user:checkIn')}
-</Button>
+            <Button
+              variant="contained"
+              onClick={handleComeClick}
+              disabled={loadingCome}
+              sx={{
+                borderRadius: 28,
+                mb: '12px',
+                backgroundColor: loadingCome ? '#ccc' : '#1cbeca',
+                '&:hover': {
+                  backgroundColor: loadingCome ? '#ccc' : '#1a9bde',
+                },
+              }}
+            >
+              {loadingCome ? '読み込み中' : t('user:checkIn')}
+            </Button>
 
-<Button
-  variant="contained"
-  onClick={handleLeaveClick}
-  disabled={loadingLeave}
-  sx={{
-    borderRadius: 28,
-    mb: '12px',
-    backgroundColor: loadingLeave ? '#ccc' : '#ff9500',
-    '&:hover': {
-      backgroundColor: loadingLeave ? '#ccc' : '#e88e00',
-    },
-  }}
->
-  {loadingLeave ? '読み込み中' : t('user:checkOut')}
-</Button>
-
+            <Button
+              variant="contained"
+              onClick={handleLeaveClick}
+              disabled={loadingLeave}
+              sx={{
+                borderRadius: 28,
+                mb: '12px',
+                backgroundColor: loadingLeave ? '#ccc' : '#ff9500',
+                '&:hover': {
+                  backgroundColor: loadingLeave ? '#ccc' : '#e88e00',
+                },
+              }}
+            >
+              {loadingLeave ? '読み込み中' : t('user:checkOut')}
+            </Button>
           </Box>
           {message && (
             <Typography variant="body1" align="center" sx={{ mt: 2, color: messageColor }}>
