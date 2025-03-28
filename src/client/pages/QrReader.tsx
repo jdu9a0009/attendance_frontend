@@ -49,7 +49,7 @@ const QRCodeScanner: React.FC = () => {
     try {
       const position = await getCurrentPosition();
       
-      const response: ServerResponse = await createByQRCode(employeeId);
+      const response: ServerResponse = await createByQRCode(employeeId, position.coords.latitude, position.coords.longitude);
       
       if (response.status) {
         setServerMessage(response.message);
