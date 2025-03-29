@@ -12,10 +12,12 @@ import {
   SelectChangeEvent,
   ThemeProvider,
   createTheme,
+  FormHelperText,
 } from "@mui/material";
-import { AxiosError, TableData } from "./types.ts";
+import { AxiosError, TableData, FormErrors } from "./types.ts";
 import { createUser } from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
+import { useErrorHandler } from "./ErrorHandler";
 
 interface CreateEmployeeModalProps {
   open: boolean;
@@ -50,17 +52,6 @@ const initialEmployeeState = {
   email: "",
 };
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#105E82",
-    },
-  },
-  typography: {
-    fontFamily: "Roboto, Arial, sans-serif",
-  },
-});
-
 const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   open,
   onClose,
@@ -68,22 +59,17 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
   positions = [],
   departments = [],
 }) => {
-  const [newEmployee, setNewEmployee] = useState<Partial<TableData>>({
-    position: "",
-    department: "",
-    role: "",
-  });
-  const [nickNameError, setNickNameError] = useState<string>("");
-  const [error, setError] = useState("");
+  const [newEmployee, setNewEmployee] =
+    useState<Partial<TableData>>(initialEmployeeState);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [filteredPositions, setFilteredPositions] = useState<Position[]>([]);
   const { t } = useTranslation("admin");
+  const { parseApiError, validateForm } = useErrorHandler();
 
   useEffect(() => {
     if (!open) {
       setNewEmployee(initialEmployeeState);
-      setError("");
-      setNickNameError("");
-      setFilteredPositions([]);
+      setErrors({});
     }
   }, [open]);
 
@@ -92,252 +78,335 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
       const selectedDepartment = departments.find(
         (dept) => dept.name === newEmployee.department
       );
-      
+
       if (selectedDepartment) {
         const positionsForDepartment = positions.filter(
           (position) => position.department_id === selectedDepartment.id
         );
         setFilteredPositions(positionsForDepartment);
-        
-        if (!positionsForDepartment.some(p => p.name === newEmployee.position)) {
-          setNewEmployee(prev => ({ ...prev, position: "" }));
+
+        if (
+          !positionsForDepartment.some((p) => p.name === newEmployee.position)
+        ) {
+          setNewEmployee((prev) => ({ ...prev, position: "" }));
         }
       }
     } else {
       setFilteredPositions([]);
-      setNewEmployee(prev => ({ ...prev, position: "" }));
+      setNewEmployee((prev) => ({ ...prev, position: "" }));
     }
   }, [newEmployee.department, newEmployee.position, departments, positions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (open) {
-      setError(""); 
-    }
 
-    if (name === "nick_name") {
-      if (value.length > 7) {
-        setNickNameError(
-          t("createEmployeeModal.nickNameError") ||
-            "Nickname cannot be longer than 7 characters"
-        );
-        return;
-      }
-      setNickNameError("");
-    }
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
 
     setNewEmployee({ ...newEmployee, [name]: value });
   };
 
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     const { name, value } = e.target;
-    
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+
     if (name === "department") {
-      setNewEmployee({ 
-        ...newEmployee, 
+      setNewEmployee({
+        ...newEmployee,
         [name]: value,
-        position: "" 
+        position: "",
       });
+
+      setErrors((prev) => ({
+        ...prev,
+        position: undefined,
+      }));
     } else {
       setNewEmployee({ ...newEmployee, [name]: value });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const validateAndSubmit = async () => {
+    if (!newEmployee) return;
+
+    setErrors({});
+
+    const validationErrors = validateForm(newEmployee);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     try {
+      const departmentId = departments.find(
+        (d) => d.name === newEmployee.department
+      )?.id;
+      const positionId = positions.find(
+        (p) => p.name === newEmployee.position
+      )?.id;
+
+      if (!departmentId || !positionId) {
+        setErrors({
+          department: !departmentId ? t("errors.invalidDepartment") : undefined,
+          position: !positionId ? t("errors.invalidPosition") : undefined,
+        });
+        return;
+      }
+
       const createdEmployee = await createUser(
         newEmployee.password!,
         newEmployee.employee_id!,
         newEmployee.role!,
         newEmployee.first_name!,
         newEmployee.last_name!,
-        departments.find((d) => d.name === newEmployee.department)?.id!,
-        positions.find((p) => p.name === newEmployee.position)?.id!,
+        departmentId,
+        positionId,
         newEmployee.phone!,
         newEmployee.email!,
-        newEmployee.nick_name
+        newEmployee.nick_name || ""
       );
+
       onSave(createdEmployee);
       onClose();
       setNewEmployee(initialEmployeeState);
     } catch (error) {
       const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        setError(axiosError.response.data.error);
-        if(axiosError.response.data.error == null){
-          setError('予期せぬエラーが発生しました');
-        }
-      } else {
-        setError('予期せぬエラーが発生しました');
+      let errorMessage = "予期せぬエラーが発生しました";
+
+      if (axiosError.response && axiosError.response.data.error) {
+        errorMessage = axiosError.response.data.error;
       }
+
+      const apiErrors = parseApiError(errorMessage);
+      setErrors(apiErrors);
     }
   };
+
+  if (!open) return null;
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#105E82",
+      },
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>
       <Modal open={open} onClose={onClose}>
-        <Box
-          sx={{
-            borderRadius: "10px",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 3,
-          }}
-        >
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
             {t("createEmployeeModal.title")}
           </Typography>
-          <form onSubmit={handleSubmit} autoComplete="off">
-            <TextField
-              fullWidth
-              margin="dense"
-              name="employee_id"
-              label={t("createEmployeeModal.employeeId")}
-              value={newEmployee.employee_id}
-              onChange={handleInputChange}
-              autoComplete="off"
-              required
-            />
-            <TextField
-              fullWidth
-              margin="dense"
-              name="last_name"
-              label={t("createEmployeeModal.lastName")}
-              value={newEmployee.last_name}
-              onChange={handleInputChange}
-              autoComplete="off"
-              required
-            />
-            <TextField
-              fullWidth
-              margin="dense" 
-              name="first_name"
-              label={t("createEmployeeModal.firstName")}
-              value={newEmployee.first_name}
-              onChange={handleInputChange}
-              autoComplete="off"
-              required
-            />
-            <TextField
-              required
-              fullWidth
-              margin="dense" 
-              name="password"
-              label={t("createEmployeeModal.password")}
-              type="password"
-              value={newEmployee.password}
-              onChange={handleInputChange}
-              autoComplete="new-password"
-            />
-            <TextField
-              fullWidth
-              margin="dense" 
-              name="nick_name"
-              label={t("createEmployeeModal.nickName") || "Nickname"}
-              value={newEmployee.nick_name || ""}
-              onChange={handleInputChange}
-              error={Boolean(nickNameError)}
-              helperText={nickNameError}
-              inputProps={{ maxLength: 7 }}
-            />
-            <FormControl fullWidth margin="dense" required>
-              <InputLabel shrink={Boolean(newEmployee.role)}>
-                {t("createEmployeeModal.role")}
-              </InputLabel>
-              <Select
-                name="role"
-                value={newEmployee.role}
-                onChange={handleSelectChange}
-              >
-                <MenuItem value="Admin">
-                  {t("createEmployeeModal.roleAdmin")}
-                </MenuItem>
-                <MenuItem value="Employee">
-                  {t("createEmployeeModal.roleEmployee")}
-                </MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth margin="dense" required>
-              <InputLabel shrink={Boolean(newEmployee.department)}>
-                {t("createEmployeeModal.department")}
-              </InputLabel>
-              <Select
-                name="department"
-                value={newEmployee.department}
-                onChange={handleSelectChange}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {departments?.map((department) => (
-                  <MenuItem key={department.id} value={department.name}>
-                    {department.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
 
-            <FormControl fullWidth margin="dense" required>
-              <InputLabel shrink={Boolean(newEmployee.position)}>
-                {t("createEmployeeModal.position")}
-              </InputLabel>
-              <Select
-                name="position"
-                value={newEmployee.position}
-                onChange={handleSelectChange}
-                disabled={!newEmployee.department} 
-              >
-                <MenuItem value="">
-                  <em>None</em>
+          <TextField
+            label={t("createEmployeeModal.employeeId")}
+            name="employee_id"
+            value={newEmployee.employee_id}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.employee_id)}
+            helperText={errors.employee_id || ""}
+          />
+
+          <TextField
+            label={t("createEmployeeModal.lastName")}
+            name="last_name"
+            value={newEmployee.last_name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.last_name)}
+            helperText={errors.last_name || ""}
+          />
+
+          <TextField
+            label={t("createEmployeeModal.firstName")}
+            name="first_name"
+            value={newEmployee.first_name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.first_name)}
+            helperText={errors.first_name || ""}
+          />
+
+          <TextField
+            label={t("createEmployeeModal.password")}
+            name="password"
+            type="password"
+            value={newEmployee.password}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+            autoComplete="new-password"
+            error={Boolean(errors.password)}
+            helperText={errors.password || ""}
+          />
+
+          <TextField
+            label={t("createEmployeeModal.nickName")}
+            name="nick_name"
+            value={newEmployee.nick_name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            error={Boolean(errors.nick_name)}
+            helperText={errors.nick_name || ""}
+            inputProps={{ maxLength: 7 }}
+          />
+
+          <FormControl
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.role)}
+          >
+            <InputLabel id="role-select-label">
+              {t("createEmployeeModal.role")}
+            </InputLabel>
+            <Select
+              labelId="role-select-label"
+              name="role"
+              value={newEmployee.role}
+              label={t("createEmployeeModal.role")}
+              onChange={handleSelectChange}
+            >
+              <MenuItem value="Admin">
+                {t("createEmployeeModal.roleAdmin")}
+              </MenuItem>
+              <MenuItem value="Employee">
+                {t("createEmployeeModal.roleEmployee")}
+              </MenuItem>
+            </Select>
+            {errors.role && <FormHelperText>{errors.role}</FormHelperText>}
+          </FormControl>
+
+          <FormControl
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.department)}
+          >
+            <InputLabel id="department-select-label">
+              {t("createEmployeeModal.department")}
+            </InputLabel>
+            <Select
+              labelId="department-select-label"
+              name="department"
+              value={newEmployee.department}
+              label={t("createEmployeeModal.department")}
+              onChange={handleSelectChange}
+            >
+              {departments.map((department) => (
+                <MenuItem key={department.id} value={department.name}>
+                  {department.name}
                 </MenuItem>
-                {filteredPositions.map((position) => (
-                  <MenuItem key={position.id} value={position.name}>
-                    {position.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              margin="dense" 
-              name="phone"
-              label={t("createEmployeeModal.phoneNumber")}
-              value={newEmployee.phone}
-              onChange={handleInputChange}
-            />
-            <TextField
-              fullWidth
-              margin="dense" 
-              name="email"
-              label={t("createEmployeeModal.email")}
-              value={newEmployee.email}
-              onChange={handleInputChange}
-              required
-            />
-            <Typography variant="body2" color="error">
-              {error}
+              ))}
+            </Select>
+            {errors.department && (
+              <FormHelperText>{errors.department}</FormHelperText>
+            )}
+          </FormControl>
+
+          <FormControl
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.position)}
+          >
+            <InputLabel id="position-select-label">
+              {t("createEmployeeModal.position")}
+            </InputLabel>
+            <Select
+              labelId="department-select-label"
+              name="position"
+              value={newEmployee.position}
+              onChange={handleSelectChange}
+              label={t("createEmployeeModal.position")}
+              disabled={!newEmployee.department}
+            >
+              {filteredPositions.map((position) => (
+                <MenuItem key={position.id} value={position.name}>
+                  {position.name}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.position && (
+              <FormHelperText>{errors.position}</FormHelperText>
+            )}
+          </FormControl>
+
+          <TextField
+            label={t("createEmployeeModal.phoneNumber")}
+            name="phone"
+            value={newEmployee.phone}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            error={Boolean(errors.phone)}
+            helperText={errors.phone || ""}
+          />
+
+          <TextField
+            label={t("createEmployeeModal.email")}
+            name="email"
+            value={newEmployee.email}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+            error={Boolean(errors.email)}
+            helperText={errors.email || ""}
+          />
+
+          {errors.general && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {errors.general}
             </Typography>
-            <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-              <Button onClick={onClose} sx={{ mr: 1 }}>
-                {t("createEmployeeModal.cancelBtn")}
-              </Button>
-              <Button type="submit" variant="contained">
-                {t("createEmployeeModal.saveBtn")}
-              </Button>
-            </Box>
-          </form>
+          )}
+
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={onClose} sx={{ mr: 1 }}>
+              {t("createEmployeeModal.cancelBtn")}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={validateAndSubmit}
+            >
+              {t("createEmployeeModal.saveBtn")}
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </ThemeProvider>
   );
+};
+
+const modalStyle = {
+  position: "absolute" as "absolute",
+  borderRadius: "10px",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 3,
 };
 
 export default CreateEmployeeModal;

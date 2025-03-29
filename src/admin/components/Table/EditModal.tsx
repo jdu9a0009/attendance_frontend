@@ -12,10 +12,12 @@ import {
   SelectChangeEvent,
   ThemeProvider,
   createTheme,
+  FormHelperText,
 } from "@mui/material";
-import { AxiosError, TableData } from "./types.ts";
+import { AxiosError, TableData, FormErrors } from "./types.ts";
 import { updateUser } from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
+import { useErrorHandler } from "./ErrorHandler";
 
 interface EditModalProps {
   open: boolean;
@@ -48,14 +50,14 @@ const EditModal: React.FC<EditModalProps> = ({
   departments,
 }) => {
   const [formData, setFormData] = useState<TableData | null>(null);
-  const [nickNameError, setNickNameError] = useState<string>("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
   const [filteredPositions, setFilteredPositions] = useState<Position[]>([]);
   const { t } = useTranslation("admin");
+  const { parseApiError, validateForm } = useErrorHandler();
 
   useEffect(() => {
     if (open && data) {
-      setError("");
+      setErrors({});
       setFormData({
         ...data,
         password: "",    
@@ -90,14 +92,11 @@ const EditModal: React.FC<EditModalProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
       const { name, value } = e.target;
-
-      if (name === "nick_name") {
-        if (value.length > 7) {
-          setNickNameError("ニックネームは7文字以内で入力してください");
-          return;
-        }
-        setNickNameError("");
-      }
+      
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
 
       setFormData({
         ...formData,
@@ -110,12 +109,22 @@ const EditModal: React.FC<EditModalProps> = ({
     if (formData) {
       const { name, value } = e.target;
       
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+      
       if (name === "department") {
         setFormData({
           ...formData,
           [name]: value,
           position: "" 
         });
+        
+        setErrors(prev => ({
+          ...prev,
+          position: undefined
+        }));
       } else {
         setFormData({
           ...formData,
@@ -125,52 +134,62 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   };
 
-  const handleSave = async () => {
-    setError("");
-
-    if (formData) {
-      try {
-        const departmentId = departments.find(
-          (d) => d.name === formData.department
-        )?.id;
-        const positionId = positions.find(
-          (p) => p.name === formData.position
-        )?.id;
-
-        if (!departmentId || !positionId) {
-          console.error("Department or Position not found");
-          return;
-        }
-
-        await updateUser(
-          formData.id,
-          formData.employee_id,
-          formData.password || "",
-          formData.role!,
-          formData.first_name!,
-          formData.last_name!,
-          departmentId,
-          positionId,
-          formData.phone!,
-          formData.email!,
-          formData.nick_name || ""
-        );
-
-        onSave(formData);
-        onClose();
-      } catch (error) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response) {
-          setError(axiosError.response.data.error);
-          if(axiosError.response.data.error == null){
-            setError('予期せぬエラーが発生しました');
-          }
-        } else {
-          setError('予期せぬエラーが発生しました');
-        }
-      }
+  const validateAndSubmit = async () => {
+    if (!formData) return;
+    
+    setErrors({});
+    
+    const validationErrors = validateForm(formData);
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
-  }
+    
+    try {
+      const departmentId = departments.find(
+        (d) => d.name === formData.department
+      )?.id;
+      const positionId = positions.find(
+        (p) => p.name === formData.position
+      )?.id;
+
+      if (!departmentId || !positionId) {
+        setErrors({
+          department: !departmentId ? t("errors.invalidDepartment") : undefined,
+          position: !positionId ? t("errors.invalidPosition") : undefined,
+        });
+        return;
+      }
+
+      await updateUser(
+        formData.id,
+        formData.employee_id,
+        formData.password || "",
+        formData.role!,
+        formData.first_name!,
+        formData.last_name!,
+        departmentId,
+        positionId,
+        formData.phone!,
+        formData.email!,
+        formData.nick_name || ""
+      );
+
+      onSave(formData);
+      onClose();
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      let errorMessage = "予期せぬエラーが発生しました";
+      
+      if (axiosError.response && axiosError.response.data.error) {
+        errorMessage = axiosError.response.data.error;
+      }
+      
+      const apiErrors = parseApiError(errorMessage);
+      setErrors(apiErrors);
+    }
+  };
 
   if (!open || !formData) return null;
 
@@ -189,6 +208,7 @@ const EditModal: React.FC<EditModalProps> = ({
           <Typography variant="h6" sx={{ mb: 2 }}>
             {t("createEmployeeModal.title")}
           </Typography>
+          
           <TextField
             label={t("createEmployeeModal.employeeId")}
             name="employee_id"
@@ -197,7 +217,10 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="dense"
             required
+            error={Boolean(errors.employee_id)}
+            helperText={errors.employee_id || ""}
           />
+          
           <TextField
             label={t("createEmployeeModal.lastName")}
             name="last_name"
@@ -206,7 +229,10 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="dense"
             required
+            error={Boolean(errors.last_name)}
+            helperText={errors.last_name || ""}
           />
+          
           <TextField
             label={t("createEmployeeModal.firstName")}
             name="first_name"
@@ -215,7 +241,10 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="dense"
             required
+            error={Boolean(errors.first_name)}
+            helperText={errors.first_name || ""}
           />
+          
           <TextField
             label={t("createEmployeeModal.password")}
             name="password"
@@ -225,7 +254,10 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="dense"
             autoComplete="off"
+            error={Boolean(errors.password)}
+            helperText={errors.password || ""}
           />
+          
           <TextField
             label={t("createEmployeeModal.nickName")}
             name="nick_name"
@@ -233,17 +265,24 @@ const EditModal: React.FC<EditModalProps> = ({
             onChange={handleInputChange}
             fullWidth
             margin="dense"
-            error={Boolean(nickNameError)}
-            helperText={nickNameError}
+            error={Boolean(errors.nick_name)}
+            helperText={errors.nick_name || ""}
             inputProps={{ maxLength: 7 }}
           />
-          <FormControl fullWidth margin="dense">
+          
+          <FormControl 
+            fullWidth 
+            required
+            margin="dense"
+            error={Boolean(errors.role)}
+          >
             <InputLabel shrink={Boolean(formData.role)}>
               {t("createEmployeeModal.role")}
             </InputLabel>
             <Select
               name="role"
               value={formData.role}
+              label={t("createEmployeeModal.role")}
               onChange={handleSelectChange}
             >
               <MenuItem value="Admin">
@@ -253,14 +292,22 @@ const EditModal: React.FC<EditModalProps> = ({
                 {t("createEmployeeModal.roleEmployee")}
               </MenuItem>
             </Select>
+            {errors.role && <FormHelperText>{errors.role}</FormHelperText>}
           </FormControl>
-          <FormControl fullWidth margin="dense" required>
+          
+          <FormControl 
+            fullWidth 
+            margin="dense" 
+            required
+            error={Boolean(errors.department)}
+          >
             <InputLabel shrink={Boolean(formData.department)}>
               {t("createEmployeeModal.department")}
             </InputLabel>
             <Select
               name="department"
               value={formData.department}
+              label={t("createEmployeeModal.department")}
               onChange={handleSelectChange}
             >
               {departments.map((department) => (
@@ -269,14 +316,22 @@ const EditModal: React.FC<EditModalProps> = ({
                 </MenuItem>
               ))}
             </Select>
+            {errors.department && <FormHelperText>{errors.department}</FormHelperText>}
           </FormControl>
-          <FormControl fullWidth margin="dense" required>
+          
+          <FormControl 
+            fullWidth 
+            margin="dense" 
+            required
+            error={Boolean(errors.position)}
+          >
             <InputLabel shrink={Boolean(formData.position)}>
               {t("createEmployeeModal.position")}
             </InputLabel>
             <Select
               name="position"
               value={formData.position}
+              label={t("createEmployeeModal.position")}
               onChange={handleSelectChange}
               disabled={!formData.department}
             >
@@ -286,7 +341,9 @@ const EditModal: React.FC<EditModalProps> = ({
                 </MenuItem>
               ))}
             </Select>
+            {errors.position && <FormHelperText>{errors.position}</FormHelperText>}
           </FormControl>
+          
           <TextField
             label={t("createEmployeeModal.phoneNumber")}
             name="phone"
@@ -294,7 +351,10 @@ const EditModal: React.FC<EditModalProps> = ({
             onChange={handleInputChange}
             fullWidth
             margin="dense"
+            error={Boolean(errors.phone)}
+            helperText={errors.phone || ""}
           />
+          
           <TextField
             label={t("createEmployeeModal.email")}
             name="email"
@@ -303,16 +363,21 @@ const EditModal: React.FC<EditModalProps> = ({
             fullWidth
             margin="dense"
             required
+            error={Boolean(errors.email)}
+            helperText={errors.email || ""}
           />
-          <Typography variant="body2" color="error">
-            {error}
-          </Typography>
+          
+          {errors.general && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {errors.general}
+            </Typography>
+          )}
 
           <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
             <Button onClick={onClose} sx={{ mr: 1 }}>
               {t("createEmployeeModal.cancelBtn")}
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSave}>
+            <Button variant="contained" color="primary" onClick={validateAndSubmit}>
               {t("createEmployeeModal.saveBtn")}
             </Button>
           </Box>

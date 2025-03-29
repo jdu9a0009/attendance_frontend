@@ -76,3 +76,17 @@ export interface AxiosError extends Error {
     };
   };
 }
+
+export interface FormErrors {
+  employee_id?: string;
+  first_name?: string;
+  last_name?: string;
+  nick_name?: string;
+  password?: string;
+  role?: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+  email?: string;
+  general?: string; 
+}

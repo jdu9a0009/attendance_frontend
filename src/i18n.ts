@@ -66,6 +66,7 @@ const commonResources = {
         serverError: '予期せぬサーバーエラーが発生しました。後ほど再度お試しください。',
         invalidInput: '入力が無効です。入力内容を確認して再度お試しください。',
         sessionExpired: 'セッションが切れました。再度ログインしてください。',
+        requiredField: '必須フィールド',
       },
     },
   },

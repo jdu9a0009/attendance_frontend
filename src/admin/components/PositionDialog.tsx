@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  Dialog,
   DialogTitle,
   DialogContent,
   TextField,
@@ -11,6 +10,8 @@ import {
   FormControl,
   InputLabel,
   Typography,
+  Box,
+  Modal,
 } from "@mui/material";
 import {
   Department,
@@ -104,7 +105,8 @@ function PositionDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose}>
+      <Box sx={modalStyle}>
       <DialogTitle>
         {position
           ? t("positionTable.dialogTitleEdit")
@@ -119,11 +121,10 @@ function PositionDialog({
           label={t("positionTable.label")}
           type="text"
           fullWidth
-          variant="standard"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <FormControl fullWidth variant="standard" sx={{ marginTop: 2 }}>
+        <FormControl fullWidth sx={{ marginTop: 2 }}>
           <InputLabel id="department-select-label">
             {t("positionTable.changeDep")}
           </InputLabel>
@@ -131,6 +132,7 @@ function PositionDialog({
             labelId="department-select-label"
             id="department-select"
             value={departmentId}
+            label={t("positionTable.changeDep")}
             onChange={(e) => setDepartmentId(e.target.value as number)}
           >
             {departments.map((department) => (
@@ -148,8 +150,21 @@ function PositionDialog({
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSave}>Save</Button>
       </DialogActions>
-    </Dialog>
+      </Box>
+      </Modal>
   );
-}
+};
+
+const modalStyle = {
+  position: "absolute" as "absolute",
+  borderRadius: "12px",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 1,
+};
 
 export default PositionDialog;

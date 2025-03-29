@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  Dialog,
   DialogTitle,
   DialogContent,
   TextField,
@@ -11,6 +10,8 @@ import {
   FormControl,
   InputLabel,
   Typography,
+  Modal,
+  Box,
 } from "@mui/material";
 import { Department } from "../pages/DepartmentPositionManagement.tsx";
 import { createDepartment, updateDepartment } from "../../utils/libs/axios.ts";
@@ -153,7 +154,8 @@ function DepartmentDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose}>
+      <Box sx={modalStyle}>
       <DialogTitle>
         {department
           ? t("departmentTable.dialogTitleEdit")
@@ -168,7 +170,6 @@ function DepartmentDialog({
           label={t("departmentTable.label")}
           type="text"
           fullWidth
-          variant="standard"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -179,7 +180,6 @@ function DepartmentDialog({
           label={t("departmentTable.departmentNickname")}
           type="text"
           fullWidth
-          variant="standard"
           value={departmentNickname}
           onChange={(e) => setDepartmentNickname(e.target.value)}
         />
@@ -219,8 +219,21 @@ function DepartmentDialog({
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSave}>Save</Button>
       </DialogActions>
-    </Dialog>
+      </Box>
+    </Modal>
   );
-}
+};
+
+const modalStyle = {
+  position: "absolute" as "absolute",
+  borderRadius: "12px",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 1,
+};
 
 export default DepartmentDialog;
