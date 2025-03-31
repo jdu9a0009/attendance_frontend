@@ -41,7 +41,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
   // 3440px - 3839px
   [`@media (min-width: ${customBreakpoints.values.cf3}px) and (max-width: ${customBreakpoints.values.xxxl - 1}px)`]: {
-    fontSize: '36px',
+    fontSize: '38px',
     padding: '9px',
     height: '90px',
     maxWidth: '130px',
@@ -49,7 +49,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
   // 3200px - 3439px
   [`@media (min-width: ${customBreakpoints.values.cf2}px) and (max-width: ${customBreakpoints.values.cf3 - 1}px)`]: {
-    fontSize: '32px',
+    fontSize: '34px',
     padding: '9px',
     height: '80px',
     maxWidth: '130px',
@@ -57,7 +57,7 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
   // 2560px - 3199px
   [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.cf2 - 1}px)`]: {
-    fontSize: '26px',
+    fontSize: '28px',
     padding: '8px',
     height: '60px',
     maxWidth: '120px',
@@ -65,15 +65,15 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
   
   // 1920px - 2559px (большие мониторы)
   [`@media (min-width: ${customBreakpoints.values.xl}px) and (max-width: ${customBreakpoints.values.xxl - 1}px)`]: {
-    fontSize: '18px',
-    padding: '7px',
+    fontSize: '22px',
+    padding: '4px',
     height: '55px',
     maxWidth: '110px',
   },
   
   // 1440px - 1919px (средние мониторы)
   [`@media (min-width: ${customBreakpoints.values.lg}px) and (max-width: ${customBreakpoints.values.xl - 1}px)`]: {
-    fontSize: '13px',
+    fontSize: '15px',
     padding: '6px',
     height: '50px',
     maxWidth: '100px',
@@ -116,10 +116,12 @@ export const EmployeeCell = styled('div')<{
   justifyContent: 'center',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
+  borderRadius: '2px',
   
   '& span': {
     display: 'block',
     maxWidth: '100%',
+    padding: '0px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -131,22 +133,22 @@ export const EmployeeCell = styled('div')<{
     },
     // 2560px - 3840px
     [`@media (min-width: ${customBreakpoints.values.xxl}px) and (max-width: ${customBreakpoints.values.xxxl - 1}px)`]: {
-      fontSize: '26px',
+      fontSize: '27px',
     },
     
     // 1920px - 2559px
     [`@media (min-width: ${customBreakpoints.values.xl}px) and (max-width: ${customBreakpoints.values.xxl - 1}px)`]: {
-      fontSize: '18px',
+      fontSize: '21px',
     },
     
     // 1440px - 1919px
     [`@media (min-width: ${customBreakpoints.values.lg}px) and (max-width: ${customBreakpoints.values.xl - 1}px)`]: {
-      fontSize: '13px',
+      fontSize: '15px',
     },
     
     // 1024px - 1439px
     [`@media (min-width: ${customBreakpoints.values.md}px) and (max-width: ${customBreakpoints.values.lg + 1}px)`]: {
-      fontSize: '11px',
+      fontSize: '13px',
     },
     
     // Меньше 1024px

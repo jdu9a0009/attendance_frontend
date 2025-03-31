@@ -30,7 +30,7 @@ const axiosInstance = () => {
 
       if (
         error.response.status === 401 &&
-        error.response.statusText === "Unauthorized"
+        error.response.data.error === "attempted action is not allowed"
       ) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");

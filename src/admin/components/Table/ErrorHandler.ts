@@ -8,6 +8,30 @@ export const useErrorHandler = () => {
     const errors: FormErrors = {};
 
     switch (true) {
+      case errorMessage.includes("入力は半角文字のみ使用可能 'employee_id'"):
+        errors.employee_id = "入力は半角文字のみ使用可能";
+        return errors;
+
+      case errorMessage.includes("入力は半角文字のみ使用可能 'last_name'"):
+        errors.last_name = "入力は半角文字のみ使用可能";
+        return errors;
+
+      case errorMessage.includes("入力は半角文字のみ使用可能 'first_name'"):
+        errors.first_name = "入力は半角文字のみ使用可能";
+        return errors;
+
+      case errorMessage.includes("入力は半角文字のみ使用可能 'nick_name'"):
+        errors.nick_name = "入力は半角文字のみ使用可能";
+        return errors;
+
+      case errorMessage.includes("入力は半角文字のみ使用可能 'email'"):
+        errors.email = "入力は半角文字のみ使用可能";
+        return errors;
+
+      case errorMessage.includes("入力は半角文字のみ使用可能 'phone'"):
+        errors.phone = "入力は半角文字のみ使用可能";
+        return errors;
+
       case errorMessage.includes("メールアドレス はすでに使用されています。"):
         errors.email = errorMessage;
         return errors;
@@ -46,7 +70,7 @@ export const useErrorHandler = () => {
     }
   };
 
-  // Make the function more generic to work with any form data object
+  // Make the function more generic to work with any form data object 入力は半角文字のみ使用可能 'employee_id'
   const validateForm = (data: any): FormErrors => {
     const errors: FormErrors = {};
 
@@ -64,7 +88,7 @@ export const useErrorHandler = () => {
 
     if (!data.email || data.email.trim() === "") {
       errors.email = t("errors.requiredField");
-    } 
+    }
 
     if (!data.role || data.role.trim() === "") {
       errors.role = t("errors.requiredField");
@@ -74,10 +98,7 @@ export const useErrorHandler = () => {
       errors.department = t("errors.requiredField");
     }
 
-    if (
-      data.department &&
-      (!data.position || data.position.trim() === "")
-    ) {
+    if (data.department && (!data.position || data.position.trim() === "")) {
       errors.position = t("errors.requiredField");
     }
 
