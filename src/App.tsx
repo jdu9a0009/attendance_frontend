@@ -10,7 +10,8 @@ import { Box } from "@mui/material";
 import "./shared/styles/App.css";
 import QRCodeScanner from "./client/pages/QrCodeScanner.tsx";
 import BigTablePage from "./client/pages/BigTable.tsx";
-import './i18n.ts';
+import "./i18n.ts";
+import ProtectedRoute from "./shared/protection/ProtectedRoute.tsx";
 
 const theme = createTheme({
   palette: {
@@ -27,7 +28,6 @@ const theme = createTheme({
 });
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [employeeData, setEmployeeData] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -37,7 +37,6 @@ function App() {
       const storedEmployeeData = localStorage.getItem("employeeData");
 
       if (accessToken && storedEmployeeData) {
-        setIsLoggedIn(true);
         setEmployeeData(JSON.parse(storedEmployeeData));
       }
       setIsLoading(false);
@@ -47,13 +46,11 @@ function App() {
   }, []);
 
   const handleLoginSuccess = (employee: Employee) => {
-    setIsLoggedIn(true);
     setEmployeeData(employee);
     localStorage.setItem("employeeData", JSON.stringify(employee));
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     setEmployeeData(null);
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -64,28 +61,36 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Box sx={{ height: "100vh"}}>
+        <Box sx={{ height: "100vh" }}>
           <Routes>
-            <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
             <Route
-              path="/employee"
-              element={
-                isLoggedIn ? (
-                  <DashboardPage employeeData={employeeData!} onLogout={handleLogout} />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
+              path="/login"
+              element={<LoginPage onLoginSuccess={handleLoginSuccess} />}
             />
-            <Route path="/admin/*" element={<AdminDashboard onLogout={handleLogout}/>} />
-            <Route path="/qrscanner" element={<QRCodeScanner />} />
-            <Route path="/bigTable" element={<BigTablePage />} />
+
+            {/* Защищенные маршруты с проверкой авторизации */}
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/employee"
+                element={
+                  <DashboardPage
+                    employeeData={employeeData!}
+                    onLogout={handleLogout}
+                  />
+                }
+              />
+              <Route
+                path="/admin/*"
+                element={<AdminDashboard onLogout={handleLogout} />}
+              />
+              <Route path="/qrscanner" element={<QRCodeScanner />} />
+              <Route path="/bigTable" element={<BigTablePage />} />
+            </Route>
+
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>

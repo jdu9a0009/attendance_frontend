@@ -49,6 +49,11 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
     handleMenuClose();
   };
 
+  const handleLogoutClick = () => {
+    onLogout();
+    navigate("/login");
+  };
+
   const fetchEmployeeName = async () => {
     try {
       const response = await axiosInstance().get('/user/dashboard');
@@ -118,7 +123,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, anchorEl, handleMenuOpen, han
               <MenuItem value="en">{t('english')}</MenuItem>
             </Select>
           </MenuItem>
-          <MenuItem onClick={onLogout}>{t('logout')}</MenuItem>
+          <MenuItem onClick={handleLogoutClick}>{t('logout')}</MenuItem>
         </CustomMenu>
       </Box>
     </Box>
