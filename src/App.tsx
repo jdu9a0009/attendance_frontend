@@ -12,20 +12,24 @@ import QRCodeScanner from "./client/pages/QrCodeScanner.tsx";
 import BigTablePage from "./client/pages/BigTable.tsx";
 import "./i18n.ts";
 import ProtectedRoute from "./shared/protection/ProtectedRoute.tsx";
+import { jaJP } from "@mui/material/locale";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#007bff",
+const theme = createTheme(
+  {
+    palette: {
+      primary: {
+        main: "#007bff",
+      },
+      secondary: {
+        main: "#6c757d",
+      },
     },
-    secondary: {
-      main: "#6c757d",
+    typography: {
+      fontFamily: "Poppins, Roboto, sans-serif",
     },
   },
-  typography: {
-    fontFamily: "Poppins, Roboto, sans-serif",
-  },
-});
+  jaJP
+);
 
 function App() {
   const [employeeData, setEmployeeData] = useState<Employee | null>(null);
