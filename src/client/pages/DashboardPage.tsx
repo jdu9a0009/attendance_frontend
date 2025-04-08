@@ -42,8 +42,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ employeeData, onLogout })
 
   return (
     <Container 
-      maxWidth="xs" 
+      maxWidth={false}
       sx={{ 
+        maxWidth: '460px', // кастомная ширина
+        mx: 'auto',  
         background: '#f4f4f4',
         minHeight: '100vh',
         display: 'flex', 

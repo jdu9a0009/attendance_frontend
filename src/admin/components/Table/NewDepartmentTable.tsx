@@ -66,6 +66,7 @@ const NewDepartmentTable: React.FC = () => {
     new_absent_color: '#e53935',
     new_present_color: '#fafafa'
   });
+  const [isBold, setIsBold] = useState<boolean>(false); // Add state for bold text
 
   const maxColumnsPerPage = 10;
   const maxEmployeesPerColumn = 20;
@@ -83,9 +84,11 @@ const NewDepartmentTable: React.FC = () => {
   useEffect(() => {
     const handleSSEMessage = (data: { 
       department: Department[], 
-      colors?: Colors 
+      colors?: Colors,
+      bold?: boolean // Add bold property to the data
     }) => {
-      const { department, colors: newColors } = data;
+      const { department, colors: newColors, bold } = data;
+      
   
       if (department && department.length > 0) {
         setDepartmentData(department);
@@ -101,6 +104,11 @@ const NewDepartmentTable: React.FC = () => {
           new_absent_color: newColors.new_absent_color || colors.new_absent_color,
           new_present_color: newColors.new_present_color || colors.new_present_color
         });
+      }
+      
+      // Set the bold state if it's included in the response
+      if (bold !== undefined) {
+        setIsBold(bold);
       }
   
       setLoading(false);
@@ -132,6 +140,7 @@ const NewDepartmentTable: React.FC = () => {
 
   const handleReset = () => {
     setSelectedDepartments(new Set(departmentData.map(dept => dept.department_name)));
+    console.log(isBold);
     setCurrentPage(1);
   };
 
@@ -206,7 +215,7 @@ const NewDepartmentTable: React.FC = () => {
                   status={employee.status}
                   colors={colors}
                 >
-                  <span>{formatName(employee)}</span>
+                  <span style={{ fontWeight: isBold ? "bold" : "500" }}>{formatName(employee)}</span>
                 </EmployeeCell>
               ) : (
                 <EmployeeCell 
@@ -235,7 +244,7 @@ const NewDepartmentTable: React.FC = () => {
     ));
   };
 
-  if (loading) return <div>...</div>;
+  if (loading) return <div>読み込み中...</div>;
   if (error) return <div>{error}</div>;
 
   return (

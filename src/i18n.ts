@@ -292,6 +292,9 @@ const adminResources = {
         changeColor: 'Change Color',
         saveBtn: 'Save All',
         selectedFile: 'Selected File: ',
+        boldText: "Bold Text Toggle",
+        boldOn: "On",
+        boldOff: "Off",
       },
 
       lineChart: {
@@ -369,7 +372,7 @@ const adminResources = {
         departmentAndPosition: '部署と役職',
         employeeEdit: '従業員の編集',
         companySettings: '会社の設定',
-        newTable: '出社表',
+        newTable: '出席表',
       },
 
       pieChart: {
@@ -454,9 +457,12 @@ const adminResources = {
         changeColor: 'Change Color',
         saveBtn: 'すべて保存',
         selectedFile: '選択されたファイル',
+        boldText: '太字の切り替え',
+        boldOn: "オン",
+        boldOff: "オフ",
       },
       lineChart: {
-        title: '出勤状況グラフ',
+        title: '出席状況グラフ',
         selectMonth: '月と年を選択',
         interval: {
           first: '1日-10日',

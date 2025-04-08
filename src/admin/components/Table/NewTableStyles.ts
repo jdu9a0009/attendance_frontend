@@ -159,7 +159,6 @@ export const EmployeeCell = styled("div")<{
     overflow: "hidden",
     textOverflow: "ellipsis",
     transition: "font-size 0.2s ease",
-    // fontWeight: "bold",  <----------------------------------------------------------- karoche suha vot etot
 
     // 3840px i dalshe v pizdu
     [`@media (min-width: ${customBreakpoints.values.xxxl}px)`]: {

@@ -98,6 +98,7 @@ export const setupDashboardSSE = (
     employee_list: Employee[];
     total_employee_count: number;
     department: Department[];
+    bold: boolean;
   }) => void,
   onError?: (error: Error) => void
 ) => {
@@ -107,6 +108,7 @@ export const setupDashboardSSE = (
   eventSource.onmessage = (event) => {
     try {
       const rawData = JSON.parse(event.data);
+      
 
       if (!rawData?.data?.results) {
         throw new Error(
@@ -143,6 +145,7 @@ export const setupDashboardSSE = (
         employee_list,
         total_employee_count: rawData.data.count,
         department,
+        bold: rawData.bold
       };
       onDataUpdate(transformedData);
     } catch (error) {
