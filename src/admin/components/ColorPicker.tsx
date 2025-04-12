@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Button, Dialog, DialogTitle, DialogContent, Typography, TextField } from '@mui/material';
+import { Box, Button, Dialog, DialogTitle, DialogContent, Typography, TextField, DialogActions, FormHelperText } from '@mui/material';
 
 interface HSV {
   h: number;
@@ -90,19 +90,35 @@ const ColorPickerButton: React.FC<{
     return rgbToHsv(rgb[0], rgb[1], rgb[2]);
   }, [hexToRgb, rgbToHsv]);
 
+  // Function to validate hex color code
+  const isValidHexColor = useCallback((hex: string): boolean => {
+    return /^#[0-9A-Fa-f]{6}$/.test(hex);
+  }, []);
+
   const [open, setOpen] = useState(false);
   const [localColor, setLocalColor] = useState(color);
   const [hsv, setHsv] = useState<HSV>(() => hexToHsv(color));
   const [isDraggingHue, setIsDraggingHue] = useState(false);
   const [isDraggingSV, setIsDraggingSV] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [tempColor, setTempColor] = useState(color);
 
   const hueRef = useRef<HTMLDivElement>(null);
   const svRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLocalColor(color);
+    setTempColor(color);
     setHsv(hexToHsv(color));
   }, [color, hexToHsv, setLocalColor, setHsv]);
+
+  // Reset errors and temp color when dialog opens
+  useEffect(() => {
+    if (open) {
+      setError(null);
+      setTempColor(localColor);
+    }
+  }, [open, localColor]);
 
   const updateHue = useCallback((event: MouseEvent | React.MouseEvent) => {
     if (!hueRef.current) return;
@@ -115,11 +131,11 @@ const ColorPickerButton: React.FC<{
       const newHsv = { ...prev, h };
       const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
       const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-      setLocalColor(hex);
-      onChange(hex);
+      setTempColor(hex);
+      setError(null);
       return newHsv;
     });
-  }, [hsvToRgb, rgbToHex, onChange]);
+  }, [hsvToRgb, rgbToHex]);
   
   const updateSV = useCallback((event: MouseEvent | React.MouseEvent) => {
     if (!svRef.current) return;
@@ -135,13 +151,12 @@ const ColorPickerButton: React.FC<{
       const newHsv = { ...prev, s, v };
       const rgb = hsvToRgb(newHsv.h, newHsv.s, newHsv.v);
       const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-      setLocalColor(hex);
-      onChange(hex);
+      setTempColor(hex);
+      setError(null);
       return newHsv;
     });
-  }, [hsvToRgb, rgbToHex, onChange]);
+  }, [hsvToRgb, rgbToHex]);
   
-
   const handleMouseDown = (event: React.MouseEvent, type: 'hue' | 'sv') => {
     if (type === 'hue') {
       setIsDraggingHue(true);
@@ -166,7 +181,6 @@ const ColorPickerButton: React.FC<{
     }
   }, [isDraggingHue, isDraggingSV, updateHue, updateSV]);
   
-  
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
@@ -176,6 +190,62 @@ const ColorPickerButton: React.FC<{
     };
   }, [handleMouseMove, handleMouseUp]);
 
+  // Handle closing dialog
+  const handleClose = () => {
+    if (error) {
+      return; // Don't close if there's an error
+    }
+    
+    // Apply changes
+    setLocalColor(tempColor);
+    onChange(tempColor);
+    setOpen(false);
+  };
+
+  // Handle canceling/dismissing changes
+  const handleCancel = () => {
+    setTempColor(localColor);
+    setOpen(false);
+  };
+
+  // Validate input and handle hex code changes
+  const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setTempColor(newValue);
+    
+    // Check if it's empty or just a hash
+    if (newValue === '' || newValue === '#') {
+      setError('Please enter a color hex code');
+      return;
+    }
+    
+    // Check if format is valid
+    if (!newValue.startsWith('#')) {
+      setTempColor('#' + newValue);
+      if (!/#[0-9A-Fa-f]{6}$/.test('#' + newValue)) {
+        setError('Invalid format. Use #RRGGBB');
+      } else {
+        setError(null);
+        const newHexColor = '#' + newValue;
+        setHsv(hexToHsv(newHexColor));
+      }
+      return;
+    }
+    
+    // Validate format
+    if (newValue.length > 7) {
+      setError('Hex code cannot be longer than 7 characters (#RRGGBB)');
+    } else if (newValue.length === 7) {
+      if (!/^#[0-9A-Fa-f]{6}$/.test(newValue)) {
+        setError('Invalid characters. Use only 0-9, A-F');
+      } else {
+        setError(null);
+        setHsv(hexToHsv(newValue));
+      }
+    } else {
+      setError('Incomplete hex code. Format: #RRGGBB');
+    }
+  };
 
   return (
     <>
@@ -202,10 +272,10 @@ const ColorPickerButton: React.FC<{
         />
       </Button>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog open={open} onClose={handleCancel} maxWidth="xs" fullWidth>
         <DialogTitle>Change Color</DialogTitle>
-        <DialogContent>
-          <Box sx={{ width: '100%', p: 2 }}>
+        <DialogContent sx={{ pb: 1 }}>
+          <Box sx={{ width: '100%', p: 1 }}>
             {/* SV Picker */}
             <Box
               ref={svRef}
@@ -214,7 +284,7 @@ const ColorPickerButton: React.FC<{
                 width: '100%',
                 paddingTop: '100%',
                 position: 'relative',
-                marginBottom: 2,
+                marginBottom: 1,
                 borderRadius: 1,
                 cursor: 'crosshair',
                 background: `
@@ -282,12 +352,12 @@ const ColorPickerButton: React.FC<{
             </Box>
 
             {/* Current Color Display and HEX Input */}
-            <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2, marginTop: 1 }}>
               <Box
                 sx={{
                   width: '100%',
                   height: 40,
-                  backgroundColor: localColor,
+                  backgroundColor: isValidHexColor(tempColor) ? tempColor : localColor,
                   borderRadius: 1,
                   border: '1px solid',
                   borderColor: 'divider',
@@ -295,26 +365,38 @@ const ColorPickerButton: React.FC<{
                 }}
               />
               <TextField
-                value={localColor}
+                value={tempColor}
                 size="small"
-                onChange={(e) => {
-                  const newColor = e.target.value;
-                  if (/^#[0-9A-Fa-f]{6}$/.test(newColor)) {
-                    setLocalColor(newColor);
-                    setHsv(hexToHsv(newColor));
-                    onChange(newColor);
-                  } else if (newColor.startsWith('#') && newColor.length <= 7) {
-                    setLocalColor(newColor);
-                  }
-                }}
+                onChange={handleHexChange}
+                error={!!error}
                 sx={{ width: '110px' }}
                 inputProps={{
                   style: { textTransform: 'uppercase' }
                 }}
               />
             </Box>
+            
+            {error && (
+              <FormHelperText error sx={{ mt: 0.5 }}>
+                {error}
+              </FormHelperText>
+            )}
+            
+            <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: 'text.secondary' }}>
+              Format must be #RRGGBB (e.g., #FF0000)
+            </Typography>
           </Box>
         </DialogContent>
+        <DialogActions sx={{ pt: 0, pb: 2 }}>
+          <Button onClick={handleCancel}>Cancel</Button>
+          <Button 
+            onClick={handleClose}
+            disabled={!!error}
+            variant="contained"
+          >
+            Apply
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

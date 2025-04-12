@@ -4,6 +4,8 @@ import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
 import axiosInstance from '../../utils/libs/axios.ts';
 import { useTranslation } from 'react-i18next';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 interface PieData {
   absent: number;
@@ -15,7 +17,7 @@ interface PieCenterLabelProps {
 }
 
 const size = {
-  width: 300,
+  width: 350,
   height: 300,
 };
 
@@ -23,7 +25,7 @@ const StyledText = styled('text')(({ theme }) => ({
   fill: theme.palette.text.primary,
   textAnchor: 'middle',
   dominantBaseline: 'central',
-  fontSize: 30,
+  fontSize: 35,
 }));
 
 function PieCenterLabel({ children }: PieCenterLabelProps) {
@@ -34,6 +36,39 @@ function PieCenterLabel({ children }: PieCenterLabelProps) {
     </StyledText>
   );
 }
+
+// Компоненты с фиксированным положением
+const LegendContainer = styled('div')({
+  position: 'absolute',
+  // Фиксированное положение слева
+  left: 280,
+  // Фиксированное положение по вертикали
+  top: 130,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '10px',
+});
+
+const LegendItem = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  whiteSpace: 'nowrap',
+});
+
+const ColorIndicator = styled('div')<{ bgcolor: string }>(({ bgcolor }) => ({
+  width: '16px',
+  height: '16px',
+  backgroundColor: bgcolor,
+  borderRadius: '2px',
+  flexShrink: 0,
+}));
+
+const LegendText = styled(Typography)({
+  fontSize: '16px',
+  fontWeight: 400,
+  lineHeight: 1.2,
+});
 
 export default function PieChartWithCenterLabel() {
   const [data, setData] = useState<{ value: number; label: string; color: string }[]>([]);
@@ -59,26 +94,53 @@ export default function PieChartWithCenterLabel() {
     getPieData();
   }, [getPieData]);
 
-  const PieLabel = styled('text')({
-    fill: 'black',
-    textAnchor: 'middle',
-    dominantBaseline: 'central',
-    fontSize: 14,
-    transform: 'translate(20px)',
-  });
-
   return (
-    <PieChart
-      series={[{ data, innerRadius: 80 }]} 
-      {...size}
-    >
-      {data.length > 0 && (
-        <>
-          <PieLabel x={size.width / 2} y={size.height / 2}>
-          </PieLabel>
+    <Box sx={{ 
+      position: 'relative', 
+      width: size.width, 
+      height: size.height,
+      // Отключаем любое переполнение, чтобы не было прокрутки
+      overflow: 'visible'
+    }}>
+      {/* Chart with fixed dimensions */}
+      <PieChart
+        series={[{ 
+          data, 
+          innerRadius: 80,
+          highlightScope: { faded: 'global', highlighted: 'item' },
+          faded: { innerRadius: 75, color: 'gray' },
+          // Гарантируем одинаковый размер независимо от контента
+          paddingAngle: 0,
+          cornerRadius: 0,
+        }]} 
+        width={size.width}
+        height={size.height}
+        margin={{ right: 120 }} // Фиксированный отступ справа для легенды
+        // Отключаем встроенную легенду
+        legend={{ hidden: true }}
+        sx={{
+          // Добавляем фиксацию позиционирования
+          position: 'absolute',
+          left: 0,
+          top: 0,
+        }}
+      >
+        {data.length > 0 && (
           <PieCenterLabel>{data[0].value}%</PieCenterLabel>
-        </>
+        )}
+      </PieChart>
+
+      {/* Fixed position legend */}
+      {data.length > 0 && (
+        <LegendContainer>
+          {data.map((item, index) => (
+            <LegendItem key={index}>
+              <ColorIndicator bgcolor={item.color} />
+              <LegendText>{item.label}</LegendText>
+            </LegendItem>
+          ))}
+        </LegendContainer>
       )}
-    </PieChart>
+    </Box>
   );
 }
