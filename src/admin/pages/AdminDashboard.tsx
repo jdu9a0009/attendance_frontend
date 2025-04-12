@@ -46,56 +46,55 @@ function AdminDashboard({ onLogout }: AdminDashboardProps) {
   };
 
   return (
-  <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", minWidth: "1240px", backgroundColor: "#F5F8FA" }}>
-      <Box sx={{ minWidth: "240px",width: "15%", boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", width: "100%", minWidth: "1240px", backgroundColor: "#F5F8FA" }}>
       <SideMenu companyName={companyName} />
-      </Box>
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", width: "85%"}}>
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      padding: "20px",
-      backgroundColor: "#FFFFFF",
-      boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
-      marginRight: "20px",
-      marginLeft: "20px", 
-      marginTop: "10px",
-      marginBottom: "0px",
-      borderRadius: "8px" 
-    }}
-  >
-    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-      <Select
-        value={language}
-        onChange={handleLanguageChange}
-        sx={{
-          marginRight: "10px",
-          color: "white",
-          backgroundColor: "#105E82",
-          height: "40px",
-          width: "120px",
-          fontSize: "0.875rem",
-          padding: "0 10px",
-          "& .MuiSelect-icon": { color: "white" }
-        }}
-      >
-        <MenuItem value="ja">{t('common:japanese')}</MenuItem>
-        <MenuItem value="en">{t('common:english')}</MenuItem>
-      </Select>
-      <Button
-        variant="contained"
-        sx={{
-          backgroundColor: "#105E82",
-          ":hover": { backgroundColor: "#919191", color: "black" },
-          height: "40px"
-        }}
-        onClick={handleLogoutClick}
-      >
-        ログアウト
-      </Button>
-    </Box>
-  </Box>
+      
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: "20px",
+            backgroundColor: "#FFFFFF",
+            boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+            marginRight: "20px",
+            marginLeft: "20px", 
+            marginTop: "10px",
+            marginBottom: "0px",
+            borderRadius: "8px" 
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+            <Select
+              value={language}
+              onChange={handleLanguageChange}
+              sx={{
+                marginRight: "10px",
+                color: "white",
+                backgroundColor: "#105E82",
+                height: "40px",
+                width: "120px",
+                fontSize: "0.875rem",
+                padding: "0 10px",
+                "& .MuiSelect-icon": { color: "white" }
+              }}
+            >
+              <MenuItem value="ja">{t('common:japanese')}</MenuItem>
+              <MenuItem value="en">{t('common:english')}</MenuItem>
+            </Select>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#105E82",
+                ":hover": { backgroundColor: "#919191", color: "black" },
+                height: "40px"
+              }}
+              onClick={handleLogoutClick}
+            >
+              ログアウト
+            </Button>
+          </Box>
+        </Box>
         <Box sx={{ flex: 1, padding: "20px" }}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
