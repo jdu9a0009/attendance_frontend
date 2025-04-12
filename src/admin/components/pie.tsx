@@ -40,9 +40,7 @@ function PieCenterLabel({ children }: PieCenterLabelProps) {
 // Компоненты с фиксированным положением
 const LegendContainer = styled('div')({
   position: 'absolute',
-  // Фиксированное положение слева
   left: 280,
-  // Фиксированное положение по вертикали
   top: 130,
   display: 'flex',
   flexDirection: 'column',
@@ -99,7 +97,6 @@ export default function PieChartWithCenterLabel() {
       position: 'relative', 
       width: size.width, 
       height: size.height,
-      // Отключаем любое переполнение, чтобы не было прокрутки
       overflow: 'visible'
     }}>
       {/* Chart with fixed dimensions */}
@@ -109,17 +106,14 @@ export default function PieChartWithCenterLabel() {
           innerRadius: 80,
           highlightScope: { faded: 'global', highlighted: 'item' },
           faded: { innerRadius: 75, color: 'gray' },
-          // Гарантируем одинаковый размер независимо от контента
           paddingAngle: 0,
           cornerRadius: 0,
         }]} 
         width={size.width}
         height={size.height}
-        margin={{ right: 120 }} // Фиксированный отступ справа для легенды
-        // Отключаем встроенную легенду
+        margin={{ right: 120 }} 
         legend={{ hidden: true }}
         sx={{
-          // Добавляем фиксацию позиционирования
           position: 'absolute',
           left: 0,
           top: 0,
