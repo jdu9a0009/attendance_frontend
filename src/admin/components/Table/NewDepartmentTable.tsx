@@ -17,6 +17,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { setupDashboardSSE } from "../../../utils/libs/axios.ts";
+import Cookies from "js-cookie"; //
 import {
   StyledTableCell,
   EmployeeCell,
@@ -94,11 +95,6 @@ const NewDepartmentTable: React.FC = () => {
 
       if (department && department.length > 0) {
         setDepartmentData(department);
-        if (selectedDepartments.size === 0) {
-          setSelectedDepartments(
-            new Set(department.map((dept) => dept.department_name))
-          );
-        }
       } else {
         setError("Нет данных для отображения.");
       }
@@ -134,6 +130,33 @@ const NewDepartmentTable: React.FC = () => {
     selectedDepartments.size,
   ]);
 
+  useEffect(() => {
+    if (departmentData.length > 0) {
+      const savedSelections = Cookies.get("selectedDepartments");
+
+      if (savedSelections) {
+        try {
+          const parsedSelections = JSON.parse(savedSelections);
+          const validSelections = parsedSelections.filter((dept: string) => 
+            departmentData.some(d => d.department_name === dept)
+          );
+
+          if (validSelections.length > 0) {
+            setSelectedDepartments(new Set(validSelections));
+          } 
+        } catch (e) {
+          setSelectedDepartments(
+            new Set(departmentData.map((dept) => dept.department_name))
+          );
+        }
+      } else {
+        setSelectedDepartments(
+          new Set(departmentData.map((dept) => dept.department_name))
+        );
+      }
+    }
+  }, [departmentData]);
+
   const isAllSelected = useMemo(() => {
     return (
       departmentData.length > 0 &&
@@ -144,18 +167,19 @@ const NewDepartmentTable: React.FC = () => {
   const handleSelectAll = () => {
     if (isAllSelected) {
       setSelectedDepartments(new Set());
+      Cookies.set('selectedDepartments', JSON.stringify([]), { expires: 30 });
     } else {
-      setSelectedDepartments(
-        new Set(departmentData.map((dept) => dept.department_name))
-      );
+      const allDepts = departmentData.map((dept) => dept.department_name);
+      setSelectedDepartments(new Set(allDepts));
+      Cookies.set('selectedDepartments', JSON.stringify(allDepts), { expires: 30 });
     }
     setCurrentPage(1);
   };
 
   const handleReset = () => {
-    setSelectedDepartments(
-      new Set(departmentData.map((dept) => dept.department_name))
-    );
+    const allDepts = departmentData.map((dept) => dept.department_name);
+    setSelectedDepartments(new Set(allDepts));
+    Cookies.set('selectedDepartments', JSON.stringify(allDepts), { expires: 30 });
     console.log(isBold);
     setCurrentPage(1);
   };
@@ -168,6 +192,8 @@ const NewDepartmentTable: React.FC = () => {
       } else {
         newSet.add(deptName);
       }
+      
+      Cookies.set('selectedDepartments', JSON.stringify(Array.from(newSet)), { expires: 30 });
       return newSet;
     });
     setCurrentPage(1);
@@ -215,25 +241,29 @@ const NewDepartmentTable: React.FC = () => {
     return result;
   }, [filteredDepartmentData]);
 
+  useEffect(() => {
+    const newTotalPages = Math.max(1, pages.length);
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages);
+    }
+  }, [pages, currentPage]);
+
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
   const renderTableContent = () => {
+    const columnWidth = `${100 / maxColumnsPerPage}%`;
     const currentData = pages[currentPage - 1] || [];
-    const isLastPage = currentPage === pages.length;
-    const totalColumns =
-      isLastPage && currentData.length < maxColumnsPerPage
-        ? maxColumnsPerPage
-        : currentData.length;
-    const columnWidth = `${100 / totalColumns}%`;
 
     return Array.from({ length: maxEmployeesPerColumn }, (_, rowIndex) => (
       <TableRow key={rowIndex}>
-        {currentData.map((dept, colIndex) => {
-          const employee = dept.result[rowIndex];
+        {Array.from({ length: maxColumnsPerPage }, (_, colIndex) => {
+          const deptChunk = currentData[colIndex];
+          const employee = deptChunk ? deptChunk.result[rowIndex] : null;
+
           return (
             <StyledTableCell
-              key={`${colIndex}-${rowIndex}`}
+              key={`<span class="math-inline">${colIndex}-</span>${rowIndex}`}
               sx={{ width: columnWidth }}
             >
               {employee && employee.employee_id !== null ? (
@@ -250,20 +280,6 @@ const NewDepartmentTable: React.FC = () => {
             </StyledTableCell>
           );
         })}
-        {isLastPage &&
-          currentData.length < maxColumnsPerPage &&
-          Array.from({ length: maxColumnsPerPage - currentData.length }).map(
-            (_, emptyIndex) => (
-              <StyledTableCell
-                key={`empty-${emptyIndex}`}
-                sx={{ width: columnWidth }}
-              >
-                <EmployeeCell status={null} colors={colors}>
-                  -
-                </EmployeeCell>
-              </StyledTableCell>
-            )
-          )}
       </TableRow>
     ));
   };
@@ -280,7 +296,7 @@ const NewDepartmentTable: React.FC = () => {
           alignItems: "center",
           margin: "0 30px 0 30px",
           height: "70px",
-          mb: 2
+          mb: 2,
         }}
       >
         <Button
@@ -298,6 +314,7 @@ const NewDepartmentTable: React.FC = () => {
         </Button>
         <PaginationContainer>
           <StyledButtonGroup variant="outlined" size="medium">
+            {" "}
             <Button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
@@ -306,14 +323,16 @@ const NewDepartmentTable: React.FC = () => {
             </Button>
             <Button disabled sx={{ pointerEvents: "none" }}>
               <PageIndicator>
-                {currentPage} / {pages.length}
+                {currentPage} / {Math.max(1, pages.length)}
               </PageIndicator>
             </Button>
             <Button
               onClick={() =>
-                setCurrentPage((prev) => Math.min(pages.length, prev + 1))
+                setCurrentPage((prev) =>
+                  Math.min(Math.max(1, pages.length), prev + 1)
+                )
               }
-              disabled={currentPage === pages.length}
+              disabled={currentPage === Math.max(1, pages.length)}
             >
               <NavigateNextIcon />
             </Button>
@@ -393,30 +412,38 @@ const NewDepartmentTable: React.FC = () => {
         sx={{ borderRadius: 3, overflow: "hidden" }}
       >
         <Table>
+          {/* Внутри return JSX компонента */}
           <TableHead>
             <TableRow>
-              {pages[currentPage - 1]?.map((dept, index) => (
-                <Tooltip
-                  key={index}
-                  title={dept.department_name}
-                  arrow
-                  className="custom-tooltip"
-                >
-                  <StyledTableCell>
-                    <strong>{formatDepartmentName(dept)}</strong>
+              {/* Всегда рендерим maxColumnsPerPage ячеек заголовка */}
+              {Array.from({ length: maxColumnsPerPage }, (_, index) => {
+                // Получаем чанк отдела для заголовка на текущей странице
+                const deptChunk = pages[currentPage - 1]?.[index];
+                // Рассчитываем ширину для единообразия
+                const columnWidth = `${100 / maxColumnsPerPage}%`;
+
+                return deptChunk ? (
+                  // Если есть данные отдела, показываем имя (с Tooltip)
+                  <Tooltip
+                    key={index}
+                    title={deptChunk.department_name} // Полное имя во всплывающей подсказке
+                    arrow
+                    className="custom-tooltip" // Если есть стили
+                  >
+                    <StyledTableCell sx={{ width: columnWidth }}>
+                      <strong>{formatDepartmentName(deptChunk)}</strong>
+                    </StyledTableCell>
+                  </Tooltip>
+                ) : (
+                  // Иначе, показываем пустую ячейку заголовка
+                  <StyledTableCell
+                    key={`empty-header-${index}`}
+                    sx={{ width: columnWidth }}
+                  >
+                    <strong>-</strong> {/* Плейсхолдер */}
                   </StyledTableCell>
-                </Tooltip>
-              ))}
-              {currentPage === pages.length &&
-                pages[currentPage - 1]?.length < maxColumnsPerPage &&
-                Array.from({
-                  length:
-                    maxColumnsPerPage - (pages[currentPage - 1]?.length || 0),
-                }).map((_, emptyIndex) => (
-                  <StyledTableCell key={`empty-header-${emptyIndex}`}>
-                    <strong>-</strong>
-                  </StyledTableCell>
-                ))}
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>{renderTableContent()}</TableBody>
