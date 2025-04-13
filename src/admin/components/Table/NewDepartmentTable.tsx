@@ -294,8 +294,8 @@ const NewDepartmentTable: React.FC = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          margin: "0 30px 0 30px",
-          height: "70px",
+          margin: "0 21px 0 21px",
+          height: "38px",
           mb: 2,
         }}
       >
@@ -313,7 +313,7 @@ const NewDepartmentTable: React.FC = () => {
           部門を選択
         </Button>
         <PaginationContainer>
-          <StyledButtonGroup variant="outlined" size="medium">
+          <StyledButtonGroup variant="outlined" size="small" aria-label="Small button group">
             {" "}
             <Button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}

@@ -249,7 +249,7 @@ const CompanySettingsPage: React.FC = () => {
   return (
     <Paper
       elevation={3}
-      sx={{ p: 4, borderRadius: 3, mt: 3, position: "relative" }}
+      sx={{ p: 4, borderRadius: 3, position: "relative" }}
     >
       {/* Header and edit button */}
       <Box

@@ -234,6 +234,7 @@ export const StyledButtonGroup = styled(ButtonGroup)({
   "& .MuiButton-outlined": {
     borderColor: "#105E82",
     color: "#105E82",
+    padding: "1px 4px",    
     "&:hover": {
       backgroundColor: "rgba(16, 94, 130, 0.04)",
       borderColor: "#105E82",

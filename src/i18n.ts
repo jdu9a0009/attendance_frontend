@@ -51,7 +51,7 @@ const commonResources = {
       present: '出席',
       absent: '欠席',
       table: {
-        title: '出勤状況',
+        title: '出席時間',
         searchBtn: '検索',
         searchPlaceholder: '氏名の検索...',
       },
@@ -113,10 +113,10 @@ const userResources = {
   },
   ja: {
     user: {
-      checkInTime: '出勤時間',
+      checkInTime: '出席時間',
       checkOutTime: '退勤時間',
       totalWorkHours: '総労働時間',
-      checkIn: '出勤',
+      checkIn: '出席',
       checkOut: '退勤',
       statusC: {
         early_come: '早出',
@@ -329,10 +329,10 @@ const adminResources = {
       position: '役職',
       workDay: '勤務日',
       status: '状態',
-      comeTime: '出勤時間',
+      comeTime: '出席時間',
       leaveTime: '退勤時間',
       totalHours: '総労働時間',
-      barLabel: '部署別出勤率',
+      barLabel: '部署別出席率',
 
       departmentTable: {
         departmentName: '部署名',
