@@ -104,8 +104,8 @@ export default function PieChartWithCenterLabel() {
         series={[{ 
           data, 
           innerRadius: 90,
-          highlightScope: { faded: 'global', highlighted: 'item' },
-          faded: { innerRadius: 75, color: 'gray' },
+          highlightScope: { faded: 'global' },
+          faded: { innerRadius: 95 },
           paddingAngle: 0,
           cornerRadius: 0,
         }]} 

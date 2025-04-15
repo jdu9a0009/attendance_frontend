@@ -1,4 +1,4 @@
-import { Employee, Department } from "../../admin/components/Table/types.ts";
+import { Employee, Department, AxiosError } from "../../admin/components/Table/types.ts";
 import axios from "axios";
 
 const axiosInstance = () => {
@@ -324,34 +324,115 @@ export const deleteUser = async (id: number) => {
 
 export const uploadExcelFile = async (excell: FormData) => {
   try {
-    const endpoint = "user/create_excell";
-
-    const response = await axiosInstance().post(endpoint, excell, {
+    const response = await axiosInstance().post('/user/create_excell', excell, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      responseType: 'blob', 
     });
 
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("エラーの詳細：", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        headers: error.response?.headers,
-        config: error.config,
+    const contentType = response.headers['content-type'];
+    
+    if (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+        contentType.includes('application/vnd.ms-excel')) {
+      
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const filename = response.headers['content-disposition']
+        ? response.headers['content-disposition'].split('filename=')[1].replace(/"/g, '')
+        : 'error_reports.xlsx';
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      return { 
+        success: false, 
+        message: 'Excel file with errors downloaded automatically',
+        downloaded: true 
+      };
+    } 
+    else {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const jsonResponse = JSON.parse(reader.result as string);
+            resolve({ success: true, data: jsonResponse });
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read response'));
+        };
+        reader.readAsText(response.data);
       });
-    } else {
-      console.error("不明なエラー", error);
     }
-    throw error;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    let errorMessage = "An unknown error occurred.";
+    
+    if (axiosError.response) {
+      if (axiosError.response.data instanceof Blob) {
+        const contentType = axiosError.response.headers['content-type'];
+        
+        if (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+            contentType.includes('application/vnd.ms-excel')) {
+
+          const blob = new Blob([axiosError.response.data], { type: contentType });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          
+          const filename = axiosError.response.headers['content-disposition']
+            ? axiosError.response.headers['content-disposition'].split('filename=')[1].replace(/"/g, '')
+            : 'error_report.xlsx';
+          
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          return { 
+            success: false, 
+            message: 'Excel file with errors downloaded automatically',
+            downloaded: true 
+          };
+        }
+        
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const jsonResponse = JSON.parse(reader.result as string);
+              errorMessage = jsonResponse.error || errorMessage;
+              reject(new Error(errorMessage));
+            } catch (error) {
+              reject(new Error(errorMessage));
+            }
+          };
+          reader.onerror = () => {
+            reject(new Error(errorMessage));
+          };
+        });
+      } else if (axiosError.response.data.error) {
+        errorMessage = axiosError.response.data.error;
+      }
+    }
+    
+    console.error("Error uploading Excel file:", errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
 export const downloadSampleFile = async () => {
   try {
-    const response = await axiosInstance().get("user/export_template", {
+    const response = await axiosInstance().get("/user/export_template", {
       responseType: "blob",
     });
     if (response.data) {

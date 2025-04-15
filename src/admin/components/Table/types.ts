@@ -71,6 +71,7 @@ export interface ApiResponse {
 
 export interface AxiosError extends Error {
   response?: {
+    headers: any;
     data: {
       error: string;
     };

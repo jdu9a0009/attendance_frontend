@@ -108,7 +108,7 @@ const CompanySettingsPage: React.FC = () => {
         const results = data?.results;
 
         if (results) {
-          setSettings((prevSettings) => ({
+          setSettings(prevSettings => ({
             ...prevSettings,
             id: results.id,
             company_name: results.company_name || "",
@@ -229,12 +229,10 @@ const CompanySettingsPage: React.FC = () => {
   };
 
   const handlePositionChange = useCallback((newPosition: LatLngTuple) => {
-    setSettings((prev) => ({
+    setSettings(prev => ({
       ...prev,
       company_coordinates: newPosition,
-      company_location: `${newPosition[0].toFixed(6)}, ${newPosition[1].toFixed(
-        6
-      )}`,
+      company_location: `${newPosition[0].toFixed(6)}, ${newPosition[1].toFixed(6)}`,
     }));
   }, []);
 

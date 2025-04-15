@@ -82,6 +82,9 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   const showSnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
+    setTimeout(() => {
+      setSnackbarOpen(false);
+    }, 3000); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,7 +102,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   
       await uploadExcelFile(formData);
       
-      showSnackbar("File uploaded successfully");
+      showSnackbar("File uploaded");
       onUpload(selectedFile, mode);
       onClose();
       resetFileInput();
