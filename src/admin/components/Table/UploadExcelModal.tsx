@@ -117,19 +117,23 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
       const result = await uploadExcelFile(formData);
   
       if (result.ステータス === 1) {
-        showSnackbar("ファイルのアップロードが完了しました", "success"); // Зеленый
+        showSnackbar("ファイルのアップロードが完了しました", "success"); 
         onUpload(selectedFile, mode);
         onClose();
         resetFileInput();
       } else if (result.ステータス === 2) {
-        showSnackbar("いくつかのエラーがありますがファイルをアップロードしました", "warning"); // Желтый
+        showSnackbar("いくつかのエラーがありますがファイルをアップロードしました", "warning"); 
         onUpload(selectedFile, mode);
         onClose();
         resetFileInput();
       } else if (result.ステータス === 3) {
-        showSnackbar("ファイルのアップロードに失敗しました。エラーを確認してください", "error"); // Красный
+        showSnackbar("ファイルのアップロードに失敗しました。エラーを確認してください", "error"); 
+        onClose();
+        resetFileInput();
       } else {
-        showSnackbar("不明な応答ステータス", "info"); // Серый
+        showSnackbar("不明な応答ステータス", "info"); 
+        onClose();
+        resetFileInput();
       }
     } catch (error) {
       console.error("ファイルのアップロード中にエラーが発生しました:", error);
