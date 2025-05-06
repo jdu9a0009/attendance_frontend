@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, useCallback, useMemo } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import {
   Box,
@@ -26,7 +26,7 @@ interface LineData {
 
 function LineChartComponent() {
   const { t } = useTranslation(['admin', 'common']);
-  const monthsOfYear: string[] = [
+  const monthsOfYear = useMemo<string[]>(() => [
     "1月",
     "2月",
     "3月",
@@ -39,7 +39,7 @@ function LineChartComponent() {
     "10月",
     "11月",
     "12月",
-  ];
+  ], []);
 
   const today = new Date();
   const currentYear = today.getFullYear().toString();
@@ -70,20 +70,6 @@ function LineChartComponent() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const monthsOfYear: string[] = [
-      "1月",
-      "2月",
-      "3月",
-      "4月",
-      "5月",
-      "6月",
-      "7月",
-      "8月",
-      "9月",
-      "10月",
-      "11月",
-      "12月",
-    ];
   
     try {
       const monthIndex = monthsOfYear.indexOf(selectedMonth) + 1;
@@ -131,7 +117,7 @@ function LineChartComponent() {
     } catch (error) {
       console.error("Error fetching data", error);
     }
-  }, [selectedMonth, selectedYear, interval]);
+  }, [selectedMonth, selectedYear, interval, monthsOfYear]);
 
   useEffect(() => {
     fetchData();
@@ -240,7 +226,7 @@ function LineChartComponent() {
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleMonthDialogClose}>{t('ok')}</Button>
+          <Button onClick={handleMonthDialogClose}>閉じる</Button>
         </DialogActions>
       </Dialog>
     </Box>

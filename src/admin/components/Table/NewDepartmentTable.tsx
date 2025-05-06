@@ -389,7 +389,7 @@ const NewDepartmentTable: React.FC = () => {
               onClick={handleReset}
               sx={{ flex: 1 }}
             >
-              Reset
+              リセット
             </StyledButton>
             <Button
               variant="contained"
