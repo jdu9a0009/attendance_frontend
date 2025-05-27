@@ -36,6 +36,7 @@ const EmployeeListPage: React.FC = () => {
   const columns: Column[] = [
     { id: 'employee_id', label: t('employeeTable.employeeId') },
     { id: 'full_name', label: t('employeeTable.fullName') },
+    { id: 'role', label: t('employeeTable.role') }, // ← Добавляем колонку роли
     { id: 'nick_name', label: t('employeeTable.nickName') },
     { id: 'department', label: t('employeeTable.department') },
     { id: 'position', label: t('employeeTable.position') },
@@ -96,18 +97,18 @@ const EmployeeListPage: React.FC = () => {
       id: employee.id,
       employee_id: employee.employee_id,
       full_name: employee.full_name,
-      first_name: employee.full_name.split(' ')[0], 
-      last_name: employee.full_name.split(' ')[1] || '', 
+      first_name: employee.first_name || employee.full_name.split(' ')[0], // Use existing first_name or fallback
+      last_name: employee.last_name || employee.full_name.split(' ')[1] || '', // Use existing last_name or fallback
       nick_name: employee.nick_name, 
-      role: employee.role || "Employee", 
+      role: employee.role || "", // Don't set default, let it be empty if not provided
       department: employee.department,
       position: employee.position,
       phone: employee.phone,
       email: employee.email,
-      password: '', 
-      forget_leave: false,
+      password: '', // Always empty for security
+      forget_leave: employee.forget_leave || false,
     };
-  
+
     setSelectedEmployee(transformedEmployee);
     setEditModalOpen(true);
   };
@@ -137,11 +138,10 @@ const EmployeeListPage: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, mode: number) => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      setUploadModalOpen(false);
+      // Upload logic is handled in UploadExcelModal
+      // Just trigger refresh after upload
       setUserCreated(prev => !prev);
     } catch (error) {
       console.error('Error uploading file:', error);

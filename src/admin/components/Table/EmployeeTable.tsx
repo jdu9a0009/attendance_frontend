@@ -14,6 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { TableData, Column } from "./types.ts";
 import AttendanceTableHead from "./AttendanceTableHead.tsx";
 import AttendanceTableBody from "./AttendanceTableBody.tsx";
+import DeleteConfirmationModal from "./DeleteConfirmModal.tsx";
 import axiosInstance from "../../../utils/libs/axios.ts";
 import {deleteUser} from "../../../utils/libs/axios.ts";
 import { useTranslation } from "react-i18next";
@@ -65,8 +66,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [filters, setFilters] = useState<FilterState>({
     status: [],
     department: [],
-    position: []
+    position: [],
+    role: []
   });
+  
+  // Delete confirmation modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<TableData | null>(null);
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -82,6 +88,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           phone: item.phone,
           email: item.email,
           nick_name: item.nick_name,
+          role: item.role, // Добавляем роль
+          // Добавляем все остальные поля, которые могут понадобиться
+          first_name: item.first_name,
+          last_name: item.last_name,
+          password: "", // Пароль не передаем из соображений безопасности
+          forget_leave: item.forget_leave || false,
         }));
         setData(formattedData);
       } catch (error) {
@@ -143,14 +155,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     }));
   };
 
-  // const handleCalendarOpen = () => {
-  //   setCalendarOpen(true);
-  // };
-
-  // const handleCalendarClose = () => {
-  //   setCalendarOpen(false);
-  // };
-
   // Вычисляем данные для текущей страницы
   const paginatedData = filteredData.slice(
     page * rowsPerPage,
@@ -158,26 +162,36 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   );
 
   const handleDelete = (id: number) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
-    
-    if (confirmDelete) {
-      deleteUser(id)
-        .then(() => {
-          // Обновляем данные после удаления пользователя
-          setData(data.filter((item) => item.id !== id));
-        })
-        .catch((error) => {
-          console.error("Ошибка при удалении пользователя:", error);
-        });
+    const employee = data.find(emp => emp.id === id);
+    if (employee) {
+      setEmployeeToDelete(employee);
+      setDeleteModalOpen(true);
     }
   };
-  
-  
 
+  const handleDeleteConfirm = async () => {
+    if (employeeToDelete) {
+      try {
+        await deleteUser(employeeToDelete.id);
+        // Обновляем данные после удаления пользователя
+        setData(data.filter((item) => item.id !== employeeToDelete.id));
+        setDeleteModalOpen(false);
+        setEmployeeToDelete(null);
+      } catch (error) {
+        console.error("Ошибка при удалении пользователя:", error);
+        setDeleteModalOpen(false);
+        setEmployeeToDelete(null);
+      }
+    }
+  };
 
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setEmployeeToDelete(null);
+  };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden",           borderBottomLeftRadius: '10px',
+    <Paper sx={{ width: "100%", overflow: "hidden", borderBottomLeftRadius: '10px',
     borderBottomRightRadius: '10px',
     borderTopLeftRadius: '0px',
     borderTopRightRadius: '0px', mb: 5 }}>
@@ -243,6 +257,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        open={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        employeeName={employeeToDelete?.full_name}
+        employeeId={employeeToDelete?.employee_id}
       />
     </Paper>
   );

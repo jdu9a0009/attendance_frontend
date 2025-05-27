@@ -218,6 +218,8 @@ const adminResources = {
       employeeTable: {
         employeeId: 'ID',
         fullName: 'Full Name',
+        nickName: 'Nick Name',
+        role: 'Role',
         department: 'Department',
         position: 'Position',
         phone: 'Phone',
@@ -227,6 +229,11 @@ const adminResources = {
         editBtn: 'Edit',
         deleteBtn: 'Delete',
         downloadQRCodeBtn: 'Download QR Code', 
+        deleteConfirmTitle: 'Delete Confirmation',
+        deleteConfirmMessage: 'Are you sure you want to delete the following employee?',
+        deleteWarning: '⚠️ This action cannot be undone.',
+        cancelBtn: 'Cancel',
+        confirmDeleteBtn: 'Delete'
       },
 
       newTable: {
@@ -391,6 +398,7 @@ const adminResources = {
         employeeId: '社員番号',
         fullName: '名前',
         nickName: '表示名',
+        role: '権限',
         department: '部署',
         position: '役職',
         phone: '電話番号',
@@ -400,6 +408,11 @@ const adminResources = {
         editBtn: '編集',
         deleteBtn: '削除',
         downloadQRCodeBtn: 'QRコード',
+        deleteConfirmTitle: "削除の確認",
+        deleteConfirmMessage: "以下の従業員を削除してもよろしいですか？",
+        deleteWarning: "⚠️ この操作は元に戻せません。",
+        cancelBtn: "キャンセル",
+        confirmDeleteBtn: "削除する"
       },
 
       createEmployeeModal: {

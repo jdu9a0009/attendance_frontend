@@ -281,14 +281,14 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <Select
               labelId="role-select-label"
               name="role"
-              value={newEmployee.role}
+              value={newEmployee.role || ""}
               label={t("createEmployeeModal.role")}
               onChange={handleSelectChange}
             >
-              <MenuItem value="Admin">
+              <MenuItem value="ADMIN">
                 {t("createEmployeeModal.roleAdmin")}
               </MenuItem>
-              <MenuItem value="Employee">
+              <MenuItem value="EMPLOYEE">
                 {t("createEmployeeModal.roleEmployee")}
               </MenuItem>
             </Select>
@@ -307,7 +307,7 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
             <Select
               labelId="department-select-label"
               name="department"
-              value={newEmployee.department}
+              value={newEmployee.department || ""}
               label={t("createEmployeeModal.department")}
               onChange={handleSelectChange}
             >
@@ -332,9 +332,9 @@ const CreateEmployeeModal: React.FC<CreateEmployeeModalProps> = ({
               {t("createEmployeeModal.position")}
             </InputLabel>
             <Select
-              labelId="department-select-label"
+              labelId="position-select-label"
               name="position"
-              value={newEmployee.position}
+              value={newEmployee.position || ""}
               onChange={handleSelectChange}
               label={t("createEmployeeModal.position")}
               disabled={!newEmployee.department}

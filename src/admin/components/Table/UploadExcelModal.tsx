@@ -93,7 +93,6 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
-      // Reset any previous errors when a new file is selected
       setValidationErrors([]);
     }
   };
@@ -156,14 +155,17 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
         if (result.success_count > 0) {
           showSnackbar(`${result.success_count}件のレコードが正常に処理されました。${result.invalid_users.length}件のエラーがあります。`, "warning");
           onUpload(selectedFile, mode);
+          resetFileInput(); 
         } else {
           showSnackbar(`アップロードに失敗しました。${result.invalid_users.length}件のエラーがあります。`, "warning");
+          resetFileInput(); 
         }
       } else {
         showSnackbar("ファイルのアップロードが完了しました", "success");
         onUpload(selectedFile, mode);
         onClose();
         resetFileInput();
+        setValidationErrors([]); 
       }
     } catch (error) {
       console.error("ファイルのアップロード中にエラーが発生しました:", error);
@@ -172,12 +174,19 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
       } else {
         showSnackbar("ファイルのアップロードエラー", "error");
       }
+      resetFileInput(); 
     }
+  };
+
+  const handleModalClose = () => {
+    setValidationErrors([]);
+    resetFileInput();
+    onClose();
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Modal open={open} onClose={onClose}>
+      <Modal open={open} onClose={handleModalClose}>
         <Box
           sx={{
             position: "absolute",
@@ -306,7 +315,6 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
                   </Typography>
                 </Box>
 
-
                 <Box sx={{
                   width: '30%',
                   p: 2,
@@ -353,7 +361,7 @@ const UploadExcelModal: React.FC<UploadExcelModalProps> = ({
             pt: 2
           }}>
             <Button
-              onClick={onClose}
+              onClick={handleModalClose}
               variant="outlined"
               sx={{
                 borderColor: '#105E82',

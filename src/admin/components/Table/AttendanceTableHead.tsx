@@ -51,6 +51,7 @@ const AttendanceTableHead: React.FC<AttendanceTableHeadProps> = ({
     status: filters.status || [],
     department: filters.department || [],
     position: filters.position || [],
+    role: filters.role || [], // Add role filter
   });
 
   const handleClick = (event: React.MouseEvent<HTMLElement>, columnId: string) => {
@@ -92,6 +93,11 @@ const AttendanceTableHead: React.FC<AttendanceTableHeadProps> = ({
         return departments.map((dept) => ({ label: dept.name, value: dept.name }));
       case "position":
         return positions.map((pos) => ({ label: pos.name, value: pos.name }));
+      case "role":
+        return [
+          { label: "Admin", value: "ADMIN" },
+          { label: "Employee", value: "EMPLOYEE" }
+        ];
       default:
         return [];
     }
@@ -113,7 +119,7 @@ const AttendanceTableHead: React.FC<AttendanceTableHeadProps> = ({
               whiteSpace: 'nowrap', 
             }}
           >
-            {["status", "position", "department"].includes(column.id) ? (
+            {["status", "position", "department", "role"].includes(column.id) ? (
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center',

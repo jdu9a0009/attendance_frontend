@@ -60,7 +60,22 @@ const EditModal: React.FC<EditModalProps> = ({
       setErrors({});
       setFormData({
         ...data,
-        password: "",    
+        password: "", // Password always empty for security
+        // Ensure role is properly passed from existing data
+        role: data.role || "", // Use existing role or empty string as fallback
+        // Also ensure all required fields are properly mapped
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        employee_id: data.employee_id || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        nick_name: data.nick_name || "",
+        department: data.department || "",
+        position: data.position || "",
+        // Include other necessary fields
+        id: data.id,
+        full_name: data.full_name || "",
+        forget_leave: data.forget_leave || false,
       });
     }
   }, [open, data]);
@@ -276,19 +291,21 @@ const EditModal: React.FC<EditModalProps> = ({
             margin="dense"
             error={Boolean(errors.role)}
           >
-            <InputLabel shrink={Boolean(formData.role)}>
+            <InputLabel shrink={Boolean(formData.role) || formData.role === ""}>
               {t("createEmployeeModal.role")}
             </InputLabel>
             <Select
               name="role"
-              value={formData.role}
+              value={formData.role || ""} // Ensure we always have a string value
               label={t("createEmployeeModal.role")}
               onChange={handleSelectChange}
+              displayEmpty // This helps with empty values
+              onOpen={() => console.log("Select opened, current role value:", formData.role)} // Debug log
             >
-              <MenuItem value="Admin">
+              <MenuItem value="ADMIN">
                 {t("createEmployeeModal.roleAdmin")}
               </MenuItem>
-              <MenuItem value="Employee">
+              <MenuItem value="EMPLOYEE">
                 {t("createEmployeeModal.roleEmployee")}
               </MenuItem>
             </Select>
