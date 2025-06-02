@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Button,
   TextField,
@@ -8,12 +8,12 @@ import {
   Box,
   useTheme,
   CircularProgress,
+  Divider,
 } from '@mui/material';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import axiosInstance from '../../utils/libs/axios.ts';
 import { Employee } from '../../employees.tsx';
 import { AxiosError } from '../../admin/components/Table/types.ts';
-
-
 
 interface LoginPageProps {
   onLoginSuccess: (employee: Employee) => void;
@@ -26,6 +26,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'google_auth_failed') {
+      setError('Googleログインに失敗しました');
+    } else if (errorParam === 'missing_tokens') {
+      setError('認証データが不完全です');
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,82 +105,113 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.REACT_APP_BASE_URL}/auth/google`;
+  };
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Box
+    <GoogleOAuthProvider clientId="342263866744-e8dra0km8p3gnf4176a3ckrlnqs3uhk9.apps.googleusercontent.com">
+      <Container
+        maxWidth="sm"
         sx={{
+          minHeight: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          padding: 4,
-          borderRadius: 4,
-          boxShadow: 3,
-          backgroundColor: '#f0f8ff',
-          width: '100%',
-          maxWidth: 400,
+          justifyContent: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
-        ログイン
-        </Typography>
-        <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1, }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="employee_id"
-            label="社員番号 & メールアドレス"
-            name="employee_id"
-            autoComplete="employee_id"
-            autoFocus
-            value={employee_id}
-            onChange={(e) => setEmployeeId(e.target.value)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="パスワード"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: 4,
+            borderRadius: 4,
+            boxShadow: 3,
+            backgroundColor: '#f0f8ff',
+            width: '100%',
+            maxWidth: 400,
+          }}
+        >
+          <Typography component="h1" variant="h5">
+            ログイン
+          </Typography>
           
+          <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1, width: '100%' }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="employee_id"
+              label="社員番号 & メールアドレス"
+              name="employee_id"
+              autoComplete="employee_id"
+              autoFocus
+              value={employee_id}
+              onChange={(e) => setEmployeeId(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="パスワード"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            
             <Typography variant="body2" color="error">
               {error}
             </Typography>
-          
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={isLoading}
+              sx={{
+                mt: 3,
+                mb: 2,
+                backgroundColor: theme.palette.success.light,
+                '&:hover': {
+                  backgroundColor: theme.palette.success.dark,
+                },
+              }}
+            >
+              {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
+            </Button>
+          </Box>
+
+          <Divider sx={{ width: '100%', my: 2 }}>または</Divider>
+
           <Button
-            type="submit"
             fullWidth
-            variant="contained"
+            variant="outlined"
+            onClick={handleGoogleLogin}
             disabled={isLoading}
-            sx={{
-              mt: 3,
-              mb: 2,
-              backgroundColor: theme.palette.success.light,
+            sx={{ 
+              textTransform: 'none',
+              borderColor: '#4285f4',
+              color: '#4285f4',
               '&:hover': {
-                backgroundColor: theme.palette.success.dark,
-              },
+                borderColor: '#357ae8',
+                backgroundColor: 'rgba(66, 133, 244, 0.04)'
+              }
             }}
           >
-            {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
+            <img 
+              src="https://developers.google.com/identity/images/g-logo.png" 
+              alt="Google" 
+              style={{ width: 20, height: 20, marginRight: 8 }}
+            />
+            Googleでログイン
           </Button>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </GoogleOAuthProvider>
   );
 };
 

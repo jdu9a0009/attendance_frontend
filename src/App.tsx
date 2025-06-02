@@ -13,6 +13,7 @@ import BigTablePage from "./client/pages/BigTable.tsx";
 import "./i18n.ts";
 import ProtectedRoute from "./shared/protection/ProtectedRoute.tsx";
 import { jaJP } from "@mui/material/locale";
+import GoogleCallback from "./client/pages/GoogleCallback.tsx";
 
 const theme = createTheme(
   {
@@ -74,6 +75,10 @@ function App() {
             <Route
               path="/login"
               element={<LoginPage onLoginSuccess={handleLoginSuccess} />}
+            />
+            <Route
+              path="/auth/callback"
+              element={<GoogleCallback onLoginSuccess={handleLoginSuccess} />}
             />
 
             {/* Защищенные маршруты с проверкой авторизации */}
