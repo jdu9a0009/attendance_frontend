@@ -19,52 +19,80 @@ const GoogleCallback: React.FC<GoogleCallbackProps> = ({ onLoginSuccess }) => {
 
     if (error) {
       console.error('Google OAuth error:', error);
-      navigate('/login?error=google_auth_failed');
+      // Передаем ошибку с дополнительным параметром для принудительного выбора аккаунта
+      const errorMessage = encodeURIComponent(error);
+      navigate(`/login?error=${errorMessage}&force_select=true`);
       return;
     }
 
     if (access_token && refresh_token && role) {
-      // Сохраняем токены
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
+      try {
+        // Сохраняем токены
+        localStorage.setItem("access_token", access_token);
+        localStorage.setItem("refresh_token", refresh_token);
 
-      // Создаем объект Employee
-      const tempEmployeeData: Employee = {
-        id: 'google_user', // Можно использовать данные из JWT токена
-        username: 'Google User', // Можно декодировать из JWT
-        password: '',
-        role: role.toUpperCase() as "ADMIN" | "EMPLOYEE" | "QRCODE" | "DASHBOARD", // EMPLOYEE -> EMPLOYEE
-        position: 'Unknown',
-        checkInTime: null,
-        checkOutTime: null,
-        location: 'Unknown',
-        status: 'Absent',
-        attendanceSummary: {
-          earlyLeaves: 0,
-          absences: 0,
-          lateIns: 0,
-          leaves: 0,
-        },
-      };
+        // Можно декодировать JWT токен для получения дополнительной информации
+        const tokenPayload = parseJwtPayload(access_token);
+        
+        // Создаем объект Employee
+        const tempEmployeeData: Employee = {
+          id: tokenPayload?.id || 'google_user',
+          username: tokenPayload?.username || 'Google User',
+          password: '',
+          role: role.toUpperCase() as "ADMIN" | "EMPLOYEE" | "QRCODE" | "DASHBOARD",
+          position: tokenPayload?.position || 'Unknown',
+          checkInTime: null,
+          checkOutTime: null,
+          location: 'Unknown',
+          status: 'Absent',
+          attendanceSummary: {
+            earlyLeaves: 0,
+            absences: 0,
+            lateIns: 0,
+            leaves: 0,
+          },
+        };
 
-      localStorage.setItem("employeeData", JSON.stringify(tempEmployeeData));
-      onLoginSuccess(tempEmployeeData);
+        localStorage.setItem("employeeData", JSON.stringify(tempEmployeeData));
+        onLoginSuccess(tempEmployeeData);
 
-      // Перенаправляем в зависимости от роли
-      if (role.toUpperCase() === 'ADMIN') {
-        navigate("/admin");
-      } else if (role.toUpperCase() === 'QRCODE') {
-        navigate("/qrscanner");
-      } else if (role.toUpperCase() === 'DASHBOARD') {
-        navigate("/bigTable");
-      } else {
-        navigate("/employee");
+        // Перенаправляем в зависимости от роли
+        if (role.toUpperCase() === 'ADMIN') {
+          navigate("/admin");
+        } else if (role.toUpperCase() === 'QRCODE') {
+          navigate("/qrscanner");
+        } else if (role.toUpperCase() === 'DASHBOARD') {
+          navigate("/bigTable");
+        } else {
+          navigate("/employee");
+        }
+      } catch (error) {
+        console.error('Error processing Google login:', error);
+        navigate('/login?error=processing_error&force_select=true');
       }
     } else {
-      // Если нет нужных параметров, перенаправляем на login
-      navigate('/login?error=missing_tokens');
+      // Если нет нужных параметров, перенаправляем на login с принудительным выбором
+      navigate('/login?error=missing_tokens&force_select=true');
     }
   }, [searchParams, navigate, onLoginSuccess]);
+
+  // Функция для парсинга JWT токена (базовая реализация)
+  const parseJwtPayload = (token: string) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error('Error parsing JWT:', error);
+      return null;
+    }
+  };
 
   return (
     <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>

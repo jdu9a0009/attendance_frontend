@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -9,41 +9,44 @@ import {
   useTheme,
   CircularProgress,
   Divider,
-} from '@mui/material';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import axiosInstance from '../../utils/libs/axios.ts';
-import { Employee } from '../../employees.tsx';
-import { AxiosError } from '../../admin/components/Table/types.ts';
+} from "@mui/material";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import axiosInstance from "../../utils/libs/axios.ts";
+import { Employee } from "../../employees.tsx";
+import { AxiosError } from "../../admin/components/Table/types.ts";
 
 interface LoginPageProps {
   onLoginSuccess: (employee: Employee) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
-  const [employee_id, setEmployeeId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [employee_id, setEmployeeId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam === 'google_auth_failed') {
-      setError('Googleログインに失敗しました');
-    } else if (errorParam === 'missing_tokens') {
-      setError('認証データが不完全です');
+    const errorParam = searchParams.get("error");
+
+    if (errorParam === "google_auth_failed") {
+      setError("Googleログインに失敗しました");
+    } else if (errorParam === "missing_tokens") {
+      setError("認証データが不完全です");
+    } else if (errorParam) {
+      setError(decodeURIComponent(errorParam));
     }
   }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     if (!employee_id || !password) {
-      setError('すべての欄にご記入ください。');
+      setError("すべての欄にご記入ください。");
       setIsLoading(false);
       return;
     }
@@ -54,24 +57,27 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         password: password,
       });
 
-
-      if (response.data && response.data.data && response.data.data.access_token) {
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.access_token
+      ) {
         const accessToken = response.data.data.access_token;
         const refreshToken = response.data.data.refresh_token;
-        
+
         localStorage.setItem("access_token", accessToken);
         localStorage.setItem("refresh_token", refreshToken);
 
         const tempEmployeeData: Employee = {
           id: employee_id,
-          username: response.data.employee_id || 'Unknown',
-          password: '',
-          role: response.data.data.role || 'employee',
-          position: response.data.position || 'Unknown',
+          username: response.data.employee_id || "Unknown",
+          password: "",
+          role: response.data.data.role || "employee",
+          position: response.data.position || "Unknown",
           checkInTime: null,
           checkOutTime: null,
-          location: 'Unknown',
-          status: 'Absent',
+          location: "Unknown",
+          status: "Absent",
           attendanceSummary: {
             earlyLeaves: 0,
             absences: 0,
@@ -82,17 +88,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
         localStorage.setItem("employeeData", JSON.stringify(tempEmployeeData));
         onLoginSuccess(tempEmployeeData);
-        
-        if (tempEmployeeData.role === 'ADMIN') {
+
+        if (tempEmployeeData.role === "ADMIN") {
           navigate("/admin");
-        } else if (tempEmployeeData.role === 'QRCODE') {
+        } else if (tempEmployeeData.role === "QRCODE") {
           navigate("/qrscanner");
-        } else if (tempEmployeeData.role === 'DASHBOARD') {
+        } else if (tempEmployeeData.role === "DASHBOARD") {
           navigate("/bigTable");
         } else {
           navigate("/employee");
         }
-      } 
+      }
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
@@ -106,7 +112,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.REACT_APP_BASE_URL}/auth/google`;
+    const forceSelect = searchParams.get("force_select");
+    const baseUrl = process.env.REACT_APP_BASE_URL;
+
+    // Если нужно принудительно выбрать аккаунт, используем другой эндпоинт
+    if (forceSelect === "true") {
+      window.location.href = `${baseUrl}/auth/google/force-select`;
+    } else {
+      window.location.href = `${baseUrl}/auth/google`;
+    }
   };
 
   return (
@@ -114,30 +128,35 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       <Container
         maxWidth="sm"
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             padding: 4,
             borderRadius: 4,
             boxShadow: 3,
-            backgroundColor: '#f0f8ff',
-            width: '100%',
+            backgroundColor: "#f0f8ff",
+            width: "100%",
             maxWidth: 400,
           }}
         >
           <Typography component="h1" variant="h5">
             ログイン
           </Typography>
-          
-          <Box component="form" onSubmit={handleLogin} noValidate sx={{ mt: 1, width: '100%' }}>
+
+          <Box
+            component="form"
+            onSubmit={handleLogin}
+            noValidate
+            sx={{ mt: 1, width: "100%" }}
+          >
             <TextField
               margin="normal"
               required
@@ -162,11 +181,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            
-            <Typography variant="body2" color="error">
-              {error}
-            </Typography>
-            
+
             <Button
               type="submit"
               fullWidth
@@ -176,39 +191,44 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 mt: 3,
                 mb: 2,
                 backgroundColor: theme.palette.success.light,
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: theme.palette.success.dark,
                 },
               }}
             >
-              {isLoading ? <CircularProgress size={24} /> : 'ログイン'}
+              {isLoading ? <CircularProgress size={24} /> : "ログイン"}
             </Button>
           </Box>
 
-          <Divider sx={{ width: '100%', my: 2 }}>または</Divider>
+          <Divider sx={{ width: "100%", my: 2 }}>または</Divider>
 
           <Button
             fullWidth
             variant="outlined"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            sx={{ 
-              textTransform: 'none',
-              borderColor: '#4285f4',
-              color: '#4285f4',
-              '&:hover': {
-                borderColor: '#357ae8',
-                backgroundColor: 'rgba(66, 133, 244, 0.04)'
-              }
+            sx={{
+              textTransform: "none",
+              borderColor: "#4285f4",
+              color: "#4285f4",
+              "&:hover": {
+                borderColor: "#357ae8",
+                backgroundColor: "rgba(66, 133, 244, 0.04)",
+              },
             }}
           >
-            <img 
-              src="https://developers.google.com/identity/images/g-logo.png" 
-              alt="Google" 
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
               style={{ width: 20, height: 20, marginRight: 8 }}
             />
             Googleでログイン
           </Button>
+          {error && (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
         </Box>
       </Container>
     </GoogleOAuthProvider>
