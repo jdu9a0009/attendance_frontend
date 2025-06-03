@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18.18.2-alpine as build
+FROM node:18.18.2-alpine AS build
 
 RUN mkdir /app
 
@@ -18,7 +18,7 @@ RUN ls -al /app/src
 RUN npm run build
 
 # Production stage
-FROM nginx:1.21.6-alpine as production-stage
+FROM nginx:1.21.6-alpine AS production-stage
 
 COPY --from=build /app/build /usr/share/nginx/html
 
