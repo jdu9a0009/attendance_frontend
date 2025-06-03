@@ -34,61 +34,135 @@ function DepartmentTable({ departments, onEdit, onDelete }: DepartmentTableProps
 
   return (
     <>
-      <Box
-        sx={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setError(null)}
+          severity="error"
+          sx={{
+            width: '100%',
+            minWidth: '300px',
+            borderRadius: 2,
+          }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Paper 
+        sx={{ 
+          borderRadius: 3, 
+          overflow: "hidden",
+          boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+          mb: 3
         }}
       >
-        <Snackbar
-          open={!!error}
-          autoHideDuration={6000}
-          onClose={() => setError(null)}
-          sx={{ position: 'static', transform: 'none' }}
-        >
-          <Alert
-            onClose={() => setError(null)}
-            severity="error"
-            sx={{
-              width: '100%',
-              minWidth: '300px',
-              boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.2)',
-              padding: '16px',
-              fontSize: '1.2rem',
-            }}
-          >
-            {error}
-          </Alert>
-        </Snackbar>
-      </Box>
-
-      <Paper sx={{ borderRadius: 4, boxShadow: 2, mb: 5 }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t('departmentTable.departmentName')}</TableCell>
-              <TableCell>{t('departmentTable.departmentNickname')}</TableCell> 
-              <TableCell>{t('departmentTable.displayNumber')}</TableCell>
-              <TableCell>{t('departmentTable.action')}</TableCell>
+              <TableCell 
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  borderBottom: '2px solid #e0e0e0',
+                  padding: '16px',
+                  fontWeight: 600,
+                  color: '#333',
+                }}
+              >
+                {t('departmentTable.departmentName')}
+              </TableCell>
+              <TableCell 
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  borderBottom: '2px solid #e0e0e0',
+                  padding: '16px',
+                  fontWeight: 600,
+                  color: '#333',
+                }}
+              >
+                {t('departmentTable.departmentNickname')}
+              </TableCell> 
+              <TableCell 
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  borderBottom: '2px solid #e0e0e0',
+                  padding: '16px',
+                  fontWeight: 600,
+                  color: '#333',
+                }}
+              >
+                {t('departmentTable.displayNumber')}
+              </TableCell>
+              <TableCell 
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  borderBottom: '2px solid #e0e0e0',
+                  padding: '16px',
+                  fontWeight: 600,
+                  color: '#333',
+                }}
+              >
+                {t('departmentTable.action')}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {departments
               .sort((a, b) => a.display_number - b.display_number) 
-              .map((department) => (
-                <TableRow key={department.id}>
-                  <TableCell>{department.name}</TableCell>
-                  <TableCell>{department.department_nickname}</TableCell> 
-                  <TableCell>{department.display_number}</TableCell>
-                  <TableCell>
+              .map((department, index) => (
+                <TableRow 
+                  key={department.id}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#f8f9fa',
+                    },
+                    backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa',
+                  }}
+                >
+                  <TableCell sx={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                    {department.name}
+                  </TableCell>
+                  <TableCell sx={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                    {department.department_nickname}
+                  </TableCell> 
+                  <TableCell sx={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                    {department.display_number}
+                  </TableCell>
+                  <TableCell sx={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button onClick={() => onEdit(department)} variant="outlined" size="small">
+                      <Button 
+                        onClick={() => onEdit(department)} 
+                        variant="outlined" 
+                        size="small"
+                        sx={{
+                          borderColor: '#105E82',
+                          color: '#105E82',
+                          '&:hover': {
+                            borderColor: '#0D4D6B',
+                            backgroundColor: 'rgba(16, 94, 130, 0.04)',
+                          },
+                        }}
+                      >
                         {t('departmentTable.editBtn')}
                       </Button>
-                      <Button onClick={() => handleDelete(department.id)} variant="outlined" size="small" color="error">
+                      <Button 
+                        onClick={() => handleDelete(department.id)} 
+                        variant="outlined" 
+                        size="small" 
+                        color="error"
+                        sx={{
+                          borderColor: '#d32f2f',
+                          color: '#d32f2f',
+                          '&:hover': {
+                            borderColor: '#b71c1c',
+                            backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                          },
+                        }}
+                      >
                         {t('departmentTable.deleteBtn')}
                       </Button>
                     </Box>

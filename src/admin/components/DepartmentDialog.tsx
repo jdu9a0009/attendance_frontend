@@ -12,6 +12,7 @@ import {
   Typography,
   Modal,
   Box,
+  Divider,
 } from "@mui/material";
 import { Department } from "../pages/DepartmentPositionManagement.tsx";
 import { createDepartment, updateDepartment } from "../../utils/libs/axios.ts";
@@ -148,92 +149,179 @@ function DepartmentDialog({
           }
         }
       }
-
-      
     }
   };
 
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={modalStyle}>
-      <DialogTitle>
-        {department
-          ? t("departmentTable.dialogTitleEdit")
-          : t("departmentTable.dialogTitleAdd")}
-      </DialogTitle>
+        <DialogTitle 
+          sx={{ 
+            pb: 1,
+            fontSize: '1.5rem',
+            fontWeight: 600,
+            color: '#105E82',
+            textAlign: 'center'
+          }}
+        >
+          {department
+            ? t("departmentTable.dialogTitleEdit")
+            : t("departmentTable.dialogTitleAdd")}
+        </DialogTitle>
 
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="name"
-          label={t("departmentTable.label")}
-          type="text"
-          fullWidth
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <Divider sx={{ mx: -3, mb: 2 }} />
 
-        <TextField
-          margin="dense"
-          id="department-nickname"
-          label={t("departmentTable.departmentNickname")}
-          type="text"
-          fullWidth
-          value={departmentNickname}
-          onChange={(e) => setDepartmentNickname(e.target.value)}
-        />
+        <DialogContent sx={{ px: 0, py: 0 }}>
+          <TextField
+            autoFocus
+            margin="normal"
+            id="name"
+            label={t("departmentTable.label")}
+            type="text"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+                "&.Mui-focused fieldset": {
+                  borderColor: "#105E82",
+                },
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#105E82",
+              },
+            }}
+          />
 
-        <FormControl fullWidth margin="dense">
-          <InputLabel id="display-number-label">表示順</InputLabel>
-          <Select
-            labelId="display-number-label"
-            value={displayNumber}
-            label="表示順"
-            onChange={(e) => {
-              setDisplayNumber(Number(e.target.value));
-              onDisplayNumberChange(Number(e.target.value));
+          <TextField
+            margin="normal"
+            id="department-nickname"
+            label={t("departmentTable.departmentNickname")}
+            type="text"
+            fullWidth
+            value={departmentNickname}
+            onChange={(e) => setDepartmentNickname(e.target.value)}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+                "&.Mui-focused fieldset": {
+                  borderColor: "#105E82",
+                },
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#105E82",
+              },
+            }}
+          />
+
+          <FormControl 
+            fullWidth 
+            sx={{ 
+              mt: 2,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+                "&.Mui-focused fieldset": {
+                  borderColor: "#105E82",
+                },
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#105E82",
+              },
             }}
           >
-            {departments.map((dep) => (
-              <MenuItem
-                key={dep.id}
-                value={dep.display_number}
-                sx={{ opacity: dep.id !== department?.id ? 0.5 : 1 }}
-              >
-                {`${dep.display_number} (${dep.name})`}
-              </MenuItem>
-            ))}
-            {!department && (
-              <MenuItem value={nextDisplayNumber}>
-                {`${nextDisplayNumber} (新規)`}
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        <Typography variant="body2" color="error">
-        {error}
-      </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
-      </DialogActions>
+            <InputLabel id="display-number-label">表示順</InputLabel>
+            <Select
+              labelId="display-number-label"
+              value={displayNumber}
+              label="表示順"
+              onChange={(e) => {
+                setDisplayNumber(Number(e.target.value));
+                onDisplayNumberChange(Number(e.target.value));
+              }}
+            >
+              {departments.map((dep) => (
+                <MenuItem
+                  key={dep.id}
+                  value={dep.display_number}
+                  sx={{ opacity: dep.id !== department?.id ? 0.5 : 1 }}
+                >
+                  {`${dep.display_number} (${dep.name})`}
+                </MenuItem>
+              ))}
+              {!department && (
+                <MenuItem value={nextDisplayNumber}>
+                  {`${nextDisplayNumber} (新規)`}
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
+
+          {error && (
+            <Box
+              sx={{
+                mt: 2,
+                p: 2,
+                backgroundColor: "#FEF2F2",
+                border: "1px solid #FECACA",
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="body2" color="error">
+                {error}
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+
+        <Divider sx={{ mx: -3, my: 2 }} />
+
+        <DialogActions sx={{ px: 0, pt: 0, gap: 1, justifyContent: 'flex-end' }}>
+          <Button 
+            onClick={onClose}
+            variant="outlined"
+            sx={{
+              borderColor: '#e0e0e0',
+              color: '#666',
+              '&:hover': {
+                borderColor: '#ccc',
+                backgroundColor: '#f5f5f5',
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave}
+            variant="contained"
+            sx={{
+              backgroundColor: '#105E82',
+              '&:hover': {
+                backgroundColor: '#0D4D6B',
+              },
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
       </Box>
     </Modal>
   );
-};
+}
 
 const modalStyle = {
   position: "absolute" as "absolute",
-  borderRadius: "12px",
+  borderRadius: 3,
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 440,
   bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 1,
+  boxShadow: "0 20px 60px rgba(16, 94, 130, 0.15)",
+  p: 3,
+  outline: 'none',
 };
 
 export default DepartmentDialog;
